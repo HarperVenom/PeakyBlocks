@@ -1,0 +1,9 @@
+name: PeakyBlocks
+version: '1.0'
+main: me.harpervenom.peakyBlocks.PeakyBlocks
+api-version: '1.21'
+author: Venom_Harper
+commands:
+  lobby:
+    description: "Перемещает в лобби."
+    usage: lobby
