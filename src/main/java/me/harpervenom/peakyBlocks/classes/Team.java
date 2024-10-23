@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static me.harpervenom.peakyBlocks.lobby.MenuListener.activeGames;
+import static me.harpervenom.peakyBlocks.lobby.MenuListener.activeQueues;
 
 public class Team {
 
@@ -30,24 +30,24 @@ public class Team {
         return color;
     }
 
-    public int getMaxMembers() {
+    public int getMaxPlayers() {
         return maxMembers;
     }
-    public List<UUID> getMembers() {
+    public List<UUID> getPlayers() {
         return members;
     }
 
-    public void addMember(Player p) {
+    public void addPlayer(Player p) {
         members.add(p.getUniqueId());
     }
 
-    public void removeMember(Player p) {
+    public void removePlayer(Player p) {
         members.remove(p.getUniqueId());
 
-        Game game = activeGames.stream().filter(currentGame -> currentGame.getId() == gameId).findFirst().orElse(null);
-        if (game == null) return;
-        if (game.getNumberOfPlayers() == 0) {
-            activeGames.remove(game);
+        Queue queue = activeQueues.stream().filter(currentQueue -> currentQueue.getId() == gameId).findFirst().orElse(null);
+        if (queue == null) return;
+        if (queue.getNumberOfPlayers() == 0) {
+            activeQueues.remove(queue);
         }
     }
 

@@ -1,6 +1,6 @@
 package me.harpervenom.peakyBlocks.lobby;
 
-import me.harpervenom.peakyBlocks.classes.Game;
+import me.harpervenom.peakyBlocks.classes.Queue;
 import me.harpervenom.peakyBlocks.classes.Team;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import org.bukkit.*;
@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.classes.Game.lastGameId;
+import static me.harpervenom.peakyBlocks.classes.Queue.lastQueueId;
 import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class MenuListener implements Listener {
@@ -39,9 +39,9 @@ public class MenuListener implements Listener {
     private final HashMap<Integer, Team> teamButtons = new HashMap<>(); // slot / team
     public static HashMap<UUID, Team> playerTeam = new HashMap<>();
 
-    public HashMap<UUID, Game> playerCreatingGame = new HashMap<>();
-    public HashMap<UUID, Game> playerSelectingGame = new HashMap<>();
-    public static List<Game> activeGames = new ArrayList<>();
+    public HashMap<UUID, Queue> playerCreatingQueue = new HashMap<>();
+    public HashMap<UUID, Queue> playerSelectingQueue = new HashMap<>();
+    public static List<Queue> activeQueues = new ArrayList<>();
 
     public HashMap<UUID, Boolean> switchingMenus = new HashMap<>();
 
@@ -72,7 +72,7 @@ public class MenuListener implements Listener {
         queuesMenu = Bukkit.createInventory(new CustomMenuHolder("selectQueue"), 27, "Выберите игру:");
         updateGameMenu();
 
-        maxPlayersMenu = Bukkit.createInventory(new CustomMenuHolder("selectMaxPlayer"), 27, "Выберите размер:");
+        maxPlayersMenu = Bukkit.createInventory(new CustomMenuHolder("selectMaxPlayer"), 27, "Выберите размер команды:");
     }
 
     @EventHandler
@@ -121,9 +121,11 @@ public class MenuListener implements Listener {
         if (holder == null || !holder.getType().equals("selectQueue")) return;
 
         if (isMatchingItem(e.getCurrentItem(), createButtonName)) {
-            Game newGame = new Game(2);
-            playerCreatingGame.put(p.getUniqueId(), newGame);
+            Queue newQueue = new Queue(2);
+            playerCreatingQueue.put(p.getUniqueId(), newQueue);
 
+
+            //Open selectMaxPlayer menu
             List<ItemStack> options = getMaxPlayersOptions(2);
             for (int i = 0; i < options.size(); i++) {
                 maxPlayersMenu.setItem(i, options.get(i));
@@ -140,7 +142,7 @@ public class MenuListener implements Listener {
         CustomMenuHolder holder = getCustomMenuHolder(e);
         if (holder == null || !holder.getType().equals("selectMaxPlayer")) return;
 
-        if (!playerCreatingGame.containsKey(p.getUniqueId())) return;
+        if (!playerCreatingQueue.containsKey(p.getUniqueId())) return;
 
         int slot = e.getRawSlot() + 1;
         int maxPlayers = 0;
@@ -151,13 +153,13 @@ public class MenuListener implements Listener {
             case 4 -> {maxPlayers = 4;}
             case 5 -> {maxPlayers = 5;}
         }
-        Game game = playerCreatingGame.get(p.getUniqueId());
-        game.setMaxPlayers(maxPlayers);
+        Queue queue = playerCreatingQueue.get(p.getUniqueId());
+        queue.setMaxPlayers(maxPlayers);
 
-        //Create a new game teams menu
+        //Create and open new game teams menu
         Inventory teamsMenu = Bukkit.createInventory(new CustomMenuHolder("selectTeam"), 27, "Выберите команду:");
-        teamMenus.put(game.getId(), teamsMenu);
-        updateTeamMenu(game);
+        teamMenus.put(queue.getId(), teamsMenu);
+        updateTeamMenu(queue);
 
         switchingMenus.put(p.getUniqueId(), true);
         p.openInventory(teamsMenu);
@@ -171,18 +173,17 @@ public class MenuListener implements Listener {
         CustomMenuHolder holder = getCustomMenuHolder(e);
         if (holder == null || !holder.getType().equals("selectTeam")) return;
 
-        Game game = null;
-        if (playerCreatingGame.containsKey(id)) {
-            game = playerCreatingGame.get(id);
+        Queue queue = null;
+        if (playerCreatingQueue.containsKey(id)) {
+            queue = playerCreatingQueue.get(id);
         }
-        if (playerSelectingGame.containsKey(id)) {
-            game = playerSelectingGame.get(id);
+        if (playerSelectingQueue.containsKey(id)) {
+            queue = playerSelectingQueue.get(id);
         }
 
-        if (game == null) return;
-        p.sendMessage(game.getId() + "");
+        if (queue == null) return;
 
-        List<Team> teams = game.getTeams();
+        List<Team> teams = queue.getTeams();
         List<Integer> teamButtons = getTeamButtonsSlots(teams.size());
 
         int slot = e.getRawSlot();
@@ -190,36 +191,48 @@ public class MenuListener implements Listener {
 
         Team team = teams.get(teamButtons.indexOf(slot));
 
+        boolean playerAdded = false;
+
         if (playerTeam.containsKey(id)) {
             Team oldTeam = playerTeam.get(id);
-            if (oldTeam.equals(team)) {
-                p.sendMessage(ChatColor.YELLOW + "Вы уже находитесь в этой команде.");
-                return;
-            }
+            Queue oldQueue = team.getGameId() == oldTeam.getGameId() ? queue
+                    : activeQueues.stream().filter(currentQueue -> currentQueue.getId() == oldTeam.getGameId()).findFirst().orElse(null);
+            if (oldQueue != null){
+                if (oldTeam.equals(team)) {
+                    p.sendMessage(ChatColor.YELLOW + "Вы уже находитесь в этой команде.");
+                    return;
+                }
 
-            if (team.getGameId() == oldTeam.getGameId()) {
-                p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
-            } else {
-                p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули предыдущую игру.");
+                if (team.getGameId() == oldTeam.getGameId()) {
+                    p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
+                } else {
+                    p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули предыдущую игру.");
+                }
+                playerAdded = queue.addPlayerToTeam(p, team);
+                oldQueue.removePlayerFromTeam(p, oldTeam);
+                playerTeam.remove(id);
             }
-            team.addMember(p);
-            oldTeam.removeMember(p);
-            playerTeam.remove(id);
         } else {
-            team.addMember(p);
+            playerAdded = queue.addPlayerToTeam(p, team);
         }
+
+        if (!playerAdded) {
+            p.sendMessage(ChatColor.RED + "В команде нет свободных мест.");
+            return;
+        }
+
         playerTeam.put(id, team);
         p.sendMessage(ChatColor.GRAY + "Вы присоединились к команде: " + team.getColor() + team.getTeamName());
 
-        if (!activeGames.contains(game)) activeGames.add(game);
+        if (!activeQueues.contains(queue)) activeQueues.add(queue);
 
-        if (playerCreatingGame.containsKey(id)) {
-            playerCreatingGame.remove(id);
-            playerSelectingGame.put(id, game);
+        if (playerCreatingQueue.containsKey(id)) {
+            playerCreatingQueue.remove(id);
+            playerSelectingQueue.put(id, queue);
         }
 
         updateGameMenu();
-        updateTeamMenu(game);
+        updateTeamMenu(queue);
     }
 
     @EventHandler
@@ -230,12 +243,12 @@ public class MenuListener implements Listener {
         if (holder == null || !holder.getType().equals("selectQueue")) return;
 
         int slot = e.getRawSlot();
-        if (slot + 1 > activeGames.size()) return;
-        Game game = activeGames.get(slot);
-        playerSelectingGame.put(p.getUniqueId(), game);
+        if (slot + 1 > activeQueues.size()) return;
+        Queue queue = activeQueues.get(slot);
+        playerSelectingQueue.put(p.getUniqueId(), queue);
 
         switchingMenus.put(p.getUniqueId(), true);
-        p.openInventory(teamMenus.get(game.getId()));
+        p.openInventory(teamMenus.get(queue.getId()));
     }
 
     @EventHandler
@@ -247,12 +260,12 @@ public class MenuListener implements Listener {
             return;
         }
 
-        if (playerCreatingGame.containsKey(p.getUniqueId())) {
-            lastGameId--;
+        if (playerCreatingQueue.containsKey(p.getUniqueId())) {
+            lastQueueId--;
         }
 
-        playerSelectingGame.remove(p.getUniqueId());
-        playerSelectingGame.remove(p.getUniqueId());
+        playerSelectingQueue.remove(p.getUniqueId());
+        playerSelectingQueue.remove(p.getUniqueId());
     }
 
     private Player getPlayer(InventoryClickEvent e) {
@@ -277,9 +290,9 @@ public class MenuListener implements Listener {
     }
 
 
-    public Game getGameById(int id) {
-        for (Game game : activeGames) {
-            if (game.getId() == id) return game;
+    public Queue getGameById(int id) {
+        for (Queue queue : activeQueues) {
+            if (queue.getId() == id) return queue;
         }
         return null;
     }
@@ -287,48 +300,50 @@ public class MenuListener implements Listener {
     public void updateGameMenu() {
         queuesMenu.clear();
 
-        if (activeGames.isEmpty()) {
+        if (activeQueues.isEmpty()) {
             queuesMenu.setItem(0, createButton);
             return;
         }
 
-        for (int i = 0; i < activeGames.size() + 1; i++) {
-            if (i == activeGames.size()) {
+        for (int i = 0; i < activeQueues.size() + 1; i++) {
+            if (i == activeQueues.size()) {
                 queuesMenu.setItem(i, createButton);
                 return;
             }
 
-            Game game = activeGames.get(i);
-            if (game == null) continue;
-            ItemStack gameItem = createGameItem(game);
+            Queue queue = activeQueues.get(i);
+            if (queue == null) continue;
+            ItemStack gameItem = createGameItem(queue);
 
             queuesMenu.setItem(i, gameItem);
 
-            updateTeamMenu(game);
+//            updateTeamMenu(queue);
         }
     }
 
-    private ItemStack createGameItem(Game game) {
+    private ItemStack createGameItem(Queue queue) {
         ItemStack gameItem = new ItemStack(Material.CAMPFIRE);
         ItemMeta meta = gameItem.getItemMeta();
         if (meta == null) return null;
 
+        int teamSize = queue.getTeamSize();
+        String playerSizeString = teamSize + "x" + teamSize;
+        int totalMaxPlayers = queue.getNumberOfTeams() * teamSize;
 
+        meta.setDisplayName(ChatColor.GOLD + "Игра " + queue.getId() + " (" + playerSizeString + ")");
 
-        meta.setDisplayName(ChatColor.GOLD + "Игра " + game.getId());
-
-        List<String> lore = List.of(ChatColor.GRAY + "Игроков: " + game.getNumberOfPlayers());
+        List<String> lore = List.of(ChatColor.GRAY + "Игроков: " + queue.getNumberOfPlayers() + "/" + queue.getTotalMaxPlayers());
         meta.setLore(lore);
 
         gameItem.setItemMeta(meta);
         return gameItem;
     }
 
-    public void updateTeamMenu(Game game) {
-        Inventory menu = teamMenus.get(game.getId());
+    public void updateTeamMenu(Queue queue) {
+        Inventory menu = teamMenus.get(queue.getId());
         menu.clear();
 
-        List<Team> teams = game.getTeams();
+        List<Team> teams = queue.getTeams();
 
         updateTeamItem(menu, teams.get(0), "Красные", Material.RED_CONCRETE, 11, ChatColor.RED);
         updateTeamItem(menu, teams.get(1), "Синие", Material.BLUE_CONCRETE, 15, ChatColor.BLUE);
@@ -341,8 +356,8 @@ public class MenuListener implements Listener {
 
         meta.setDisplayName(color + teamName);
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "" + team.getMembers().size() + "/" + team.getMaxMembers());
-        for (UUID id : team.getMembers()) {
+        lore.add(ChatColor.GRAY + "" + team.getPlayers().size() + "/" + team.getMaxPlayers());
+        for (UUID id : team.getPlayers()) {
             lore.add(ChatColor.GRAY + Bukkit.getPlayer(id).getDisplayName());
         }
         meta.setLore(lore);
