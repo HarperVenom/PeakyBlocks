@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.utils;
 
 import me.harpervenom.peakyBlocks.PeakyBlocks;
+import me.harpervenom.peakyBlocks.classes.game.Game;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +16,7 @@ import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class MapManager {
 
-    public static void createWorld(String worldName, Player p) {
+    public static void createWorld(String worldName, Game game) {
         File backup = new File(getPlugin().getDataFolder(), "backup_maps" + File.separator + "game_map");  // Backup world directory
         File newWorldFolder = new File(Bukkit.getWorldContainer(), worldName);  // Target world folder in server root
 
@@ -23,21 +24,26 @@ public class MapManager {
             System.out.println("Backup world not found!");
         }
 
+        try {
+            if (newWorldFolder.exists()) {
+                Bukkit.unloadWorld(worldName, false);
+                deleteWorld(newWorldFolder);
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to copy world data: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
             try {
-                if (newWorldFolder.exists()) {
-                    Bukkit.unloadWorld(worldName, false);
-                    deleteWorld(newWorldFolder);
-                }
-
                 // Copy from the backup to the world folder
                 copyWorld(backup, newWorldFolder);
                 System.out.println("[PeakyBlocks] World data copied from backup!");
 
                 // After copying, switch back to the main thread to load the world
                 Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                    Bukkit.createWorld(new WorldCreator(worldName));
-                    p.teleport(new Location(Bukkit.getWorld("game"), 0, 0, 0));
+                    World newWorld = Bukkit.createWorld(new WorldCreator(worldName));
+                    game.setWorld(newWorld);
                 });
 
             } catch (IOException e) {
@@ -47,13 +53,13 @@ public class MapManager {
         });
     }
 
-    public static void removeWorld(String worldName) {
-        // Get the world by name
-        World world = Bukkit.getWorld(worldName);
-
+    public static void removeWorld(World world) {
         if (world == null) {
-            System.out.println("World " + worldName + " not found!");
+            System.out.println("World not found!");
+            return;
         }
+
+        String worldName = world.getName();
 
         // 1. Unload the world
         boolean success = Bukkit.unloadWorld(world, false);  // 'false' means we don't save chunks before unloading

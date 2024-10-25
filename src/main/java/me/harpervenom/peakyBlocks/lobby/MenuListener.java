@@ -1,7 +1,8 @@
 package me.harpervenom.peakyBlocks.lobby;
 
-import me.harpervenom.peakyBlocks.classes.Queue;
-import me.harpervenom.peakyBlocks.classes.Team;
+import me.harpervenom.peakyBlocks.classes.queue.Queue;
+import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
+import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -17,8 +18,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.classes.Queue.lastQueueId;
+import static me.harpervenom.peakyBlocks.classes.queue.Queue.activeQueues;
+import static me.harpervenom.peakyBlocks.classes.queue.Queue.lastQueueId;
+import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.getQueuePlayer;
+import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.queuePlayers;
+import static me.harpervenom.peakyBlocks.utils.Utils.changeItemTitle;
 import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class MenuListener implements Listener {
@@ -26,53 +30,41 @@ public class MenuListener implements Listener {
     private final String menuItemName = ChatColor.GOLD + "Меню";
     private final String gameButtonName = ChatColor.LIGHT_PURPLE + "LastWars";
     private final String createButtonName = ChatColor.YELLOW + "Создать";
+    private final static String deleteQueueButtonName = ChatColor.RED + "Удалить очередь";
+    private final static String leaveQueueButtonName = ChatColor.RED + "Покинуть очередь";
 
-    private ItemStack createButton;
+    private static ItemStack createButton;
 
     private final ItemStack navigator;
+    private final static ItemStack leaveQueueButton;
+
     private Inventory menu;
-    private Inventory queuesMenu; // first and only game. When new games appear, this will turn into a hashmap game name / this game's queues menu
+    private static Inventory queuesMenu; // first and only game. When new games appear, this will turn into a hashmap game name / this game's queues menu
     private final HashMap<Integer, Inventory> teamMenus = new HashMap<>(); //game id and its inventory
     private Inventory maxPlayersMenu;
 
-//    private final HashMap<ItemStack, Integer> queueButtons = new HashMap<>();
-    private final HashMap<Integer, Team> teamButtons = new HashMap<>(); // slot / team
-    public static HashMap<UUID, Team> playerTeam = new HashMap<>();
-
     public HashMap<UUID, Queue> playerCreatingQueue = new HashMap<>();
     public HashMap<UUID, Queue> playerSelectingQueue = new HashMap<>();
-    public static List<Queue> activeQueues = new ArrayList<>();
 
     public HashMap<UUID, Boolean> switchingMenus = new HashMap<>();
 
+    static {
+        leaveQueueButton = createItem(Material.RED_TERRACOTTA, leaveQueueButtonName, null);
+    }
+
     public MenuListener() {
-        navigator = new ItemStack(Material.COMPASS);
-        ItemMeta meta = navigator.getItemMeta();
-        if (meta == null) return;
-        meta.setDisplayName(menuItemName);
-        navigator.setItemMeta(meta);
+        navigator = createItem(Material.COMPASS, menuItemName, null);
+        ItemStack gameButton = createItem(Material.NETHERITE_HELMET, gameButtonName, null);
+        createButton = createItem(Material.WRITABLE_BOOK, createButtonName, null);
+
 
         menu = Bukkit.createInventory(new CustomMenuHolder("menu"), 27, "Меню");
-
-        ItemStack gameButton = new ItemStack(Material.NETHERITE_HELMET);
-        meta = gameButton.getItemMeta();
-        if (meta == null) return;
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.setDisplayName(gameButtonName);
-        gameButton.setItemMeta(meta);
+        queuesMenu = Bukkit.createInventory(new CustomMenuHolder("selectQueue"), 27, "Выберите игру:");
+        maxPlayersMenu = Bukkit.createInventory(new CustomMenuHolder("selectMaxPlayer"), 27, "Выберите размер команды:");
 
         menu.setItem(13, gameButton);
 
-        createButton = new ItemStack(Material.WRITABLE_BOOK);
-        meta = createButton.getItemMeta();
-        if (meta == null) return;
-        meta.setDisplayName(createButtonName);
-        createButton.setItemMeta(meta);
-
-        queuesMenu = Bukkit.createInventory(new CustomMenuHolder("selectQueue"), 27, "Выберите игру:");
-        updateGameMenu();
-
-        maxPlayersMenu = Bukkit.createInventory(new CustomMenuHolder("selectMaxPlayer"), 27, "Выберите размер команды:");
+        updateQueueMenu();
     }
 
     @EventHandler
@@ -81,6 +73,8 @@ public class MenuListener implements Listener {
         Inventory inv = p.getInventory();
         inv.clear();
         inv.setItem(0, navigator);
+
+        queuePlayers.add(new QueuePlayer(p.getUniqueId()));
     }
 
     @EventHandler
@@ -121,9 +115,8 @@ public class MenuListener implements Listener {
         if (holder == null || !holder.getType().equals("selectQueue")) return;
 
         if (isMatchingItem(e.getCurrentItem(), createButtonName)) {
-            Queue newQueue = new Queue(2);
+            Queue newQueue = new Queue(p.getUniqueId(), 2);
             playerCreatingQueue.put(p.getUniqueId(), newQueue);
-
 
             //Open selectMaxPlayer menu
             List<ItemStack> options = getMaxPlayersOptions(2);
@@ -169,69 +162,38 @@ public class MenuListener implements Listener {
     public void SelectTeam(InventoryClickEvent e) {
         Player p = getPlayer(e);
         if (p == null) return;
-        UUID id = p.getUniqueId();
+        QueuePlayer qp = getQueuePlayer(p);
+        if (qp == null) return;
+        UUID playerId = p.getUniqueId();
         CustomMenuHolder holder = getCustomMenuHolder(e);
         if (holder == null || !holder.getType().equals("selectTeam")) return;
 
         Queue queue = null;
-        if (playerCreatingQueue.containsKey(id)) {
-            queue = playerCreatingQueue.get(id);
+        if (playerCreatingQueue.containsKey(playerId)) {
+            queue = playerCreatingQueue.get(playerId);
         }
-        if (playerSelectingQueue.containsKey(id)) {
-            queue = playerSelectingQueue.get(id);
+        if (playerSelectingQueue.containsKey(playerId)) {
+            queue = playerSelectingQueue.get(playerId);
         }
-
+//        p.sendMessage("0");
         if (queue == null) return;
 
-        List<Team> teams = queue.getTeams();
+        List<QueueTeam> teams = queue.getTeams();
         List<Integer> teamButtons = getTeamButtonsSlots(teams.size());
 
         int slot = e.getRawSlot();
         if (!teamButtons.contains(slot)) return;
 
-        Team team = teams.get(teamButtons.indexOf(slot));
+        QueueTeam team = teams.get(teamButtons.indexOf(slot));
 
-        boolean playerAdded = false;
-
-        if (playerTeam.containsKey(id)) {
-            Team oldTeam = playerTeam.get(id);
-            Queue oldQueue = team.getGameId() == oldTeam.getGameId() ? queue
-                    : activeQueues.stream().filter(currentQueue -> currentQueue.getId() == oldTeam.getGameId()).findFirst().orElse(null);
-            if (oldQueue != null){
-                if (oldTeam.equals(team)) {
-                    p.sendMessage(ChatColor.YELLOW + "Вы уже находитесь в этой команде.");
-                    return;
-                }
-
-                if (team.getGameId() == oldTeam.getGameId()) {
-                    p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
-                } else {
-                    p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули предыдущую игру.");
-                }
-                playerAdded = queue.addPlayerToTeam(p, team);
-                oldQueue.removePlayerFromTeam(p, oldTeam);
-                playerTeam.remove(id);
-            }
-        } else {
-            playerAdded = queue.addPlayerToTeam(p, team);
-        }
-
-        if (!playerAdded) {
-            p.sendMessage(ChatColor.RED + "В команде нет свободных мест.");
-            return;
-        }
-
-        playerTeam.put(id, team);
-        p.sendMessage(ChatColor.GRAY + "Вы присоединились к команде: " + team.getColor() + team.getTeamName());
+        team.addPlayer(qp);
 
         if (!activeQueues.contains(queue)) activeQueues.add(queue);
 
-        if (playerCreatingQueue.containsKey(id)) {
-            playerCreatingQueue.remove(id);
-            playerSelectingQueue.put(id, queue);
-        }
+        playerCreatingQueue.remove(playerId);
+        playerSelectingQueue.put(playerId, queue);
 
-        updateGameMenu();
+        updateQueueMenu();
         updateTeamMenu(queue);
     }
 
@@ -268,6 +230,29 @@ public class MenuListener implements Listener {
         playerSelectingQueue.remove(p.getUniqueId());
     }
 
+    @EventHandler
+    public void LeaveQueue(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        QueuePlayer qp = getQueuePlayer(p);
+        if (qp == null) return;
+        if (p.getGameMode() == GameMode.CREATIVE) return;
+        if (e.getHand() != EquipmentSlot.HAND) return;
+        if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        ItemStack menuItem = p.getInventory().getItemInMainHand();
+        ItemMeta menuItemMeta = menuItem.getItemMeta();
+        if (menuItemMeta == null ||
+                (!menuItemMeta.getDisplayName().equals(leaveQueueButtonName)
+                        && !menuItemMeta.getDisplayName().equals(deleteQueueButtonName))) return;
+
+        e.setCancelled(true);
+
+        if (qp.getTeam() != null) {
+            QueueTeam team = qp.getTeam();
+            team.removePlayer(qp, false, false);
+        }
+    }
+
     private Player getPlayer(InventoryClickEvent e) {
         if (e.getWhoClicked() instanceof Player p) {
             return p;
@@ -297,7 +282,7 @@ public class MenuListener implements Listener {
         return null;
     }
 
-    public void updateGameMenu() {
+    public static void updateQueueMenu() {
         queuesMenu.clear();
 
         if (activeQueues.isEmpty()) {
@@ -316,12 +301,10 @@ public class MenuListener implements Listener {
             ItemStack gameItem = createGameItem(queue);
 
             queuesMenu.setItem(i, gameItem);
-
-//            updateTeamMenu(queue);
         }
     }
 
-    private ItemStack createGameItem(Queue queue) {
+    private static ItemStack createGameItem(Queue queue) {
         ItemStack gameItem = new ItemStack(Material.CAMPFIRE);
         ItemMeta meta = gameItem.getItemMeta();
         if (meta == null) return null;
@@ -343,13 +326,13 @@ public class MenuListener implements Listener {
         Inventory menu = teamMenus.get(queue.getId());
         menu.clear();
 
-        List<Team> teams = queue.getTeams();
+        List<QueueTeam> teams = queue.getTeams();
 
         updateTeamItem(menu, teams.get(0), "Красные", Material.RED_CONCRETE, 11, ChatColor.RED);
         updateTeamItem(menu, teams.get(1), "Синие", Material.BLUE_CONCRETE, 15, ChatColor.BLUE);
     }
 
-    private void updateTeamItem(Inventory menu, Team team, String teamName, Material material, int slot, ChatColor color) {
+    private void updateTeamItem(Inventory menu, QueueTeam team, String teamName, Material material, int slot, ChatColor color) {
         ItemStack teamItem = new ItemStack(material);
         ItemMeta meta = teamItem.getItemMeta();
         if (meta == null) return;
@@ -357,8 +340,8 @@ public class MenuListener implements Listener {
         meta.setDisplayName(color + teamName);
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GRAY + "" + team.getPlayers().size() + "/" + team.getMaxPlayers());
-        for (UUID id : team.getPlayers()) {
-            lore.add(ChatColor.GRAY + Bukkit.getPlayer(id).getDisplayName());
+        for (QueuePlayer qp : team.getPlayers()) {
+            lore.add(ChatColor.GRAY + qp.getPlayer().getDisplayName());
         }
         meta.setLore(lore);
         teamItem.setItemMeta(meta);
@@ -391,5 +374,21 @@ public class MenuListener implements Listener {
             case 2 -> {return new ArrayList<>(Arrays.asList(11, 15));}
         }
         return null;
+    }
+
+    public static void updatePlayerInventory(Player p) {
+        QueuePlayer qp = getQueuePlayer(p);
+        if (qp == null) return;
+        Inventory inv = p.getInventory();
+        ItemStack leaveButton = new ItemStack(leaveQueueButton);
+        if (qp.getTeam() != null) {
+            Queue queue = qp.getTeam().getQueue();
+            if (queue.getCreator() == p.getUniqueId()) {
+                changeItemTitle(leaveButton, deleteQueueButtonName);
+            }
+            inv.setItem(8, leaveButton);
+        } else {
+            inv.setItem(8, null);
+        }
     }
 }
