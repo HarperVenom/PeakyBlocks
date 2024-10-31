@@ -19,9 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.classes.game.GamePlayer.gamePlayers;
-import static me.harpervenom.peakyBlocks.utils.MapManager.createWorld;
 import static me.harpervenom.peakyBlocks.utils.MapManager.removeWorld;
 import static me.harpervenom.peakyBlocks.utils.Utils.getYawFromBlockFace;
 
@@ -137,6 +134,7 @@ public class Game {
                 p.performCommand("lobby");
             }
         }
+
         removeWorld(world);
         activeGames.remove(this);
     }

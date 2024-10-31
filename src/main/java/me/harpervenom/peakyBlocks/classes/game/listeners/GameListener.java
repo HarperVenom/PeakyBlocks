@@ -19,7 +19,6 @@ import java.util.List;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.classes.game.GamePlayer.getGamePlayer;
-import static me.harpervenom.peakyBlocks.utils.MapManager.removeWorld;
 
 public class GameListener implements Listener {
 
@@ -40,6 +39,8 @@ public class GameListener implements Listener {
         World world = e.getFrom();
         if (world.getName().equals("lobby")) return;
 
+        Bukkit.broadcastMessage("leave world");
+
         GamePlayer p = getGamePlayer(e.getPlayer());
         if (p == null) return;
         p.remove();
@@ -47,9 +48,8 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void PlayerQuit(PlayerQuitEvent e) {
-        GamePlayer p = getGamePlayer(e.getPlayer());
-        if (p == null) return;
-        p.remove();
+        Player p = e.getPlayer();
+        p.performCommand("lobby");
     }
 
     @EventHandler

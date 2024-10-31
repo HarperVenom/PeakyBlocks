@@ -13,7 +13,7 @@ public class GamePlayer {
 
     public static GamePlayer getGamePlayer(Player p) {
         for (GamePlayer gamePlayer : gamePlayers) {
-            if (gamePlayer.getId() == p.getUniqueId()) {                return gamePlayer;
+            if (gamePlayer.getId() == p.getUniqueId()) { return gamePlayer;
             }
         }
         return null;
