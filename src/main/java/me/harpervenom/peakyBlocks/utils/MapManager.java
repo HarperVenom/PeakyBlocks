@@ -2,6 +2,7 @@ package me.harpervenom.peakyBlocks.utils;
 
 import me.harpervenom.peakyBlocks.PeakyBlocks;
 import me.harpervenom.peakyBlocks.classes.game.Game;
+import me.harpervenom.peakyBlocks.classes.queue.Queue;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,10 +14,13 @@ import java.io.File;
 import java.io.IOException;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.classes.game.Game.activeGames;
 
 public class MapManager {
 
-    public static void createWorld(String worldName, Game game) {
+    public static void createWorld(Queue queue) {
+        String worldName = "game_" + queue.getId();
+
         File backup = new File(getPlugin().getDataFolder(), "backup_maps" + File.separator + "game_map");  // Backup world directory
         File newWorldFolder = new File(Bukkit.getWorldContainer(), worldName);  // Target world folder in server root
 
@@ -43,7 +47,7 @@ public class MapManager {
                 // After copying, switch back to the main thread to load the world
                 Bukkit.getScheduler().runTask(getPlugin(), () -> {
                     World newWorld = Bukkit.createWorld(new WorldCreator(worldName));
-                    game.setWorld(newWorld);
+                    activeGames.add(new Game(queue, newWorld));
                 });
 
             } catch (IOException e) {

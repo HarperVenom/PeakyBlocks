@@ -18,19 +18,20 @@ import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.classes.game.Game.activeGames;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.updatePlayerInventory;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.updateQueueMenu;
+import static me.harpervenom.peakyBlocks.utils.MapManager.createWorld;
 
 
-public class Queue implements Listener {
+public class Queue {
 
     public static List<Queue> activeQueues = new ArrayList<>();
     public static Integer lastQueueId;
 
-    private int id;
-    private final UUID creator;
-    private final List<QueueTeam> teams = new ArrayList<>();
+    public int id;
+    public final UUID creator;
+    public final List<QueueTeam> teams = new ArrayList<>();
     private final int numberOfTeams;
-    private final QueueScoreBoard scoreboard;
-    private int playersCount = 0;
+    public final QueueScoreBoard scoreboard;
+    public int playersCount = 0;
 
     public Queue(UUID creator, int numberOfTeams) {
         id = lastQueueId == null ? 1 : lastQueueId + 1;
@@ -41,8 +42,6 @@ public class Queue implements Listener {
         lastQueueId = id;
         this.numberOfTeams = numberOfTeams;
         scoreboard = new QueueScoreBoard(this);
-
-        Bukkit.getPluginManager().registerEvents(this, getPlugin());
     }
 
     public void setMaxPlayers(int maxPlayerPerTeam) {
@@ -75,73 +74,6 @@ public class Queue implements Listener {
         return playersCount;
     }
 
-    @EventHandler
-    public void OnPlayerAdded(PlayerAddedEvent e) {
-        QueueTeam team = e.getTeam();
-        if (!teams.contains(team)) return;
-        QueuePlayer qp = e.getPlayer();
-        Player p = qp.getPlayer();
-
-        //Leave previous team if any
-        QueueTeam oldTeam = qp.getTeam();
-        qp.setTeam(team);
-        if (oldTeam != null) {
-            Queue oldQueue = oldTeam.getQueue();
-            oldTeam.removePlayer(qp, oldQueue.getId() == id, false);
-        }
-
-        playersCount++;
-        p.sendMessage(ChatColor.GRAY + "Вы присоединились к команде: " + team.getColor() + team.getTeamName());
-
-        if (playersCount >= getTotalMaxPlayers() - 1) {
-            scoreboard.startCountdown();
-        }
-        scoreboard.update();
-        updatePlayerInventory(qp.getPlayer());
-    }
-
-    @EventHandler
-    public void OnPlayerRemove(PlayerRemovedEvent e) {
-        QueueTeam team = e.getTeam();
-        if (!teams.contains(team)) return;
-
-        QueuePlayer qp = e.getPlayer();
-        Player p = qp.getPlayer();
-        boolean isChangingTeams = e.isChangingTeams();
-        boolean isSilent = e.isSilent();
-
-        if (qp.getTeam().equals(team)) qp.setTeam(null);
-
-        if (qp.getId() == creator && !isChangingTeams) {
-            delete();
-            updatePlayerInventory(qp.getPlayer());
-            if (!isSilent) p.sendMessage(ChatColor.DARK_GRAY + "Вы удалили очередь.");
-            return;
-        }
-
-        if (!isChangingTeams) {
-            scoreboard.removeForPlayer(qp.getPlayer());
-        }
-
-        playersCount--;
-
-        if (!isSilent && qp.getTeam().getQueue().getId() != id) {
-            p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули игру.");
-        } else {
-            p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
-        }
-
-        if (playersCount == 0 && !isChangingTeams) {
-            delete();
-            return;
-        }
-
-        if (!isChangingTeams && playersCount < getTotalMaxPlayers() - 1) {
-            scoreboard.resetCountdown();
-        }
-        scoreboard.update();
-    }
-
     public int getTeamSize() {
         return teams.getFirst().getMaxPlayers();
     }
@@ -169,7 +101,7 @@ public class Queue implements Listener {
     }
 
     public void startGame() {
-        activeGames.add(new Game(this));
+        createWorld(this);
     }
 
     public void delete() {

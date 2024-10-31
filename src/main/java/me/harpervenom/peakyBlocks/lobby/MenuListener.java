@@ -35,7 +35,7 @@ public class MenuListener implements Listener {
 
     private static ItemStack createButton;
 
-    private final ItemStack navigator;
+    public static ItemStack navigator;
     private final static ItemStack leaveQueueButton;
 
     private Inventory menu;
@@ -65,16 +65,6 @@ public class MenuListener implements Listener {
         menu.setItem(13, gameButton);
 
         updateQueueMenu();
-    }
-
-    @EventHandler
-    public void PlayerJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        Inventory inv = p.getInventory();
-        inv.clear();
-        inv.setItem(0, navigator);
-
-        queuePlayers.add(new QueuePlayer(p.getUniqueId()));
     }
 
     @EventHandler

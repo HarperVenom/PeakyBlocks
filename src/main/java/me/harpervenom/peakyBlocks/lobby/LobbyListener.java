@@ -1,5 +1,6 @@
 package me.harpervenom.peakyBlocks.lobby;
 
+import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,18 +9,34 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.queuePlayers;
+import static me.harpervenom.peakyBlocks.lobby.MenuListener.navigator;
 
 public class LobbyListener implements Listener {
 
     @EventHandler
     public void PlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        e.setJoinMessage(ChatColor.GRAY + p.getDisplayName() + " в игре.");
+        p.teleport(new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5));
+
+        setLobbyState(p);
+
+        queuePlayers.add(new QueuePlayer(p.getUniqueId()));
+    }
+
+    public static void setLobbyState(Player p) {
         p.setFoodLevel(20);
         p.setGameMode(GameMode.ADVENTURE);
-        p.teleport(new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5));
-        e.setJoinMessage(ChatColor.GRAY + p.getDisplayName() + " в игре.");
+
+        PlayerInventory inv = p.getInventory();
+        inv.clear();
+        inv.setItem(0, navigator);
+        inv.setHeldItemSlot(0);
     }
 
     @EventHandler

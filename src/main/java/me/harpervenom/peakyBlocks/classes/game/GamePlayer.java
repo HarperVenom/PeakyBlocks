@@ -2,19 +2,18 @@ package me.harpervenom.peakyBlocks.classes.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class GamePlayer {
 
-    public static List<GamePlayer> gamePlayers = new ArrayList<>();
+    public static Set<GamePlayer> gamePlayers = new HashSet<>();
 
     public static GamePlayer getGamePlayer(Player p) {
         for (GamePlayer gamePlayer : gamePlayers) {
-            if (gamePlayer.getId() == p.getUniqueId()) {
-                return gamePlayer;
+            if (gamePlayer.getId() == p.getUniqueId()) {                return gamePlayer;
             }
         }
         return null;
@@ -43,6 +42,16 @@ public class GamePlayer {
     }
 
     public void remove() {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager == null) return;
+
+        Scoreboard emptyScoreboard = manager.getNewScoreboard();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(emptyScoreboard);
+        }
+
+        getTeam().removePlayer(this);
         gamePlayers.remove(this);
     }
 }
