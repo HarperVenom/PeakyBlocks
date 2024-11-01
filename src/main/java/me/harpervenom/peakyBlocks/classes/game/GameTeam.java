@@ -2,12 +2,9 @@ package me.harpervenom.peakyBlocks.classes.game;
 
 import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
 import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -15,9 +12,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.classes.game.GamePlayer.gamePlayers;
@@ -76,12 +71,16 @@ public class GameTeam {
         return members;
     }
 
+    public boolean isMember(GamePlayer gp) {
+        return members.contains(gp);
+    }
+
     public void removePlayer(GamePlayer p) {
         members.remove(p);
         game.checkTeams();
     }
 
-    public String getTeamName() {
+    public String getName() {
         switch (color) {
             case ChatColor.RED -> {
                 return "Красные";
@@ -131,14 +130,14 @@ public class GameTeam {
     public void win() {
         for (GamePlayer gp : getPlayers()) {
             Player p = gp.getPlayer();
-            p.sendTitle( ChatColor.YELLOW + "Победа!", "Команда " + getColor() + getTeamName() +  ChatColor.WHITE + " одержала победу.", 10, 100, 2);
+            p.sendTitle( ChatColor.YELLOW + "Победа!", "Команда " + getColor() + getName() +  ChatColor.WHITE + " одержала победу.", 10, 100, 2);
         }
     }
 
     public void loose(GameTeam winner) {
         for (GamePlayer gp : getPlayers()) {
             Player p = gp.getPlayer();
-            p.sendTitle( ChatColor.RED + "Поражение!", "Команда " + winner.getColor() + winner.getTeamName() + ChatColor.WHITE + " одержала победу.", 10, 100, 2);
+            p.sendTitle( ChatColor.RED + "Поражение!", "Команда " + winner.getColor() + winner.getName() + ChatColor.WHITE + " одержала победу.", 10, 100, 2);
         }
     }
 

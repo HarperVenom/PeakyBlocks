@@ -1,16 +1,10 @@
 package me.harpervenom.peakyBlocks.classes.game;
 
-import me.harpervenom.peakyBlocks.classes.game.evens.CoreDestroyedEvent;
-import me.harpervenom.peakyBlocks.classes.game.listeners.CoreListener;
-import me.harpervenom.peakyBlocks.classes.game.listeners.GameListener;
 import me.harpervenom.peakyBlocks.classes.queue.Queue;
-import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
 import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
@@ -95,6 +89,8 @@ public class Game {
             p.getInventory().clear();
             p.getInventory().setHeldItemSlot(0);
             p.teleport(gp.getTeam().getSpawn());
+//            p.setBedSpawnLocation(gp.getTeam().getSpawn(), true);
+            p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             p.setGameMode(GameMode.SURVIVAL);
             p.setSaturation(5);
             p.sendMessage("Игра началась!");
@@ -116,7 +112,7 @@ public class Game {
             if (manager == null) return;
 
             Scoreboard scoreboard = manager.getMainScoreboard();
-            Team team = scoreboard.getTeam(gTeam.getTeamName());
+            Team team = scoreboard.getTeam(gTeam.getName());
 
             if (team != null) {
                 team.unregister();  // This will remove the team and all its associated entries

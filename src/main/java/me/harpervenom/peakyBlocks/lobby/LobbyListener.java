@@ -22,7 +22,9 @@ public class LobbyListener implements Listener {
     public void PlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         e.setJoinMessage(ChatColor.GRAY + p.getDisplayName() + " в игре.");
-        p.teleport(new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5));
+        Location spawn = new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5);
+        p.teleport(spawn);
+        p.setRespawnLocation(spawn);
 
         setLobbyState(p);
 

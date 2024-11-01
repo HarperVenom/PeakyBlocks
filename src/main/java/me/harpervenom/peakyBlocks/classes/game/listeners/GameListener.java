@@ -39,8 +39,6 @@ public class GameListener implements Listener {
         World world = e.getFrom();
         if (world.getName().equals("lobby")) return;
 
-        Bukkit.broadcastMessage("leave world");
-
         GamePlayer p = getGamePlayer(e.getPlayer());
         if (p == null) return;
         p.remove();

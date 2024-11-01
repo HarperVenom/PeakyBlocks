@@ -2,6 +2,7 @@ package me.harpervenom.peakyBlocks;
 
 import me.harpervenom.peakyBlocks.classes.game.listeners.CoreListener;
 import me.harpervenom.peakyBlocks.classes.game.listeners.GameListener;
+import me.harpervenom.peakyBlocks.classes.game.listeners.TurretListener;
 import me.harpervenom.peakyBlocks.classes.queue.Queue;
 import me.harpervenom.peakyBlocks.classes.queue.listeners.QueueListener;
 import me.harpervenom.peakyBlocks.commands.Lobby;
@@ -27,6 +28,7 @@ public final class PeakyBlocks extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new QueueListener(), getPlugin());
         getServer().getPluginManager().registerEvents(new GameListener(), this);
         getServer().getPluginManager().registerEvents(new CoreListener(), this);
+        getServer().getPluginManager().registerEvents(new TurretListener(), this);
 
         getCommand("lobby").setExecutor(new Lobby());
 
