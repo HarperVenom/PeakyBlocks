@@ -1,8 +1,5 @@
-package me.harpervenom.peakyBlocks.classes.game.evens;
+package me.harpervenom.peakyBlocks.classes.game.Core;
 
-import me.harpervenom.peakyBlocks.classes.game.Core;
-import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
-import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

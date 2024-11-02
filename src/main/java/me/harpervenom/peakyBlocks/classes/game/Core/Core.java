@@ -1,8 +1,7 @@
-package me.harpervenom.peakyBlocks.classes.game;
+package me.harpervenom.peakyBlocks.classes.game.Core;
 
 
-import me.harpervenom.peakyBlocks.classes.game.evens.CoreDestroyedEvent;
-import me.harpervenom.peakyBlocks.classes.queue.events.PlayerAddedEvent;
+import me.harpervenom.peakyBlocks.classes.game.GameTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -28,6 +27,8 @@ public class Core {
     private static int maxHealth = 10;
     private int health;
 
+    private List<Location> blocks = new ArrayList<>();
+
     public Core(Location base, BlockFace facing, GameTeam team) {
         this.base = base;
         this.facing = facing;
@@ -41,16 +42,20 @@ public class Core {
 
     private void buildStructure() {
         Location location = new Location(base.getWorld(), base.getX(), base.getY() + 1, base.getZ());
+        blocks.add(location);
         location.getBlock().setType(Material.SMOOTH_STONE);
 
         location = new Location(base.getWorld(), base.getX(), base.getY() + 2, base.getZ());
+        blocks.add(location);
         block = location;
         location.getBlock().setType(Material.AMETHYST_BLOCK);
 
         location = new Location(base.getWorld(), base.getX(), base.getY() + 3, base.getZ());
+        blocks.add(location);
         location.getBlock().setType(Material.SMOOTH_STONE);
 
         location = new Location(base.getWorld(), base.getX(), base.getY() + 4, base.getZ());
+        blocks.add(location);
 
         Block b = location.getBlock();
         b.setType(team.getColor() == ChatColor.RED ? Material.RED_BANNER : Material.BLUE_BANNER);
@@ -70,6 +75,13 @@ public class Core {
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
         if (health <= 0) {
             Bukkit.getPluginManager().callEvent(new CoreDestroyedEvent(this));
+        }
+    }
+
+    public void destroy() {
+        block.getWorld().createExplosion(block, 3, false, false);
+        for (Location loc : blocks) {
+            loc.getBlock().setType(Material.AIR);
         }
     }
 

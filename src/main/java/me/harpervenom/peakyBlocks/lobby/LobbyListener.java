@@ -9,7 +9,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
@@ -22,18 +21,20 @@ public class LobbyListener implements Listener {
     public void PlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         e.setJoinMessage(ChatColor.GRAY + p.getDisplayName() + " в игре.");
-        Location spawn = new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5);
-        p.teleport(spawn);
-        p.setRespawnLocation(spawn);
 
-        setLobbyState(p);
+        setLobby(p);
 
         queuePlayers.add(new QueuePlayer(p.getUniqueId()));
     }
 
-    public static void setLobbyState(Player p) {
+    public static void setLobby(Player p) {
         p.setFoodLevel(20);
+        p.setHealth(20);
         p.setGameMode(GameMode.ADVENTURE);
+
+        Location spawn = new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5);
+        p.teleport(spawn);
+        p.setRespawnLocation(spawn, true);
 
         PlayerInventory inv = p.getInventory();
         inv.clear();

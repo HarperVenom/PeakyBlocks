@@ -1,5 +1,7 @@
 package me.harpervenom.peakyBlocks.classes.game;
 
+import me.harpervenom.peakyBlocks.classes.game.Core.Core;
+import me.harpervenom.peakyBlocks.classes.game.Turret.Turret;
 import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
 import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
 import org.bukkit.Bukkit;
@@ -112,12 +114,21 @@ public class GameTeam {
     public void setCore(Location coreLoc) {
         this.core = new Core(coreLoc, facing, this);
     }
+    public void destroyCore() {
+        core.destroy();
+        core = null;
+    }
+
 
     public Turret getTurret() {
         return turret;
     }
     public void setTurret(Location turretLoc) {
         this.turret = new Turret(turretLoc, facing, this);
+    }
+    public void destroyTurret() {
+        turret.destroy();
+        turret = null;
     }
 
     public BlockFace getFacing() {
@@ -130,14 +141,14 @@ public class GameTeam {
     public void win() {
         for (GamePlayer gp : getPlayers()) {
             Player p = gp.getPlayer();
-            p.sendTitle( ChatColor.YELLOW + "Победа!", "Команда " + getColor() + getName() +  ChatColor.WHITE + " одержала победу.", 10, 100, 2);
+            p.sendTitle("Победа!", "", 10, 100, 2);
         }
     }
 
-    public void loose(GameTeam winner) {
+    public void loose() {
         for (GamePlayer gp : getPlayers()) {
             Player p = gp.getPlayer();
-            p.sendTitle( ChatColor.RED + "Поражение!", "Команда " + winner.getColor() + winner.getName() + ChatColor.WHITE + " одержала победу.", 10, 100, 2);
+            p.sendTitle("Поражение!", "", 10, 100, 2);
         }
     }
 

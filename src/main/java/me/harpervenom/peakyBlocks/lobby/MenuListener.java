@@ -250,9 +250,9 @@ public class MenuListener implements Listener {
         return null;
     }
 
-    private CustomMenuHolder getCustomMenuHolder(InventoryClickEvent e) {
-        Inventory inv = e.getClickedInventory();
-        if (inv == null || !(inv.getHolder() instanceof CustomMenuHolder holder)) {
+    public static CustomMenuHolder getCustomMenuHolder(InventoryClickEvent e) {
+        Inventory inv = e.getInventory();
+        if (!(inv.getHolder() instanceof CustomMenuHolder holder)) {
             return null;
         }
         return holder;

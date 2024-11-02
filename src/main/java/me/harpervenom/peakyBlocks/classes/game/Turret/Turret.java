@@ -1,5 +1,10 @@
-package me.harpervenom.peakyBlocks.classes.game;
+package me.harpervenom.peakyBlocks.classes.game.Turret;
 
+import me.harpervenom.peakyBlocks.classes.game.Game;
+import me.harpervenom.peakyBlocks.classes.game.GamePlayer;
+import me.harpervenom.peakyBlocks.classes.game.GameTeam;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
@@ -43,6 +48,8 @@ public class Turret {
     private ArmorStand shooter;
     private Player target;
 
+    private List<Location> blocks = new ArrayList<>();
+
     public Turret(Location base, BlockFace facing, GameTeam team) {
         this.base = base;
         this.facing = facing;
@@ -57,9 +64,11 @@ public class Turret {
 
     private void buildStructure() {
         Location location = new Location(base.getWorld(), base.getX(), base.getY() + 1, base.getZ());
+        blocks.add(location);
         location.getBlock().setType(Material.SMOOTH_STONE);
 
         location = new Location(base.getWorld(), base.getX(), base.getY() + 2, base.getZ());
+        blocks.add(location);
         block = location;
         location.getBlock().setType(Material.LODESTONE);
 
@@ -76,13 +85,23 @@ public class Turret {
         return health;
     }
 
-//    public void damage(Player p) {
-//        health--;
-//        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
-//        if (health <= 0) {
-//            Bukkit.getPluginManager().callEvent(new CoreDestroyedEvent(this));
-//        }
-//    }
+    public void damage(Player p) {
+        health--;
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
+        if (health <= 0) {
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+            Bukkit.getPluginManager().callEvent(new TurretDestroyEvent(this));
+        }
+    }
+
+    public void destroy() {
+        shootingTask.cancel();
+        block.getWorld().createExplosion(block, 2, false, false);
+        for (Location loc : blocks) {
+            loc.getBlock().setType(Material.AIR);
+        }
+        turrets.remove(this);
+    }
 
     public Location getBlock() {
         return block;
@@ -192,7 +211,16 @@ public class Turret {
         arrow.getWorld().playSound(arrow.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1F, (float) (1 + 0.1*((float) 30 / shootingInterval)));
 
         arrow.setShooter(shooter);
-        arrow.setGravity(true);
+        arrow.setGravity(false);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!arrow.isDead()) {
+                    arrow.setGravity(true);
+                }
+            }
+        }.runTaskLater(getPlugin(), 5);
 
         int customLifespan = 20;
         new BukkitRunnable() {

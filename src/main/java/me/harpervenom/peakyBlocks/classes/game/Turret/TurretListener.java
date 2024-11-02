@@ -1,23 +1,23 @@
-package me.harpervenom.peakyBlocks.classes.game.listeners;
+package me.harpervenom.peakyBlocks.classes.game.Turret;
 
-import me.harpervenom.peakyBlocks.classes.game.Game;
-import me.harpervenom.peakyBlocks.classes.game.GamePlayer;
-import me.harpervenom.peakyBlocks.classes.game.GameTeam;
-import me.harpervenom.peakyBlocks.classes.game.Turret;
+import me.harpervenom.peakyBlocks.classes.game.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import static me.harpervenom.peakyBlocks.classes.game.Game.activeGames;
 import static me.harpervenom.peakyBlocks.classes.game.GamePlayer.getGamePlayer;
+import static me.harpervenom.peakyBlocks.classes.game.Turret.Turret.turrets;
 
 public class TurretListener implements Listener {
 
@@ -33,6 +33,7 @@ public class TurretListener implements Listener {
             if (game.getWorld().getName().equals(world.getName())) {
                 for (GameTeam team : game.getTeams()) {
                     Turret turret = team.getTurret();
+                    if (turret == null) return;
                     turret.scanArea();
                 }
             }
@@ -49,6 +50,7 @@ public class TurretListener implements Listener {
         if (event.getEntity() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getEntity();
             Entity hitEntity = event.getHitEntity();
+            arrow.setGravity(true);
             if (hitEntity == null) return;
             if (hitEntity instanceof Player p) {
                 GamePlayer gp = getGamePlayer(p);
@@ -64,8 +66,39 @@ public class TurretListener implements Listener {
                     if (hitTeam.getName().equals(shooterTeamName)) {
                         event.setCancelled(true); // Cancel the hit event
                         arrow.setVelocity(arrow.getVelocity());
+                    } else {
+                        Bukkit.broadcastMessage("here");
+
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void TurretDamage(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        GamePlayer gp = getGamePlayer(p);
+        Block b = e.getBlock();
+
+        if (gp == null) {
+            e.setCancelled(true);
+            return;
+        }
+
+        int turretsSize = turrets.size();
+        for (int i = 0; i < turretsSize; i++) {
+            Turret turret = turrets.get(i);
+            if (turret == null) return;
+            if (turret.getBlock().equals(b.getLocation())) {
+                e.setCancelled(true);
+
+                GameTeam team = turret.getTeam();
+                if (gp.getTeam().equals(team)) {
+                    return;
+                }
+
+                turret.damage(p);
             }
         }
     }

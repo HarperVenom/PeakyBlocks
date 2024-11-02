@@ -1,5 +1,6 @@
 package me.harpervenom.peakyBlocks.classes.game;
 
+import me.harpervenom.peakyBlocks.classes.game.Trader.Trader;
 import me.harpervenom.peakyBlocks.classes.queue.Queue;
 import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
 import org.bukkit.*;
@@ -18,15 +19,19 @@ import static me.harpervenom.peakyBlocks.utils.Utils.getYawFromBlockFace;
 
 public class Game {
 
-    //red spawn 26, 0, 0
-    //red core 20, -1, 0, 90
+    //RED
+    //spawn 26, 0, 0
+    //core 20, -1, 0, 90
     //turret 14, -1, 0
     //facing west
+    //trader 26, 0, 6, north
 
-    //blue spawn -26, 0, 0
-    //blue core -20, -1, 0, -90
+    //BLUE
+    //spawn -26, 0, 0
+    //core -20, -1, 0, -90
     //turret -14, -1, 0
     //facing east
+    //trader -26, 0, -6, south
 
     public static List<Game> activeGames = new ArrayList<>();
 
@@ -60,13 +65,15 @@ public class Game {
                 team.setSpawn(new Location(world, 26 + 0.5, 0, 0 + 0.5, getYawFromBlockFace(BlockFace.WEST), 0));
                 team.setFacing(BlockFace.WEST);
                 team.setCore(new Location(world, 20, -1, 0));
-                team.setTurret(new Location(world, 14, -1, 0));
+                team.setTurret( new Location(world, 14, -1, 0));
+                new Trader(new Location(world, 26 + 0.5, 0, 6 + 0.5, getYawFromBlockFace(BlockFace.NORTH), 0));
             }
             if (team.getColor() == ChatColor.BLUE) {
                 team.setSpawn(new Location(world, -26 + 0.5, 0, 0 + 0.5, getYawFromBlockFace(BlockFace.EAST), 0));
                 team.setFacing(BlockFace.EAST);
                 team.setCore(new Location(world, -20, -1, 0));
                 team.setTurret(new Location(world, -14, -1, 0));
+                new Trader(new Location(world, -26 + 0.5, 0, -6 + 0.5, getYawFromBlockFace(BlockFace.SOUTH), 0));
             }
         }
 
@@ -82,6 +89,14 @@ public class Game {
                 .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toList());
     }
 
+    public void sendMessage(String message) {
+        for (GamePlayer gp : getPlayers()) {
+            Player p = gp.getPlayer();
+
+            p.sendMessage(message);
+        }
+    }
+
     public void start() {
         for (GamePlayer gp : getPlayers()) {
             Player p = gp.getPlayer();
@@ -89,7 +104,6 @@ public class Game {
             p.getInventory().clear();
             p.getInventory().setHeldItemSlot(0);
             p.teleport(gp.getTeam().getSpawn());
-//            p.setBedSpawnLocation(gp.getTeam().getSpawn(), true);
             p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             p.setGameMode(GameMode.SURVIVAL);
             p.setSaturation(5);
@@ -131,7 +145,6 @@ public class Game {
             }
         }
 
-        removeWorld(world);
         activeGames.remove(this);
     }
 }
