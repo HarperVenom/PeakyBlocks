@@ -36,6 +36,30 @@ public class Utils {
         return item;
     }
 
+    public static float getYaw(String facing) {
+        BlockFace face = getBlockFace(facing);
+        if (face == null) return 0;
+        return getYawFromBlockFace(face);
+    }
+
+    public static BlockFace getBlockFace(String facing) {
+        switch (facing) {
+            case "east" -> {
+                return BlockFace.EAST;
+            }
+            case "west" -> {
+                return BlockFace.WEST;
+            }
+            case "north" -> {
+                return BlockFace.NORTH;
+            }
+            case "south" -> {
+                return BlockFace.SOUTH;
+            }
+        }
+        return null;
+    }
+
     public static float getYawFromBlockFace(BlockFace face) {
         return switch (face) {
             case NORTH -> 180.0f;
@@ -48,5 +72,20 @@ public class Utils {
             case SOUTH_WEST -> 45.0f;
             default -> 0.0f; // Default to SOUTH if face is not recognized
         };
+    }
+
+    public static BlockFace yawToFace(float yaw) {
+        // Normalize the yaw to 0 - 360
+        yaw = (yaw % 360 + 360) % 360;
+
+        if (yaw >= 315 || yaw < 45) {
+            return BlockFace.SOUTH;
+        } else if (yaw >= 45 && yaw < 135) {
+            return BlockFace.WEST;
+        } else if (yaw >= 135 && yaw < 225) {
+            return BlockFace.NORTH;
+        } else {
+            return BlockFace.EAST;
+        }
     }
 }

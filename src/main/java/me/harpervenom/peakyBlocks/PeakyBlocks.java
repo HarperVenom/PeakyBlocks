@@ -1,11 +1,11 @@
 package me.harpervenom.peakyBlocks;
 
-import me.harpervenom.peakyBlocks.classes.game.Core.LuckyBook.LuckyBookListener;
-import me.harpervenom.peakyBlocks.classes.game.Trader.TraderListener;
-import me.harpervenom.peakyBlocks.classes.game.Core.CoreListener;
-import me.harpervenom.peakyBlocks.classes.game.GameListener;
-import me.harpervenom.peakyBlocks.classes.game.Turret.TurretListener;
-import me.harpervenom.peakyBlocks.classes.queue.listeners.QueueListener;
+import me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBookListener;
+import me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener;
+import me.harpervenom.peakyBlocks.lastwars.Core.CoreListener;
+import me.harpervenom.peakyBlocks.lastwars.GameListener;
+import me.harpervenom.peakyBlocks.lastwars.Turret.TurretListener;
+import me.harpervenom.peakyBlocks.queue.QueueListener;
 import me.harpervenom.peakyBlocks.commands.Lobby;
 import me.harpervenom.peakyBlocks.lobby.LobbyListener;
 import me.harpervenom.peakyBlocks.lobby.MenuListener;

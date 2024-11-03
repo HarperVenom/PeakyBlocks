@@ -1,6 +1,6 @@
 package me.harpervenom.peakyBlocks.lobby;
 
-import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
+import me.harpervenom.peakyBlocks.queue.QueuePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,7 +12,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.PlayerInventory;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.queuePlayers;
+import static me.harpervenom.peakyBlocks.queue.QueuePlayer.queuePlayers;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.navigator;
 
 public class LobbyListener implements Listener {

@@ -1,8 +1,8 @@
 package me.harpervenom.peakyBlocks.lobby;
 
-import me.harpervenom.peakyBlocks.classes.queue.Queue;
-import me.harpervenom.peakyBlocks.classes.queue.QueuePlayer;
-import me.harpervenom.peakyBlocks.classes.queue.QueueTeam;
+import me.harpervenom.peakyBlocks.queue.Queue;
+import me.harpervenom.peakyBlocks.queue.QueuePlayer;
+import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -18,10 +18,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-import static me.harpervenom.peakyBlocks.classes.queue.Queue.activeQueues;
-import static me.harpervenom.peakyBlocks.classes.queue.Queue.lastQueueId;
-import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.getQueuePlayer;
-import static me.harpervenom.peakyBlocks.classes.queue.QueuePlayer.queuePlayers;
+import static me.harpervenom.peakyBlocks.queue.Queue.activeQueues;
+import static me.harpervenom.peakyBlocks.queue.Queue.lastQueueId;
+import static me.harpervenom.peakyBlocks.queue.QueuePlayer.getQueuePlayer;
+import static me.harpervenom.peakyBlocks.queue.QueuePlayer.queuePlayers;
 import static me.harpervenom.peakyBlocks.utils.Utils.changeItemTitle;
 import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
