@@ -36,8 +36,7 @@ public class Queue {
         this.numberOfTeams = numberOfTeams;
         scoreboard = new QueueScoreBoard(this);
 
-        //Pass from argument instead
-        setMap(new Map(sampleMaps.getFirst()));
+//        setMap(new Map(sampleMaps.getFirst()));
     }
 
     public void setMaxPlayers(int maxPlayerPerTeam) {

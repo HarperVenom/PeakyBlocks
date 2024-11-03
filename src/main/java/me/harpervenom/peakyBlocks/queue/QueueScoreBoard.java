@@ -26,7 +26,7 @@ public class QueueScoreBoard {
         scoreboard = manager.getNewScoreboard();
 
         // Create a new objective (the display name for the scoreboard)
-        objective = scoreboard.registerNewObjective("gameInfo", "dummy", ChatColor.GOLD + "Игра " + queue.getId());
+        objective = scoreboard.registerNewObjective("gameInfo", "dummy", "Игра " + queue.getId());
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
@@ -54,23 +54,26 @@ public class QueueScoreBoard {
 
         List<String> lines = new ArrayList<>();
         lines.add("");
+        lines.add(ChatColor.WHITE + "Карта:");
+        lines.add(ChatColor.GRAY + queue.getMap().getDisplayName());
+        lines.add(" ");
         lines.add(ChatColor.RED + "Красные: " + redTeamSize + "/" + maxTeamSize);
         lines.add(ChatColor.BLUE + "Синие: " + blueTeamSize + "/" + maxTeamSize);
-        lines.add(" ");
-        lines.add(ChatColor.WHITE + "Всего: " + totalPlayers + "/" + totalMax);
         lines.add("  ");
+        lines.add(ChatColor.WHITE + "Всего: " + ChatColor.GRAY + totalPlayers + "/" + totalMax);
+        lines.add("   ");
         if (totalPlayers < totalMax - 1) {
-            lines.add(ChatColor.YELLOW + "Мин. игроков: " + (totalMax - 1));
+            lines.add(ChatColor.WHITE + "Мин. игроков: " + (totalMax - 1));
         } else {
             if (timeLeft[0] <= 0) {
-                lines.add(ChatColor.YELLOW + "Запуск игры...");
+                lines.add(ChatColor.WHITE + "Запуск игры...");
             } else {
-                lines.add(ChatColor.YELLOW + "До начала:");
-                lines.add(ChatColor.YELLOW + "" + timeLeft[0] + " сек.");
+                lines.add(ChatColor.WHITE + "До начала:");
+                lines.add(ChatColor.WHITE + "" + timeLeft[0] + " сек.");
             }
         }
-        lines.add("   ");
-        lines.add(ChatColor.GRAY + "" + ChatColor.ITALIC + "---PeakyBlocks---");
+        lines.add("    ");
+        lines.add(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "---PeakyBlocks---");
 
         for (int i = lines.size() - 1; i >= 0; i--) {
             displayMessage(lines.reversed().get(i), i);

@@ -21,6 +21,7 @@ public class Utils {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setDisplayName(title);
         if (lore != null) meta.setLore(lore);
         item.setItemMeta(meta);

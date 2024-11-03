@@ -1,5 +1,6 @@
 package me.harpervenom.peakyBlocks.lobby;
 
+import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueuePlayer;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+import static me.harpervenom.peakyBlocks.lastwars.Map.Map.sampleMaps;
 import static me.harpervenom.peakyBlocks.queue.Queue.activeQueues;
 import static me.harpervenom.peakyBlocks.queue.Queue.lastQueueId;
 import static me.harpervenom.peakyBlocks.queue.QueuePlayer.getQueuePlayer;
@@ -27,21 +29,23 @@ import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class MenuListener implements Listener {
 
-    private final String menuItemName = ChatColor.GOLD + "Меню";
+    private final String menuItemName = ChatColor.WHITE + "Меню";
     private final String gameButtonName = ChatColor.LIGHT_PURPLE + "LastWars";
-    private final String createButtonName = ChatColor.YELLOW + "Создать";
-    private final static String deleteQueueButtonName = ChatColor.RED + "Удалить очередь";
-    private final static String leaveQueueButtonName = ChatColor.RED + "Покинуть очередь";
+    private final String createButtonName = ChatColor.WHITE + "Создать";
+    private final static String deleteQueueButtonName = ChatColor.WHITE + "Удалить очередь";
+    private final static String leaveQueueButtonName = ChatColor.WHITE + "Покинуть очередь";
 
     private static ItemStack createButton;
 
     public static ItemStack navigator;
     private final static ItemStack leaveQueueButton;
 
-    private Inventory menu;
+    private final Inventory menu;
     private static Inventory queuesMenu; // first and only game. When new games appear, this will turn into a hashmap game name / this game's queues menu
+    private Inventory mapMenu;
+    private final Inventory maxPlayersMenu;
     private final HashMap<Integer, Inventory> teamMenus = new HashMap<>(); //game id and its inventory
-    private Inventory maxPlayersMenu;
+
 
     public HashMap<UUID, Queue> playerCreatingQueue = new HashMap<>();
     public HashMap<UUID, Queue> playerSelectingQueue = new HashMap<>();
@@ -60,9 +64,22 @@ public class MenuListener implements Listener {
 
         menu = Bukkit.createInventory(new CustomMenuHolder("menu"), 27, "Меню");
         queuesMenu = Bukkit.createInventory(new CustomMenuHolder("selectQueue"), 27, "Выберите игру:");
+        mapMenu = Bukkit.createInventory(new CustomMenuHolder("selectMap"), 27, "Выберите карту");
         maxPlayersMenu = Bukkit.createInventory(new CustomMenuHolder("selectMaxPlayer"), 27, "Выберите размер команды:");
 
+
         menu.setItem(13, gameButton);
+
+        List<ItemStack> options = getMaxPlayersOptions();
+        for (int i = 0; i < options.size(); i++) {
+            maxPlayersMenu.setItem(i, options.get(i));
+        }
+
+        for (Map map : sampleMaps) {
+            ItemStack mapItem = createItem(Material.FILLED_MAP, ChatColor.WHITE + map.getDisplayName(),
+                    List.of(ChatColor.GRAY + "Команды: " + map.getLocSets().size()));
+            mapMenu.setItem(sampleMaps.indexOf(map), mapItem);
+        }
 
         updateQueueMenu();
     }
@@ -108,13 +125,36 @@ public class MenuListener implements Listener {
             Queue newQueue = new Queue(p.getUniqueId(), 2);
             playerCreatingQueue.put(p.getUniqueId(), newQueue);
 
-            //Open selectMaxPlayer menu
-            List<ItemStack> options = getMaxPlayersOptions(2);
-            for (int i = 0; i < options.size(); i++) {
-                maxPlayersMenu.setItem(i, options.get(i));
-            }
+            //Open selectMap menu
             switchingMenus.put(p.getUniqueId(), true);
-            p.openInventory(maxPlayersMenu);
+            p.openInventory(mapMenu);
+        }
+    }
+
+    @EventHandler
+    public void SelectMap(InventoryClickEvent e) {
+        Player p = getPlayer(e);
+        if (p == null) return;
+        CustomMenuHolder holder = getCustomMenuHolder(e);
+        if (holder == null || !holder.getType().equals("selectMap")) return;
+
+        if (!playerCreatingQueue.containsKey(p.getUniqueId())) return;
+
+        ItemStack item = e.getCurrentItem();
+        if (item == null) return;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        String name = ChatColor.stripColor(meta.getDisplayName());
+        for (Map map : sampleMaps) {
+            if (map.getDisplayName().equals(name)) {
+                Queue queue = playerCreatingQueue.get(p.getUniqueId());
+                queue.setMap(map);
+
+                //Open selectMaxPlayer menu
+                switchingMenus.put(p.getUniqueId(), true);
+                p.openInventory(maxPlayersMenu);
+                return;
+            }
         }
     }
 
@@ -303,7 +343,7 @@ public class MenuListener implements Listener {
         String playerSizeString = teamSize + "x" + teamSize;
         int totalMaxPlayers = queue.getNumberOfTeams() * teamSize;
 
-        meta.setDisplayName(ChatColor.GOLD + "Игра " + queue.getId() + " (" + playerSizeString + ")");
+        meta.setDisplayName(ChatColor.WHITE + "Игра " + queue.getId() + " (" + playerSizeString + ")");
 
         List<String> lore = List.of(ChatColor.GRAY + "Игроков: " + queue.getNumberOfPlayers() + "/" + queue.getTotalMaxPlayers());
         meta.setLore(lore);
@@ -339,10 +379,9 @@ public class MenuListener implements Listener {
         menu.setItem(slot, teamItem);
     }
 
-    public List<ItemStack> getMaxPlayersOptions(int numberOfTeams) {
+    public List<ItemStack> getMaxPlayersOptions() {
         List<ItemStack> options = new ArrayList<>();
 
-        if (numberOfTeams == 2) {
             ItemStack option1 = createItem(Material.PLAYER_HEAD, ChatColor.WHITE + "1x1", null);
             ItemStack option2 = createItem(Material.PLAYER_HEAD, ChatColor.WHITE + "2x2", null);
             ItemStack option3 = createItem(Material.PLAYER_HEAD, ChatColor.WHITE + "3x3", null);
@@ -354,7 +393,6 @@ public class MenuListener implements Listener {
             options.add(option3);
             options.add(option4);
             options.add(option5);
-        }
 
         return options;
     }
