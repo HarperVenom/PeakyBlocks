@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
-import me.harpervenom.peakyBlocks.queue.Queue;
+import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.createWorld;
 import static me.harpervenom.peakyBlocks.utils.Utils.getYaw;
 
 public class Map {
@@ -26,7 +26,7 @@ public class Map {
     private List<LocationSet> locSets = new ArrayList<>();
 
     static {
-        loadMapNames();
+        loadMaps();
     }
 
     public Map(Map sample) {
@@ -72,13 +72,27 @@ public class Map {
                 // Extract each location for the team
                 Location spawn = getLocationFromConfig(teamSection, "spawn");
                 Location core = getLocationFromConfig(teamSection, "core");
-                Location turret = getLocationFromConfig(teamSection, "turret");
+
+                ConfigurationSection turretsSection = teamSection.getConfigurationSection("turrets");
+                List<Turret> turrets = new ArrayList<>();
+                if (turretsSection == null) {
+                    System.out.println("No turrets section found in the config for map: " + name);
+                } else {
+                    for (String turretKey : turretsSection.getKeys(false)) {
+                        ConfigurationSection turretSection = turretsSection.getConfigurationSection(turretKey);
+                        if (turretSection != null) {
+                            Turret turret = new Turret(getLocationFromConfig(turretsSection, turretKey), turretSection.getBoolean("breakable"));
+                            turrets.add(turret);
+                        }
+                    }
+                }
+
                 Location trader = getLocationFromConfig(teamSection, "trader");
 
                 // Process locations or store them as needed
                 System.out.println("Loaded locations for team: " + teamKey);
 
-                locSets.add(new LocationSet(spawn, core, turret, trader));
+                locSets.add(new LocationSet(spawn, core, turrets, trader));
             }
         }
     }
@@ -107,17 +121,14 @@ public class Map {
         this.world = world;
 
         for (LocationSet locationSet : locSets) {
-            locationSet.spawn().setWorld(world);
-            locationSet.core().setWorld(world);
-            locationSet.turret().setWorld(world);
-            locationSet.trader().setWorld(world);
+            locationSet.setWorld(world);
         }
     }
     public World getWorld() {
         return world;
     }
 
-    public static void loadMapNames() {
+    public static void loadMaps() {
         if (!mapsFolder.exists() || !mapsFolder.isDirectory()) {
             System.out.println("Maps folder not found or is not a directory. No maps to load.");
             return;

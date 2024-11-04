@@ -49,10 +49,10 @@ public class Game {
             GameTeam team = teams.get(i);
             LocationSet locationSet = map.getLocSets().get(i);
 
-            team.setSpawn(locationSet.spawn());
-            team.setCore(locationSet.core());
-            team.setTurret(locationSet.turret());
-            new Trader(locationSet.trader());
+            team.setSpawn(locationSet.getSpawn());
+            team.setCore(locationSet.getCore());
+            team.setTurrets(locationSet.getTurrets());
+            new Trader(locationSet.getTrader());
         }
 
         start();

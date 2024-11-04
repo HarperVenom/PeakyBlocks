@@ -14,6 +14,7 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.gamePlayers;
@@ -26,7 +27,7 @@ public class GameTeam {
     private Game game;
     private Location spawn;
     private Core core;
-    private Turret turret;
+    private List<Turret> turrets = new ArrayList<>();
     private Scoreboard scoreboard;
 
     public GameTeam(QueueTeam queueTeam) {
@@ -117,15 +118,22 @@ public class GameTeam {
         core = null;
     }
 
-    public Turret getTurret() {
-        return turret;
+    public List<Turret> getTurrets() {
+        return turrets;
     }
-    public void setTurret(Location turretLoc) {
-        this.turret = new Turret(turretLoc, this);
+    public List<Turret> getBreakableTurrets() {
+        return turrets.stream().filter(Turret::isBreakable).collect(Collectors.toList());
     }
-    public void destroyTurret() {
+    public void setTurrets(List<Turret> turrets) {
+        for (Turret turret : turrets) {
+            turret.setTeam(this);
+            turret.buildStructure();
+        }
+        this.turrets = turrets;
+    }
+    public void destroyTurret(Turret turret) {
         turret.destroy();
-        turret = null;
+        turrets.remove(turret);
     }
 
     public void win() {

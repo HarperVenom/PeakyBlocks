@@ -32,9 +32,10 @@ public class TurretListener implements Listener {
         for (Game game : activeGames) {
             if (game.getWorld().getName().equals(world.getName())) {
                 for (GameTeam team : game.getTeams()) {
-                    Turret turret = team.getTurret();
-                    if (turret == null) return;
-                    turret.scanArea();
+                    for (Turret turret : team.getTurrets()) {
+                        if (turret == null) return;
+                        turret.scanArea();
+                    }
                 }
             }
         }
@@ -66,12 +67,12 @@ public class TurretListener implements Listener {
                     if (hitTeam.getName().equals(shooterTeamName)) {
                         event.setCancelled(true); // Cancel the hit event
                         arrow.setVelocity(arrow.getVelocity());
-                    } else {
-                        Bukkit.broadcastMessage("here");
-
                     }
                 }
+                return;
             }
+            event.setCancelled(true);
+            arrow.setVelocity(arrow.getVelocity());
         }
     }
 

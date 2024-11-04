@@ -21,7 +21,7 @@ public class Core {
 
     public static List<Core> cores = new ArrayList<>();
 
-    private final Location base;
+    private final Location loc;
     private Location block;
     private GameTeam team;
     private static int maxHealth = 10;
@@ -30,7 +30,7 @@ public class Core {
     private List<Location> blocks = new ArrayList<>();
 
     public Core(Location base, GameTeam team) {
-        this.base = base;
+        this.loc = base;
         this.team = team;
         this.health = maxHealth;
 
@@ -40,27 +40,27 @@ public class Core {
     }
 
     private void buildStructure() {
-        Location location = new Location(base.getWorld(), base.getX(), base.getY() + 1, base.getZ());
+        Location location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
         blocks.add(location);
         location.getBlock().setType(Material.SMOOTH_STONE);
 
-        location = new Location(base.getWorld(), base.getX(), base.getY() + 2, base.getZ(), base.getYaw(), base.getPitch());
+        location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
         blocks.add(location);
         block = location;
         location.getBlock().setType(Material.AMETHYST_BLOCK);
 
-        location = new Location(base.getWorld(), base.getX(), base.getY() + 3, base.getZ());
+        location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 3, loc.getZ());
         blocks.add(location);
         location.getBlock().setType(Material.SMOOTH_STONE);
 
-        location = new Location(base.getWorld(), base.getX(), base.getY() + 4, base.getZ());
+        location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 4, loc.getZ());
         blocks.add(location);
 
         Block b = location.getBlock();
         b.setType(team.getColor() == ChatColor.RED ? Material.RED_BANNER : Material.BLUE_BANNER);
 
         if (b.getBlockData() instanceof Rotatable rotatable) {
-            rotatable.setRotation(yawToFace(block.getYaw())); // Or any other direction: SOUTH, EAST, WEST, etc.
+            rotatable.setRotation(yawToFace(loc.getYaw())); // Or any other direction: SOUTH, EAST, WEST, etc.
             b.setBlockData(rotatable);
         }
     }
@@ -84,7 +84,7 @@ public class Core {
         }
     }
 
-    public Location getBlock() {
+    public Location getBlockLoc() {
         return block;
     }
 

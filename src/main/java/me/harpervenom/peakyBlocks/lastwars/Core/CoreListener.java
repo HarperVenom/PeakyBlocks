@@ -4,6 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.lastwars.GameTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -28,13 +29,12 @@ public class CoreListener implements Listener {
         }
 
         for (Core core : cores) {
-            if (core.getBlock().equals(b.getLocation())) {
+            if (core.getBlockLoc().equals(b.getLocation())) {
                 e.setCancelled(true);
-
                 GameTeam team = core.getTeam();
                 if (gp.getTeam().equals(team)) return;
 
-                if (team.getTurret() != null) {
+                if (!team.getBreakableTurrets().isEmpty()) {
                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Сперва нужно разрушить турель!"));
                     return;
                 }

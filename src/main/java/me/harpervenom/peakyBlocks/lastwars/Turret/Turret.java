@@ -20,25 +20,26 @@ public class Turret {
 
     public static List<Turret> turrets = new ArrayList<>();
 
-    private final Location base;
+    private final Location loc;
     private Location block;
     private GameTeam team;
     private static int maxHealth = 10;
     private int health;
+    private boolean isBreakable;
 
     private BukkitRunnable shootingTask;
 
     private static final int baseShootingInterval = 30;
-    private static final float baseArrowSpeed = 1.5F;
     private static final int baseMinShootingInterval = 30;
     private static final int baseIntervalDecrement = 1;
+    private static final float baseArrowSpeed = 1.5F;
 
-    private static final int DETECTION_RADIUS = 10;
+    private int detectionRadius = 10;
 
-    private int initialShootingInterval = baseShootingInterval;
-    private float arrowSpeed = baseArrowSpeed;
     private int minShootingInterval = baseMinShootingInterval;
+    private int initialShootingInterval = baseShootingInterval;
     private int intervalDecrement = baseIntervalDecrement;
+    private float arrowSpeed = baseArrowSpeed;
 
     private int shootingInterval = initialShootingInterval;
 
@@ -48,26 +49,66 @@ public class Turret {
 
     private List<Location> blocks = new ArrayList<>();
 
-    public Turret(Location base, GameTeam team) {
-        this.base = base;
-        this.team = team;
+    public Turret(Location loc, boolean isBreakable) {
+        this.loc = loc;
+        this.isBreakable = isBreakable;
+
+        if (!isBreakable) {
+            minShootingInterval = 10;
+            initialShootingInterval = 10;
+            shootingInterval = 10;
+            arrowSpeed = 3F;
+            detectionRadius = 8;
+        }
+
         this.health = maxHealth;
 
-        turrets.add(this);
-
-        buildStructure();
         isRunning = false;
     }
 
-    private void buildStructure() {
-        Location location = new Location(base.getWorld(), base.getX(), base.getY() + 1, base.getZ());
-        blocks.add(location);
-        location.getBlock().setType(Material.SMOOTH_STONE);
+    public Turret(Turret sample) {
+        this.loc = sample.loc.clone();  // Clone location to avoid shared references
+        this.block = sample.block != null ? sample.block.clone() : null;  // Clone if block is not null
+        this.team = sample.team;
+        this.health = sample.health;
+        this.isBreakable = sample.isBreakable;
 
-        location = new Location(base.getWorld(), base.getX(), base.getY() + 2, base.getZ());
+        this.minShootingInterval = sample.minShootingInterval;
+        this.initialShootingInterval = sample.initialShootingInterval;
+        this.intervalDecrement = sample.intervalDecrement;
+        this.arrowSpeed = sample.arrowSpeed;
+        this.detectionRadius = sample.detectionRadius;
+        this.shootingInterval = sample.shootingInterval;
+        this.isRunning = sample.isRunning;
+
+        // Clone blocks list to avoid shared references
+        this.blocks = new ArrayList<>();
+        for (Location blockLocation : sample.blocks) {
+            this.blocks.add(blockLocation.clone());
+        }
+
+        if (isBreakable) turrets.add(this);
+    }
+
+    public void buildStructure() {
+        Location location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
         blocks.add(location);
-        block = location;
-        location.getBlock().setType(Material.LODESTONE);
+        location.getBlock().setType(isBreakable ? Material.SMOOTH_STONE : Material.BEDROCK);
+
+        location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
+
+        if (isBreakable) {
+            block = location;
+            location.getBlock().setType(Material.LODESTONE);
+        } else {
+            location.getBlock().setType(Material.BEDROCK);
+            blocks.add(location);
+
+            location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 3, loc.getZ());
+            location.getBlock().setType(Material.LODESTONE);
+            block = location;
+        }
+        blocks.add(location);
 
         shooter = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0.5, 0.5, 0.5), EntityType.ARMOR_STAND);
         shooter.setCustomName(team.getColor() + "[Турель]");
@@ -80,6 +121,9 @@ public class Turret {
 
     public int getHealth() {
         return health;
+    }
+    public boolean isBreakable() {
+        return isBreakable;
     }
 
     public void damage(Player p) {
@@ -100,12 +144,18 @@ public class Turret {
         turrets.remove(this);
     }
 
+    public Location getLoc() {
+        return loc;
+    }
     public Location getBlock() {
         return block;
     }
 
     public GameTeam getTeam() {
         return team;
+    }
+    public void setTeam(GameTeam team) {
+        this.team = team;
     }
 
     public void startShootingTask() {
@@ -136,8 +186,6 @@ public class Turret {
                     spawnLocation.add(direction.multiply(0.8));
 
                     double distance = spawnLocation.distance(target.getEyeLocation());
-
-//                    Bukkit.broadcastMessage(distance + "");
 
                     RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation, direction, distance);
 
@@ -192,7 +240,7 @@ public class Turret {
 
             if (!team.isMember(gp)) {  // Assuming GameTeam has an isMember method to check team membership
                 double distance = p.getLocation().distance(block);
-                if (distance < (double) DETECTION_RADIUS) {
+                if (distance < (double) detectionRadius) {
                     playersInRadius.add(p);
                 }
             }

@@ -16,9 +16,11 @@ import org.bukkit.event.player.PlayerSpawnChangeEvent;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
+import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 
 public class GameListener implements Listener {
 
@@ -38,6 +40,10 @@ public class GameListener implements Listener {
     public void worldLeave(PlayerChangedWorldEvent e) {
         World world = e.getFrom();
         if (world.getName().equals("lobby")) return;
+
+        if (world.getPlayers().isEmpty()) {
+            removeWorld(world);
+        }
 
         GamePlayer p = getGamePlayer(e.getPlayer());
         if (p == null) return;
@@ -82,19 +88,26 @@ public class GameListener implements Listener {
         GameTeam team = turret.getTeam();
         Game game = team.getGame();
 
-        team.destroyTurret();
+        team.destroyTurret(turret);
         game.sendMessage(turret.getShooter().getCustomName() + ChatColor.WHITE + " разрушена!");
     }
+
+    private final HashMap<UUID, Boolean> spawnPointUpdate = new HashMap<>();
 
     @EventHandler
     public void RespawnPointChange(PlayerSpawnChangeEvent e) {
         Player p = e.getPlayer();
+        if (spawnPointUpdate.containsKey(p.getUniqueId())) {
+            spawnPointUpdate.remove(p.getUniqueId());
+            return;
+        }
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
 
         Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
             @Override
             public void run() {
+                spawnPointUpdate.put(p.getUniqueId(), true);
                 p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             }
         }, 1);
