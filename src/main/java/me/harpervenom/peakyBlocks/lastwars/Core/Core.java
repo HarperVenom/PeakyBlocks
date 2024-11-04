@@ -26,7 +26,6 @@ public class Core {
     private GameTeam team;
     private static int maxHealth = 10;
     private int health;
-
     private List<Location> blocks = new ArrayList<>();
 
     public Core(Location base, GameTeam team) {
@@ -67,6 +66,10 @@ public class Core {
 
     public int getHealth() {
         return health;
+    }
+
+    public List<Location> getBlocks() {
+        return blocks;
     }
 
     public void damage(Player p) {

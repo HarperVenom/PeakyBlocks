@@ -122,6 +122,11 @@ public class Turret {
     public int getHealth() {
         return health;
     }
+
+    public List<Location> getBlocks() {
+        return blocks;
+    }
+
     public boolean isBreakable() {
         return isBreakable;
     }

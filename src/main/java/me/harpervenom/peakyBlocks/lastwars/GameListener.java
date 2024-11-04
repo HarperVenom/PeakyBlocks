@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars;
 
 import me.harpervenom.peakyBlocks.lastwars.Core.Core;
+import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import me.harpervenom.peakyBlocks.lastwars.Core.CoreDestroyedEvent;
 import me.harpervenom.peakyBlocks.lastwars.Turret.TurretDestroyEvent;
@@ -24,16 +25,18 @@ import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 
 public class GameListener implements Listener {
 
-    public static HashMap<Chunk, List<Location>> placedBlocks = new HashMap<>();
-
     @EventHandler
     public void BlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if (p.getGameMode() == GameMode.CREATIVE) return;
+        GamePlayer gp = getGamePlayer(p);
+        if (gp == null) return;
+        Game game = gp.getTeam().getGame();
+        Map map = game.getMap();
+
         Block b = e.getBlock();
-        Chunk chunk = b.getChunk();
-        if (placedBlocks.containsKey(chunk) && placedBlocks.get(chunk).contains(b.getLocation())) return;
-        e.setCancelled(true);
+
+        if (map.containsBlocks(b)) e.setCancelled(true);
     }
 
     @EventHandler

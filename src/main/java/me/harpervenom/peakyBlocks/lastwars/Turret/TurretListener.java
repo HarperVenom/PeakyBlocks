@@ -91,8 +91,10 @@ public class TurretListener implements Listener {
         for (int i = 0; i < turretsSize; i++) {
             Turret turret = turrets.get(i);
             if (turret == null) return;
+
+            if (turret.getBlocks().contains(b.getLocation())) e.setCancelled(true);
+
             if (turret.getBlock().equals(b.getLocation())) {
-                e.setCancelled(true);
 
                 GameTeam team = turret.getTeam();
                 if (gp.getTeam().equals(team)) {

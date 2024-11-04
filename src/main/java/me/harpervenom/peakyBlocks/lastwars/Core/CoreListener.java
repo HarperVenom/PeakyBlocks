@@ -29,8 +29,9 @@ public class CoreListener implements Listener {
         }
 
         for (Core core : cores) {
+            if (core.getBlocks().contains(b.getLocation())) e.setCancelled(true);
+
             if (core.getBlockLoc().equals(b.getLocation())) {
-                e.setCancelled(true);
                 GameTeam team = core.getTeam();
                 if (gp.getTeam().equals(team)) return;
 

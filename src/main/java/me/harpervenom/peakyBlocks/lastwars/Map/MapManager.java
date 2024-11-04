@@ -14,12 +14,10 @@ import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class MapManager {
 
-    public static void createWorld(Queue queue) {
-        Map map = queue.getMap();
+    public static void createWorld(String mapName, String worldName, Runnable onCopy) {
+        worldName = worldName == null ? mapName : worldName;
 
-        String worldName = "lastwars_" + queue.getId();
-
-        File backup = new File(getPlugin().getDataFolder(), "maps" + File.separator + map.getName());  // Backup world directory
+        File backup = new File(getPlugin().getDataFolder(), "maps" + File.separator + mapName);  // Backup world directory
         File newWorldFolder = new File(Bukkit.getWorldContainer(), worldName);  // Target world folder in server root
 
         if (!backup.exists() || !backup.isDirectory()) {
@@ -43,16 +41,23 @@ public class MapManager {
                 System.out.println("[PeakyBlocks] World data copied from backup!");
 
                 // After copying, switch back to the main thread to load the world
-                Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                    World newWorld = Bukkit.createWorld(new WorldCreator(worldName));
-                    map.setWorld(newWorld);
-                    Bukkit.getPluginManager().callEvent(new MapCreatedEvent(queue));
-                });
+                Bukkit.getScheduler().runTask(getPlugin(), onCopy);
 
             } catch (IOException e) {
                 System.out.println("Failed to copy world data: " + e.getMessage());
                 e.printStackTrace();
             }
+        });
+    }
+
+    public static void createWorld(Queue queue) {
+        Map map = queue.getMap();
+        String worldName = "lastwars_" + queue.getId();
+
+        createWorld(map.getName(), worldName, () -> {
+            World newWorld = Bukkit.createWorld(new WorldCreator(worldName));
+            map.setWorld(newWorld);
+            Bukkit.getPluginManager().callEvent(new MapCreatedEvent(queue));
         });
     }
 
