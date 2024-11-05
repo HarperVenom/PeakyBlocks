@@ -3,6 +3,7 @@ package me.harpervenom.peakyBlocks.lastwars.Turret;
 import me.harpervenom.peakyBlocks.lastwars.Game;
 import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.lastwars.GameTeam;
+import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.lastwars.GameListener.destructExplosions;
+import static me.harpervenom.peakyBlocks.lastwars.GameListener.noDamageExplosions;
 
 public class Turret {
 
@@ -28,6 +31,7 @@ public class Turret {
     private boolean isBreakable;
 
     private BukkitRunnable shootingTask;
+    private BukkitRunnable scanningTask;
 
     private static final int baseShootingInterval = 30;
     private static final int baseMinShootingInterval = 30;
@@ -110,6 +114,9 @@ public class Turret {
         }
         blocks.add(location);
 
+        Map map = team.getGame().getMap();
+        blocks.forEach(map::addLoc);
+
         shooter = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0.5, 0.5, 0.5), EntityType.ARMOR_STAND);
         shooter.setCustomName(team.getColor() + "[Турель]");
         shooter.setAI(false);
@@ -117,6 +124,8 @@ public class Turret {
         shooter.setSilent(true);
         shooter.setInvisible(true);
         shooter.setMarker(true);
+
+        startScanningTask();
     }
 
     public int getHealth() {
@@ -134,6 +143,19 @@ public class Turret {
     public void damage(Player p) {
         health--;
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
+
+        if (!isRunning) {
+            Location loc = block.clone().add(0.5, 0, 0.5);
+            destructExplosions.add(block);
+            noDamageExplosions.add(block);
+            block.getWorld().createExplosion(loc, 6);
+
+            p.setHealth(p.getHealth() < 5 ? 0 : p.getHealth() - 5);
+            p.playSound(p, Sound.ENTITY_PLAYER_HURT, 1, 1);
+
+            scanArea();
+        }
+
         if (health <= 0) {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             Bukkit.getPluginManager().callEvent(new TurretDestroyEvent(this));
@@ -142,7 +164,9 @@ public class Turret {
 
     public void destroy() {
         shootingTask.cancel();
+        noDamageExplosions.add(block);
         block.getWorld().createExplosion(block, 2, false, false);
+
         for (Location loc : blocks) {
             loc.getBlock().setType(Material.AIR);
         }
@@ -178,7 +202,8 @@ public class Turret {
                     return;
                 }
 
-                Location spawnLocation = block.clone().add(0.5, 0.5, 0.5);
+                Location blockCenter = block.clone().add(0.5, 0.5, 0.5);
+                Location spawnLocation = blockCenter.clone();
 
                 List<Location> targetLocations = new ArrayList<>();
                 Location targetLocation = target.getEyeLocation().clone();
@@ -192,18 +217,17 @@ public class Turret {
 
                     double distance = spawnLocation.distance(target.getEyeLocation());
 
-                    RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation, direction, distance);
+                    RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation.clone().subtract(direction.multiply(0.2)),
+                            direction, distance);
 
-                    if (target.getLocation().getY() > block.getY() ? distance < 2 : distance < 0.8) {
-                        punchTarget();
+                    if (result == null || result.getHitBlock() == null) {
+                        if (target.getLocation().getY() > block.getY() ? distance < 2 : distance < 0.9) {
+                            punchTarget();
+                        } else {
+                            shootTarget(spawnLocation, direction);
+                        }
                         attack = true;
                         break;
-                    } else {
-                        if (result == null || result.getHitBlock() == null) {
-                            shootTarget(spawnLocation, direction);
-                            attack = true;
-                            break;
-                        }
                     }
                 }
 
@@ -220,6 +244,17 @@ public class Turret {
             }
         };
         shootingTask.runTaskLater(getPlugin(), isRunning ? shootingInterval : 0);
+    }
+
+    public void startScanningTask() {
+        scanningTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!isRunning) scanArea();
+            }
+        };
+
+        scanningTask.runTaskTimer(getPlugin(), 0, 20);
     }
 
     public void scanArea() {

@@ -148,7 +148,7 @@ public class MenuListener implements Listener {
         for (Map map : sampleMaps) {
             if (map.getDisplayName().equals(name)) {
                 Queue queue = playerCreatingQueue.get(p.getUniqueId());
-                queue.setMap(map);
+                queue.setMap(new Map(map));
 
                 //Open selectMaxPlayer menu
                 switchingMenus.put(p.getUniqueId(), true);

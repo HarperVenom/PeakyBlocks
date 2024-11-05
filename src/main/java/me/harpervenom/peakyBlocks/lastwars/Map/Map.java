@@ -34,19 +34,20 @@ public class Map {
     static {
         loadMaps();
     }
-//
-//    public Map(Map sample) {
-//        name = sample.getName();
-//        displayName = sample.getDisplayName();
-//        locSets = sampleMaps.stream()
-//                .filter(map -> map.getName().equals(name))
-//                .findFirst()
-//                .map(Map::getLocSets)
-//                .orElse(null);
-//
-//        //world is null here
-//        world = sample.getWorld();
-//    }
+
+    public Map(Map sample) {
+        name = sample.name;
+        displayName = sample.displayName;
+        locSets = sampleMaps.stream()
+                .filter(map -> map.getName().equals(name))
+                .findFirst()
+                .map(Map::getLocSets)
+                .orElse(null);
+
+        //world is null here
+        world = sample.world;
+        blocks = sample.blocks;
+    }
 
     public Map(String name) {
         this.name = name;
@@ -144,6 +145,11 @@ public class Map {
     public List<LocationSet> getLocSets() {
         return locSets;
     }
+
+    public HashMap<Chunk, List<Location>> getBlocks() {
+        return blocks;
+    }
+
     public void setWorld(World world) {
         this.world = world;
 
@@ -214,7 +220,17 @@ public class Map {
         blocks = chunkBlocksMap;
     }
 
-    public boolean containsBlocks(Block block) {
+    public void addLoc(Location loc) {
+        Chunk chunk = loc.getChunk();
+
+        List<Location> locations = blocks.getOrDefault(chunk, new ArrayList<>());
+
+        locations.add(loc);
+
+        blocks.put(chunk, locations);
+    }
+
+    public boolean containsBlock(Block block) {
         int chunkX = block.getChunk().getX();
         int chunkZ = block.getChunk().getZ();
         Location blockLocation = block.getLocation();

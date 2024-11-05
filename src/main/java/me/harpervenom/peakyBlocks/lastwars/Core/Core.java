@@ -2,6 +2,7 @@ package me.harpervenom.peakyBlocks.lastwars.Core;
 
 
 import me.harpervenom.peakyBlocks.lastwars.GameTeam;
+import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -55,6 +56,9 @@ public class Core {
         location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 4, loc.getZ());
         blocks.add(location);
 
+        Map map = team.getGame().getMap();
+        blocks.forEach(map::addLoc);
+
         Block b = location.getBlock();
         b.setType(team.getColor() == ChatColor.RED ? Material.RED_BANNER : Material.BLUE_BANNER);
 
@@ -82,6 +86,7 @@ public class Core {
 
     public void destroy() {
         block.getWorld().createExplosion(block, 3, false, false);
+//        noDamageExplosions.add(block);
         for (Location loc : blocks) {
             loc.getBlock().setType(Material.AIR);
         }

@@ -11,10 +11,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerSpawnChangeEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +29,13 @@ import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 
 public class GameListener implements Listener {
 
+    public static List<Location> noDamageExplosions = new ArrayList<>();
+    public static List<Location> destructExplosions = new ArrayList<>();
+
     @EventHandler
     public void BlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (p.getGameMode() == GameMode.CREATIVE) return;
+//        if (p.getGameMode() == GameMode.CREATIVE) return;
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
@@ -36,7 +43,7 @@ public class GameListener implements Listener {
 
         Block b = e.getBlock();
 
-        if (map.containsBlocks(b)) e.setCancelled(true);
+        if (map.containsBlock(b)) e.setCancelled(true);
     }
 
     @EventHandler
@@ -114,6 +121,20 @@ public class GameListener implements Listener {
                 p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             }
         }, 1);
+    }
+
+    @EventHandler
+    public void onExplosionDamage(EntityDamageEvent e) {
+        if (e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) return;
+
+        Location entityLoc = e.getEntity().getLocation();
+
+        for (Location explosionLoc : noDamageExplosions) {
+            if (explosionLoc.distance(entityLoc) < 6) {
+                e.setCancelled(true);
+                break;
+            }
+        }
     }
 
 }
