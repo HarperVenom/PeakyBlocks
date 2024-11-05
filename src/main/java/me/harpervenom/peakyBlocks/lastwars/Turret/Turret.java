@@ -194,7 +194,6 @@ public class Turret {
             public void run() {
                 isRunning = true;
                 scanArea();
-
                 boolean attack = false;
                 if (target == null || target.isDead()) {
                     isRunning = false;
@@ -254,10 +253,11 @@ public class Turret {
             }
         };
 
-        scanningTask.runTaskTimer(getPlugin(), 0, 20);
+        scanningTask.runTaskTimer(getPlugin(), 0, 10);
     }
 
     public void scanArea() {
+
         List<Player> players = getPlayersInRadius();
         if (players.isEmpty()) {
             target = null;

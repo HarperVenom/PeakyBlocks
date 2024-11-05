@@ -1,11 +1,19 @@
 package me.harpervenom.peakyBlocks.lastwars;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.*;
+
+import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class GamePlayer {
 
@@ -21,6 +29,9 @@ public class GamePlayer {
 
     private final UUID id;
     private GameTeam team;
+    private int deaths;
+    private boolean frozen;
+    private BukkitRunnable freezeTask;
 
     public GamePlayer(UUID id) {
         this.id = id;
@@ -39,6 +50,50 @@ public class GamePlayer {
 
     public GameTeam getTeam() {
         return team;
+    }
+
+    public void addDeath() {
+        deaths++;
+    }
+    public int getDeaths() {
+        return deaths;
+    }
+
+    public void freeze(int seconds) {
+        frozen = true;
+
+        Player p = getPlayer();
+        p.setGameMode(GameMode.SPECTATOR);
+
+        final int[] secondsLeft = {seconds};
+
+        freezeTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (secondsLeft[0] > 0) {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("До возрождения: " + secondsLeft[0]));
+                    secondsLeft[0]--;
+                } else {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                    unfreeze();
+                    freezeTask.cancel();
+                }
+            }
+        };
+
+        freezeTask.runTaskTimer(getPlugin(), 0, 20);
+    }
+
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    public void unfreeze() {
+        Player p = getPlayer();
+        p.setGameMode(GameMode.SURVIVAL);
+        p.removePotionEffect(PotionEffectType.BLINDNESS);
+
+        frozen = false;
     }
 
     public void remove() {

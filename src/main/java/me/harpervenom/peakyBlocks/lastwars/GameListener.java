@@ -35,7 +35,6 @@ public class GameListener implements Listener {
     @EventHandler
     public void BlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
-//        if (p.getGameMode() == GameMode.CREATIVE) return;
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
@@ -58,12 +57,6 @@ public class GameListener implements Listener {
         GamePlayer p = getGamePlayer(e.getPlayer());
         if (p == null) return;
         p.remove();
-    }
-
-    @EventHandler
-    public void PlayerQuit(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        p.performCommand("lobby");
     }
 
     @EventHandler
@@ -100,27 +93,6 @@ public class GameListener implements Listener {
 
         team.destroyTurret(turret);
         game.sendMessage(turret.getShooter().getCustomName() + ChatColor.WHITE + " разрушена!");
-    }
-
-    private final HashMap<UUID, Boolean> spawnPointUpdate = new HashMap<>();
-
-    @EventHandler
-    public void RespawnPointChange(PlayerSpawnChangeEvent e) {
-        Player p = e.getPlayer();
-        if (spawnPointUpdate.containsKey(p.getUniqueId())) {
-            spawnPointUpdate.remove(p.getUniqueId());
-            return;
-        }
-        GamePlayer gp = getGamePlayer(p);
-        if (gp == null) return;
-
-        Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                spawnPointUpdate.put(p.getUniqueId(), true);
-                p.setRespawnLocation(gp.getTeam().getSpawn(), true);
-            }
-        }, 1);
     }
 
     @EventHandler

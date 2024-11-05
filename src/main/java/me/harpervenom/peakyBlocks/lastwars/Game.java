@@ -55,6 +55,8 @@ public class Game {
             new Trader(locationSet.getTrader());
         }
 
+        map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+
         start();
     }
 
