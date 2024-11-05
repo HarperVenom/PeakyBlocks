@@ -28,30 +28,6 @@ import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
 
 public class TurretListener implements Listener {
 
-//    @EventHandler
-//    public void EnemyMove(PlayerMoveEvent e) {
-//        Location from = e.getFrom();
-//        Location to = e.getTo();
-//        if (to == null || !hasPlayerMoved(from, to)) return;
-//
-//        World world = e.getTo().getWorld();
-//        if (world == null) return;
-//        for (Game game : activeGames) {
-//            if (game.getWorld().getName().equals(world.getName())) {
-//                for (GameTeam team : game.getTeams()) {
-//                    for (Turret turret : team.getTurrets()) {
-//                        if (turret == null) return;
-//                        turret.scanArea();
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    private boolean hasPlayerMoved(Location from, Location to) {
-        return from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ();
-    }
-
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         // Check if the projectile is an arrow

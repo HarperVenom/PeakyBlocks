@@ -6,7 +6,9 @@ import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
@@ -15,15 +17,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+
 public class Game {
 
     public static List<Game> activeGames = new ArrayList<>();
+
+    public static Game getGameByWorld(World world) {
+        for (Game game : activeGames) {
+            if (game.getWorld().getName().equals(world.getName())) return game;
+        }
+        return null;
+    }
 
     private final int id;
     private Map map;
     public final List<GameTeam> teams = new ArrayList<>();
     public final List<GameTeam> deadTeams = new ArrayList<>();
     private Queue queue;
+    private long time;
+
+    private BukkitRunnable timer;
 
     public Game(Queue queue) {
         this.queue = queue;
@@ -95,12 +109,42 @@ public class Game {
         }
         queue.delete();
         queue = null;
+
+        timer = new BukkitRunnable() {
+            @Override
+            public void run() {
+                time++;
+                if (time % 60 == 0) {
+                    sendMessage(ChatColor.GRAY + "Минута: " + (time / 60));
+                }
+            }
+        };
+
+        timer.runTaskTimer(getPlugin(), 0 ,20);
+    }
+
+    public long getTime() {
+        return time;
     }
 
     public void checkTeams() {
         if (getPlayers().isEmpty()) {
             finish();
         }
+    }
+
+    public boolean isBlockProtected(Block b) {
+        Location blockLoc = b.getLocation();
+
+        for (GameTeam team : teams) {
+            Location spawn = team.getSpawn().clone().subtract(0.5, 0, 0.5);
+
+            if (Math.abs(spawn.getX() - blockLoc.getX()) <= 3 &&
+                    Math.abs(spawn.getZ() - blockLoc.getZ()) <= 3) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void finish() {

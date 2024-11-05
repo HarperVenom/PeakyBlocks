@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -58,8 +59,11 @@ public class PlayerListener implements Listener {
         Player p = e.getPlayer();
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
+        Game game = gp.getTeam().getGame();
 
-        gp.freeze(5);
+        int freezeTime = Math.max((int) (game.getTime() / 30), 1);
+
+        gp.freeze(freezeTime);
     }
 
     @EventHandler
@@ -67,6 +71,12 @@ public class PlayerListener implements Listener {
         Player p = e.getPlayer();
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
-        if (gp.isFrozen()) e.setCancelled(true);
+        if (gp.isFrozen() && hasPlayerMoved(e.getFrom(), e.getTo() == null ? e.getFrom() : e.getTo())) {
+            e.setCancelled(true);
+        }
+    }
+
+    private boolean hasPlayerMoved(Location from, Location to) {
+        return from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ();
     }
 }
