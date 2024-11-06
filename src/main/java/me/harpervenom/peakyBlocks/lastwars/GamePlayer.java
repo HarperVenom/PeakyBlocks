@@ -30,11 +30,15 @@ public class GamePlayer {
     private final UUID id;
     private GameTeam team;
     private int deaths;
+    private int expAfterDeath;
+
     private boolean frozen;
     private BukkitRunnable freezeTask;
 
     public GamePlayer(UUID id) {
         this.id = id;
+        deaths = 0;
+        expAfterDeath = 0;
     }
 
     public UUID getId() {
@@ -54,9 +58,29 @@ public class GamePlayer {
 
     public void addDeath() {
         deaths++;
+        expAfterDeath = 0;
+
+        team.getGame().updateBountyBoard();
     }
     public int getDeaths() {
         return deaths;
+    }
+
+    public void changeBalance(int exp) {
+        getPlayer().giveExpLevels(exp);
+        if (exp > 0) {
+            expAfterDeath += exp;
+        }
+
+        team.getGame().updateBountyBoard();
+    }
+
+    public int getBalance() {
+        return getPlayer().getLevel();
+    }
+
+    public int getBounty() {
+        return expAfterDeath / 2;
     }
 
     public void freeze(int seconds) {

@@ -2,11 +2,18 @@ package me.harpervenom.peakyBlocks.lastwars.Trader;
 
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBook;
+import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class Trader{
 
@@ -23,6 +30,9 @@ public class Trader{
         villager.setGravity(false);
 
         traderMenu = Bukkit.createInventory(new CustomMenuHolder("traderMenu"), 54, traderName);
-        traderMenu.setItem(22, luckyBook);
+        ItemStack luckyBookPurchase = createItem(luckyBook.getType(), luckyBook.getItemMeta().getDisplayName(),
+                List.of(ChatColor.WHITE + "Цена: " + ChatColor.GREEN + "10 EXP"));
+
+        traderMenu.setItem(22, luckyBookPurchase);
     }
 }

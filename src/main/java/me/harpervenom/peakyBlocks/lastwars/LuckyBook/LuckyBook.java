@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener.goodsPrices;
+
 public class LuckyBook {
 
     public static ItemStack luckyBook;
@@ -21,6 +23,8 @@ public class LuckyBook {
         ItemMeta meta = luckyBook.getItemMeta();
         if (meta != null) meta.setDisplayName(luckyBookName);
         luckyBook.setItemMeta(meta);
+
+        goodsPrices.put(luckyBookName, 10);
     }
 
     public static void giveLootToPlayer(Player p) {

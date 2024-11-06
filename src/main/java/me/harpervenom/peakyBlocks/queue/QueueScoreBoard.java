@@ -38,8 +38,8 @@ public class QueueScoreBoard {
     }
 
     public void displayMessage(String message, int position) {
-        Score score = objective.getScore(message); // Create the score entry for the message
-        score.setScore(position); // Set the score value (for ordering)
+        Score score = objective.getScore(message);
+        score.setScore(position);
     }
 
     public void update() {

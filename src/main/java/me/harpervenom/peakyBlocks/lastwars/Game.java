@@ -9,9 +9,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +34,8 @@ public class Game {
     public final List<GameTeam> deadTeams = new ArrayList<>();
     private Queue queue;
     private long time;
+    private Scoreboard scoreboard;
+    private Objective bountyObjective;
 
     private BukkitRunnable timer;
 
@@ -43,15 +43,22 @@ public class Game {
         this.queue = queue;
         this.id = queue.getId();
 
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        scoreboard = manager.getNewScoreboard();
+        bountyObjective = scoreboard.registerNewObjective("bountyScores", "dummy", "Player Scores");
+        bountyObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+
         for (QueueTeam queueTeam : queue.getTeams()) {
-            GameTeam gameTeam = new GameTeam(queueTeam);
-            gameTeam.setGame(this);
+            GameTeam gameTeam = new GameTeam(this, queueTeam);
             teams.add(gameTeam);
         }
 
         setMap(queue.getMap());
     }
 
+    public Scoreboard getScoreboard() {
+        return scoreboard;
+    }
 
     public Map getMap() {
         return map;
@@ -105,6 +112,7 @@ public class Game {
             p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             p.setGameMode(GameMode.SURVIVAL);
             p.setSaturation(5);
+            p.setTotalExperience(0);
             p.sendMessage("Игра началась!");
         }
         queue.delete();
@@ -121,6 +129,8 @@ public class Game {
         };
 
         timer.runTaskTimer(getPlugin(), 0 ,20);
+
+        updateBountyBoard();
     }
 
     public long getTime() {
@@ -145,6 +155,15 @@ public class Game {
             }
         }
         return false;
+    }
+
+    public void updateBountyBoard() {
+        for (GamePlayer gp : getPlayers()) {
+            Player p = gp.getPlayer();
+
+            Score score = bountyObjective.getScore(p.getName());
+            score.setScore(gp.getBounty());
+        }
     }
 
     public void finish() {

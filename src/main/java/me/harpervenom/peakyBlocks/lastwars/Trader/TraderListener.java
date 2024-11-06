@@ -1,6 +1,11 @@
 package me.harpervenom.peakyBlocks.lastwars.Trader;
 
+import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -16,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 
+import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBook;
 import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBookName;
 import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderMenu;
@@ -23,6 +29,8 @@ import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderName;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.getCustomMenuHolder;
 
 public class TraderListener implements Listener {
+
+    public static HashMap<String, Integer> goodsPrices = new HashMap<>();
 
     @EventHandler
     public void TraderInteract(PlayerInteractEntityEvent e) {
@@ -52,15 +60,32 @@ public class TraderListener implements Listener {
         if (inv == null || inv.getType() == InventoryType.PLAYER) return;
 
         Player p = (Player) e.getWhoClicked();
+        GamePlayer gp = getGamePlayer(p);
+        if (gp == null) return;
         ItemStack item = e.getCurrentItem();
         if (item == null) return;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !luckyBookName.equals(meta.getDisplayName())) return;
+        if (meta == null) return;
+        String name = meta.getDisplayName();
 
-        HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(luckyBook);
+        if (!goodsPrices.containsKey(name)) return;
+        int price = goodsPrices.get(name);
 
-        for (ItemStack droppedItem : remaining.values()) {
-            p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
+        if (gp.getBalance() < price) {
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1, 1);
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Недостаточно опыта"));
+            return;
+        }
+
+        if (name.equals(luckyBookName)) {
+            gp.changeBalance(-price);
+            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+
+            HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(luckyBook);
+
+            for (ItemStack droppedItem : remaining.values()) {
+                p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
+            }
         }
     }
 }

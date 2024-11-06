@@ -52,6 +52,7 @@ public class PlayerListener implements Listener {
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
         gp.addDeath();
+        e.setKeepLevel(true);
     }
 
     @EventHandler

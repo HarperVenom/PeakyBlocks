@@ -28,22 +28,17 @@ public class GameTeam {
     private Location spawn;
     private Core core;
     private List<Turret> turrets = new ArrayList<>();
-    private Scoreboard scoreboard;
+    private final Team team;
 
-    public GameTeam(QueueTeam queueTeam) {
+    public GameTeam(Game game, QueueTeam queueTeam) {
         this.color = queueTeam.getColor();
 
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        if (manager != null) {
-            scoreboard = manager.getMainScoreboard();
-        }
+        this.game = game;
 
-        Team team = scoreboard.getTeam(queueTeam.getTeamName());
-        if (team == null) {
-            team = scoreboard.registerNewTeam(queueTeam.getTeamName());
-            team.setColor(color);
-            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-        }
+        Scoreboard scoreboard = game.getScoreboard();
+        team = game.getScoreboard().registerNewTeam(queueTeam.getTeamName());
+        team.setColor(color);
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
 
         for (QueuePlayer qp : queueTeam.getPlayers()) {
             GamePlayer gamePlayer = new GamePlayer(qp.getId());
@@ -53,9 +48,9 @@ public class GameTeam {
 
             team.addEntry(gamePlayer.getPlayer().getName());
 
-            Scoreboard emptyScoreboard = manager.getNewScoreboard();
+//            Scoreboard emptyScoreboard = manager.getNewScoreboard();
             Player player = gamePlayer.getPlayer();
-            player.setScoreboard(emptyScoreboard);
+//            player.setScoreboard(emptyScoreboard);
 
             // Reassign the main scoreboard with a slight delay
             Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
@@ -149,11 +144,4 @@ public class GameTeam {
             p.sendTitle("Поражение!", "", 10, 100, 2);
         }
     }
-
-//    public void loose() {
-//        for (GamePlayer gp : getPlayers()) {
-//            Player p = gp.getPlayer();
-//            p.sendTitle( ChatColor.RED + "Поражение!", "Команда" + winner.getColor() + winner.getTeamName() + "одержала победу.", 10, 100, 2);
-//        }
-//    }
 }
