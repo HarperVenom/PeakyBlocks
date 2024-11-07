@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
         Player p = e.getEntity();
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
-        gp.addDeath();
+        gp.addDeath(false);
         e.setKeepLevel(true);
     }
 
@@ -62,7 +62,7 @@ public class PlayerListener implements Listener {
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
 
-        int freezeTime = Math.max((int) (game.getTime() / 30), 1);
+        int freezeTime = Math.max((int) (game.getTime() / 30), 10);
 
         gp.freeze(freezeTime);
     }

@@ -2,11 +2,13 @@ package me.harpervenom.peakyBlocks.lastwars;
 
 import me.harpervenom.peakyBlocks.lastwars.Map.LocationSet;
 import me.harpervenom.peakyBlocks.lastwars.Map.Map;
+import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
@@ -32,6 +34,8 @@ public class Game {
     private Map map;
     public final List<GameTeam> teams = new ArrayList<>();
     public final List<GameTeam> deadTeams = new ArrayList<>();
+    public List<Spawner> spawners = new ArrayList<>();
+
     private Queue queue;
     private long time;
     private Scoreboard scoreboard;
@@ -76,9 +80,15 @@ public class Game {
             new Trader(locationSet.getTrader());
         }
 
+        setSpawners(map.getSpawners());
+
         map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
         start();
+    }
+
+    public void setSpawners(List<Spawner> spawners) {
+        this.spawners = spawners;
     }
 
     public World getWorld() {
@@ -113,24 +123,43 @@ public class Game {
             p.setGameMode(GameMode.SURVIVAL);
             p.setSaturation(5);
             p.setTotalExperience(0);
+            p.setLevel(0);
             p.sendMessage("Игра началась!");
         }
         queue.delete();
         queue = null;
 
+        runTimer();
+
+        updateBountyBoard();
+    }
+
+    private void runTimer() {
         timer = new BukkitRunnable() {
             @Override
             public void run() {
                 time++;
                 if (time % 60 == 0) {
                     sendMessage(ChatColor.GRAY + "Минута: " + (time / 60));
+
+                    for (Spawner spawner : spawners) {
+                        if (spawner.getType() == EntityType.SLIME) {
+                            spawner.run();
+                        }
+                    }
+                }
+
+                if (time % 45 == 0) {
+                    for (Spawner spawner : spawners) {
+                        if (spawner.getType() == EntityType.ZOMBIE) {
+                            spawner.run();
+                        }
+                    }
                 }
             }
         };
 
         timer.runTaskTimer(getPlugin(), 0 ,20);
-
-        updateBountyBoard();
     }
 
     public long getTime() {

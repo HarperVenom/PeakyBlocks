@@ -1,11 +1,13 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
+import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class Map {
     private World world;
     private List<LocationSet> locSets = new ArrayList<>();
     private HashMap<Chunk, List<Location>> blocks = new HashMap<>();
+    private List<Spawner> spawners = new ArrayList<>();
 
     private Location corner1;
     private Location corner2;
@@ -43,6 +46,7 @@ public class Map {
                 .findFirst()
                 .map(Map::getLocSets)
                 .orElse(null);
+        spawners = sample.getSpawners();
 
         //world is null here
         world = sample.world;
@@ -109,11 +113,13 @@ public class Map {
             this.world = Bukkit.createWorld(new WorldCreator(name));
 
             if (borderSection != null) {
-                corner1 = new Location(world, borderSection.getDouble("x1"),
+                corner1 = new Location(world,
+                        borderSection.getDouble("x1"),
                         borderSection.getDouble("y1"),
                         borderSection.getDouble("z1"));
 
-                corner2 = new Location(world, borderSection.getDouble("x2"),
+                corner2 = new Location(world,
+                        borderSection.getDouble("x2"),
                         borderSection.getDouble("y2"),
                         borderSection.getDouble("z2"));
             }
@@ -123,6 +129,34 @@ public class Map {
             removeWorld(world);
             world = null;
         });
+
+        ConfigurationSection spawnersSection = config.getConfigurationSection("spawners");
+        if (spawnersSection == null) {
+            System.out.println("No spawners section found in the config for map: " + name);
+            return;
+        }
+
+        for (String spawnerKey : spawnersSection.getKeys(false)) {
+            ConfigurationSection spawnerSection = spawnersSection.getConfigurationSection(spawnerKey);
+            System.out.println(spawnerSection);
+
+            if (spawnerSection != null) {
+
+
+                Location spawnerLoc = new Location(null,
+                        spawnerSection.getDouble("x"),
+                        spawnerSection.getDouble("y"),
+                        spawnerSection.getDouble("z"));
+
+                System.out.println(spawnerLoc);
+
+                EntityType type = EntityType.valueOf(spawnerSection.getString("type").toUpperCase());
+
+                Spawner spawner = new Spawner(spawnerLoc, type);
+
+                spawners.add(spawner);
+            }
+        }
     }
 
     private Location getLocationFromConfig(ConfigurationSection section, String path) {
@@ -146,6 +180,15 @@ public class Map {
         return locSets;
     }
 
+    public List<Spawner> getSpawners() {
+//        List<Spawner> spawnerCopies = new ArrayList<>();
+//        for (Spawner spawner : spawners) {
+//            spawnerCopies.add(new Spawner(spawner));  // Assumes Turret has a copy constructor
+//        }
+//        return spawnerCopies;
+        return spawners;
+    }
+
     public HashMap<Chunk, List<Location>> getBlocks() {
         return blocks;
     }
@@ -155,6 +198,10 @@ public class Map {
 
         for (LocationSet locationSet : locSets) {
             locationSet.setWorld(world);
+        }
+
+        for (Spawner spawner : spawners) {
+            spawner.getLocation().setWorld(world);
         }
     }
     public World getWorld() {

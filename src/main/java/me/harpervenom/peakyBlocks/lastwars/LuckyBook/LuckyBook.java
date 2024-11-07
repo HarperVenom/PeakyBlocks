@@ -24,7 +24,7 @@ public class LuckyBook {
         if (meta != null) meta.setDisplayName(luckyBookName);
         luckyBook.setItemMeta(meta);
 
-        goodsPrices.put(luckyBookName, 10);
+        goodsPrices.put(luckyBookName, 5);
     }
 
     public static void giveLootToPlayer(Player p) {

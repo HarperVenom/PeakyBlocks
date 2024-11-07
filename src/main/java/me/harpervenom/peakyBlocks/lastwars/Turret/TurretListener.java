@@ -13,16 +13,7 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static me.harpervenom.peakyBlocks.lastwars.Game.activeGames;
-import static me.harpervenom.peakyBlocks.lastwars.GameListener.destructExplosions;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
 
@@ -86,36 +77,4 @@ public class TurretListener implements Listener {
             }
         }
     }
-
-    @EventHandler
-    public void Explode(BlockExplodeEvent e) {
-        Location loc = e.getBlock().getLocation();
-        if (!destructExplosions.contains(loc)) return;
-
-        List<Block> blocks = e.blockList();
-        World world = e.getBlock().getWorld();
-        Game game = activeGames.stream().filter(currentGame -> currentGame.getWorld().getName().equals(world.getName())).findFirst().orElse(null);
-
-        if (game == null) return;
-
-        blocks.removeIf(block -> game.getMap().containsBlock(block));
-
-        int radius = 5; // Set your explosion radius
-
-        // Loop through blocks in the explosion radius
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    Block block = world.getBlockAt(loc.clone().add(x, y, z));
-                    // Check if block is obsidian and not already in the list
-                    if (block.getType() == Material.OBSIDIAN && !blocks.contains(block)) {
-                        blocks.add(block); // Add obsidian to the explosion-affected blocks
-                    }
-                }
-            }
-        }
-
-        destructExplosions.remove(loc);
-    }
-
 }

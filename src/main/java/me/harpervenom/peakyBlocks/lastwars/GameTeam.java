@@ -1,6 +1,8 @@
 package me.harpervenom.peakyBlocks.lastwars;
 
 import me.harpervenom.peakyBlocks.lastwars.Core.Core;
+import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
+import me.harpervenom.peakyBlocks.lastwars.Spawner.SpawnerListener;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import me.harpervenom.peakyBlocks.queue.QueuePlayer;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
@@ -48,13 +50,9 @@ public class GameTeam {
 
             team.addEntry(gamePlayer.getPlayer().getName());
 
-//            Scoreboard emptyScoreboard = manager.getNewScoreboard();
-            Player player = gamePlayer.getPlayer();
-//            player.setScoreboard(emptyScoreboard);
-
-            // Reassign the main scoreboard with a slight delay
+            Player p = gamePlayer.getPlayer();
             Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-                player.setScoreboard(scoreboard);
+                p.setScoreboard(scoreboard);
             }, 2L);
         }
     }

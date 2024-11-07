@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
 
+import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -47,6 +48,14 @@ public class LocationSet {
         }
         return turretCopies;
     }
+
+//    public List<Spawner> getSpawners() {
+//        List<Spawner> spawnerCopies = new ArrayList<>();
+//        for (Spawner spawner : spawners) {
+//            spawnerCopies.add(new Spawner(spawner));  // Assumes Turret has a copy constructor
+//        }
+//        return spawnerCopies;
+//    }
 
     public Location getTrader() {
         return trader;

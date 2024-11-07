@@ -56,9 +56,9 @@ public class GamePlayer {
         return team;
     }
 
-    public void addDeath() {
+    public void addDeath(boolean byPlayer) {
         deaths++;
-        expAfterDeath = 0;
+        if (byPlayer) expAfterDeath = 0;
 
         team.getGame().updateBountyBoard();
     }

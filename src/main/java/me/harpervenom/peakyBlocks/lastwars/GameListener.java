@@ -16,19 +16,16 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerSpawnChangeEvent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.lastwars.Game.activeGames;
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
@@ -36,7 +33,7 @@ import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 public class GameListener implements Listener {
 
     public static List<Location> noDamageExplosions = new ArrayList<>();
-    public static List<Location> destructExplosions = new ArrayList<>();
+    public static List<Location> turretExplosions = new ArrayList<>();
 
     @EventHandler
     public void BlockBreak(BlockBreakEvent e) {
@@ -142,6 +139,50 @@ public class GameListener implements Listener {
 
         team.destroyTurret(turret);
         game.sendMessage(turret.getShooter().getCustomName() + ChatColor.WHITE + " разрушена!");
+    }
+
+    @EventHandler
+    public void Explode(BlockExplodeEvent e) {
+        Location loc = e.getBlock().getLocation();
+        List<Block> blocks = e.blockList();
+
+        updateBlockList(loc, blocks);
+    }
+
+    @EventHandler
+    public void EntityExplode(EntityExplodeEvent e) {
+        Location loc = e.getEntity().getLocation();
+        List<Block> blocks = e.blockList();
+
+        updateBlockList(loc, blocks);
+    }
+
+    public void updateBlockList(Location loc, List<Block> blocks) {
+        World world = loc.getWorld();
+        Game game = activeGames.stream().filter(currentGame -> currentGame.getWorld().getName().equals(world.getName())).findFirst().orElse(null);
+
+        if (game == null) return;
+
+        blocks.removeIf(block -> game.getMap().containsBlock(block));
+
+        int radius = 5; // Set your explosion radius
+
+        // Loop through blocks in the explosion radius
+        if (turretExplosions.contains(loc)) {
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -radius; y <= radius; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        Block block = world.getBlockAt(loc.clone().add(x, y, z));
+                        // Check if block is obsidian and not already in the list
+
+                        if (block.getType() == Material.OBSIDIAN && !blocks.contains(block)) {
+                            blocks.add(block); // Add obsidian to the explosion-affected blocks
+                        }
+                    }
+                }
+            }
+            turretExplosions.remove(loc);
+        }
     }
 
     @EventHandler

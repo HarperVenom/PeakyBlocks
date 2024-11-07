@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
-import static me.harpervenom.peakyBlocks.lastwars.GameListener.destructExplosions;
-import static me.harpervenom.peakyBlocks.lastwars.GameListener.noDamageExplosions;
+import static me.harpervenom.peakyBlocks.lastwars.GameListener.*;
 
 public class Turret {
 
@@ -146,7 +145,7 @@ public class Turret {
 
         if (!isRunning) {
             Location loc = block.clone().add(0.5, 0, 0.5);
-            destructExplosions.add(block);
+            turretExplosions.add(block);
             noDamageExplosions.add(block);
             block.getWorld().createExplosion(loc, 6);
 
@@ -253,7 +252,7 @@ public class Turret {
             }
         };
 
-        scanningTask.runTaskTimer(getPlugin(), 0, 10);
+        scanningTask.runTaskTimer(getPlugin(), 0, 20);
     }
 
     public void scanArea() {
