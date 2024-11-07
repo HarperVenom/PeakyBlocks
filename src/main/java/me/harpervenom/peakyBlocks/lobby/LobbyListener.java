@@ -30,6 +30,8 @@ public class LobbyListener implements Listener {
     public static void setLobby(Player p) {
         p.setFoodLevel(20);
         p.setHealth(20);
+        p.setLevel(0);
+        p.setExp(0);
         p.setGameMode(GameMode.ADVENTURE);
 
         Location spawn = new Location(getPlugin().getServer().getWorld("lobby"), 0.5, 0, 0.5);

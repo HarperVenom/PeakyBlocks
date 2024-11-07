@@ -4,6 +4,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -67,12 +68,15 @@ public class GamePlayer {
     }
 
     public void changeBalance(int exp) {
-        getPlayer().giveExpLevels(exp);
+        Player p = getPlayer();
+        p.giveExpLevels(exp);
         if (exp > 0) {
             expAfterDeath += exp;
         }
 
         team.getGame().updateBountyBoard();
+
+        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1);
     }
 
     public int getBalance() {

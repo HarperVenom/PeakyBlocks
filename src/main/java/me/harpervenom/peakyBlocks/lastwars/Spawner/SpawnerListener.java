@@ -4,6 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,7 +22,7 @@ public class SpawnerListener implements Listener {
         LivingEntity entity = e.getEntity();
 
         e.setDroppedExp(0);
-        e.getDrops().clear();
+        if (!(entity instanceof Player)) e.getDrops().clear();
 
         Spawner spawner = getEntitySpawner(entity);
 
@@ -38,10 +39,9 @@ public class SpawnerListener implements Listener {
             if (gp == null) return;
 
             double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) Math.max(entityMaxHealth / 2, 1);
+            int exp = (int) Math.max(entityMaxHealth / (entity.getType() == EntityType.MAGMA_CUBE ? 1 : 2), 1);
 
             gp.changeBalance(exp);
-            killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4f, 1);
         }
     }
 }

@@ -122,7 +122,7 @@ public class Game {
             p.setRespawnLocation(gp.getTeam().getSpawn(), true);
             p.setGameMode(GameMode.SURVIVAL);
             p.setSaturation(5);
-            p.setTotalExperience(0);
+            p.setExp(0);
             p.setLevel(0);
             p.sendMessage("Игра началась!");
         }
@@ -138,10 +138,19 @@ public class Game {
         timer = new BukkitRunnable() {
             @Override
             public void run() {
-                time++;
-                if (time % 60 == 0) {
+                if (time != 0 && time % 60 == 0) {
                     sendMessage(ChatColor.GRAY + "Минута: " + (time / 60));
+                }
 
+                if (time != 0 && time % 90 == 0) {
+                    for (Spawner spawner : spawners) {
+                        if (spawner.getType() == EntityType.MAGMA_CUBE) {
+                            spawner.run();
+                        }
+                    }
+                }
+
+                if (time == 0 || time % 60 == 0) {
                     for (Spawner spawner : spawners) {
                         if (spawner.getType() == EntityType.SLIME) {
                             spawner.run();
@@ -149,13 +158,7 @@ public class Game {
                     }
                 }
 
-                if (time % 45 == 0) {
-                    for (Spawner spawner : spawners) {
-                        if (spawner.getType() == EntityType.ZOMBIE) {
-                            spawner.run();
-                        }
-                    }
-                }
+                time++;
             }
         };
 

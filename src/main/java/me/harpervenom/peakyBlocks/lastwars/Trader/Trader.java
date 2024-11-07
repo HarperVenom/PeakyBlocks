@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBook;
+import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBookName;
+import static me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener.goodsPrices;
 import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class Trader{
@@ -31,7 +33,7 @@ public class Trader{
 
         traderMenu = Bukkit.createInventory(new CustomMenuHolder("traderMenu"), 54, traderName);
         ItemStack luckyBookPurchase = createItem(luckyBook.getType(), luckyBook.getItemMeta().getDisplayName(),
-                List.of(ChatColor.WHITE + "Цена: " + ChatColor.GREEN + "10 EXP"));
+                List.of(ChatColor.WHITE + "Цена: " + ChatColor.GREEN + goodsPrices.get(luckyBookName) + " EXP"));
 
         traderMenu.setItem(22, luckyBookPurchase);
     }

@@ -2,9 +2,8 @@ package me.harpervenom.peakyBlocks.lastwars.Spawner;
 
 import me.harpervenom.peakyBlocks.lastwars.Game;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class Spawner {
 
     private Location location;
     private EntityType type;
-    private int maxAmount = 5;
+    private int maxAmount = 3;
 
     private List<LivingEntity> entities = new ArrayList<>();
 
@@ -65,6 +64,13 @@ public class Spawner {
         world.spawnParticle(Particle.FLAME, spawnLocation, 20, 0.2, 0.5, 0.2, 0.05);
 
         entity.getEquipment().setHelmet(new ItemStack(Material.LEATHER_HELMET));
+        entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
+        if (entity instanceof Slime slime) {
+            slime.setSize(4);
+        }
+        if (entity instanceof MagmaCube magma) {
+            magma.setSize(4);
+        }
 
         entities.add(entity);
 

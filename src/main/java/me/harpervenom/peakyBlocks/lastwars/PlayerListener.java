@@ -51,7 +51,17 @@ public class PlayerListener implements Listener {
         Player p = e.getEntity();
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
-        gp.addDeath(false);
+
+        Player killer = e.getEntity().getKiller();
+        if (killer != null) {
+            GamePlayer gKiller = getGamePlayer(killer);
+            if (gKiller == null) {
+                gp.addDeath(false);
+            } else {
+                gKiller.changeBalance(gp.getBounty());
+                gp.addDeath(true);
+            }
+        }
         e.setKeepLevel(true);
     }
 
@@ -65,6 +75,8 @@ public class PlayerListener implements Listener {
         int freezeTime = Math.max((int) (game.getTime() / 30), 10);
 
         gp.freeze(freezeTime);
+
+        p.setFoodLevel(6);
     }
 
     @EventHandler

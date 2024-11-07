@@ -79,7 +79,6 @@ public class TraderListener implements Listener {
 
         if (name.equals(luckyBookName)) {
             gp.changeBalance(-price);
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 
             HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(luckyBook);
 
