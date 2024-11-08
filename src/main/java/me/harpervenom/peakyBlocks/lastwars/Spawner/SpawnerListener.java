@@ -9,6 +9,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
 
@@ -31,6 +33,16 @@ public class SpawnerListener implements Listener {
     }
 
     @EventHandler
+    public void EntityDamage(EntityDamageByEntityEvent e) {
+        if (e.getDamager() instanceof LivingEntity entity) {
+            Spawner spawner = getEntitySpawner(entity);
+
+            if (spawner == null) return;
+            e.setDamage(0.1);
+        }
+    }
+
+    @EventHandler
     public void PlayerKillEntity(EntityDeathEvent e) {
         LivingEntity entity = e.getEntity();
 
@@ -39,7 +51,7 @@ public class SpawnerListener implements Listener {
             if (gp == null) return;
 
             double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) Math.max(entityMaxHealth / (entity.getType() == EntityType.MAGMA_CUBE ? 1 : 2), 1);
+            int exp = (int) Math.max(entityMaxHealth * (entity.getType() == EntityType.MAGMA_CUBE ? 3 : 2), 1);
 
             gp.changeBalance(exp);
         }

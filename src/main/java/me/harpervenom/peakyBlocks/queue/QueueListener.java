@@ -4,6 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.Game;
 import me.harpervenom.peakyBlocks.queue.events.PlayerAddedEvent;
 import me.harpervenom.peakyBlocks.queue.events.PlayerRemovedEvent;
 import me.harpervenom.peakyBlocks.queue.events.MapCreatedEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,10 +51,12 @@ public class QueueListener implements Listener {
         boolean isChangingTeams = e.isChangingTeams();
         boolean isSilent = e.isSilent();
 
-        if (qp.getTeam().equals(team)) qp.setTeam(null);
+        if (qp.getTeam().equals(team)) {
+            qp.setTeam(null);
+        }
 
         if (qp.getId() == queue.creator && !isChangingTeams) {
-            queue.delete();
+            queue.delete(false);
             updatePlayerInventory(qp.getPlayer());
             if (!isSilent) p.sendMessage(ChatColor.DARK_GRAY + "Вы удалили очередь.");
             return;
@@ -65,14 +68,16 @@ public class QueueListener implements Listener {
 
         queue.playersCount--;
 
-        if (!isSilent && qp.getTeam().getQueue().getId() != queue.id) {
-            p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули игру.");
-        } else {
-            p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
+        if (!isSilent) {
+            if (qp.getTeam().getQueue().getId() != queue.id) {
+                p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули игру.");
+            } else {
+                p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");
+            }
         }
 
         if (queue.playersCount == 0 && !isChangingTeams) {
-            queue.delete();
+            queue.delete(false);
             return;
         }
 

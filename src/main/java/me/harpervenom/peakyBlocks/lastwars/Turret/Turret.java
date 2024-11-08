@@ -14,9 +14,11 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GameListener.*;
+import static me.harpervenom.peakyBlocks.utils.Utils.isValidUUID;
 
 public class Turret {
 
@@ -32,8 +34,8 @@ public class Turret {
     private BukkitRunnable shootingTask;
     private BukkitRunnable scanningTask;
 
-    private static final int baseShootingInterval = 30;
-    private static final int baseMinShootingInterval = 30;
+    private static final int baseShootingInterval = 50;
+    private static final int baseMinShootingInterval = 50;
     private static final int baseIntervalDecrement = 1;
     private static final float baseArrowSpeed = 1.5F;
 
@@ -48,7 +50,7 @@ public class Turret {
 
     public boolean isRunning;
     private ArmorStand shooter;
-    private Player target;
+    private List<LivingEntity> targets;
 
     private List<Location> blocks = new ArrayList<>();
 
@@ -123,6 +125,7 @@ public class Turret {
         shooter.setSilent(true);
         shooter.setInvisible(true);
         shooter.setMarker(true);
+        team.getTeam().addEntry(shooter.getUniqueId().toString());
 
         startScanningTask();
     }
@@ -149,7 +152,9 @@ public class Turret {
             noDamageExplosions.add(block);
             block.getWorld().createExplosion(loc, 6);
 
-            p.setHealth(p.getHealth() < 5 ? 0 : p.getHealth() - 5);
+            int damage = 7;
+
+            p.setHealth(p.getHealth() < damage ? 0 : p.getHealth() - damage);
             p.playSound(p, Sound.ENTITY_PLAYER_HURT, 1, 1);
 
             scanArea();
@@ -187,58 +192,57 @@ public class Turret {
     }
 
     public void startShootingTask() {
-
         shootingTask = new BukkitRunnable() {
             @Override
             public void run() {
                 isRunning = true;
                 scanArea();
-                boolean attack = false;
-                if (target == null || target.isDead()) {
-                    isRunning = false;
-                    shootingInterval = initialShootingInterval;
-                    return;
-                }
 
-                Location blockCenter = block.clone().add(0.5, 0.5, 0.5);
-                Location spawnLocation = blockCenter.clone();
+                for (LivingEntity target : targets) {
+                    boolean attack = false;
+                    if (target == null || target.isDead()) continue;
 
-                List<Location> targetLocations = new ArrayList<>();
-                Location targetLocation = target.getEyeLocation().clone();
-                targetLocations.add(targetLocation);
-                targetLocations.add(targetLocation.clone().add(0, -1, 0));
+                    Location blockCenter = block.clone().add(0.5, 0.5, 0.5);
+                    Location spawnLocation = blockCenter.clone();
 
-                for (Location targetLoc : targetLocations) {
-                    Vector direction = targetLoc.toVector().subtract(spawnLocation.toVector()).normalize();
+                    List<Location> targetLocations = new ArrayList<>();
+                    Location targetLocation = target.getEyeLocation().clone();
+                    targetLocations.add(targetLocation);
+                    targetLocations.add(targetLocation.clone().add(0, -1, 0));
 
-                    spawnLocation.add(direction.multiply(0.8));
+                    for (Location targetLoc : targetLocations) {
+                        Vector direction = targetLoc.toVector().subtract(spawnLocation.toVector()).normalize();
 
-                    double distance = spawnLocation.distance(target.getEyeLocation());
+                        spawnLocation.add(direction.multiply(0.8));
 
-                    RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation.clone().subtract(direction.multiply(0.2)),
-                            direction, distance);
+                        double distance = spawnLocation.distance(target.getEyeLocation());
 
-                    if (result == null || result.getHitBlock() == null) {
-                        if (target.getLocation().getY() > block.getY() ? distance < 2 : distance < 0.9) {
-                            punchTarget();
-                        } else {
-                            shootTarget(spawnLocation, direction);
+                        RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation.clone().subtract(direction.multiply(0.2)),
+                                direction, distance);
+
+                        if (result == null || result.getHitBlock() == null) {
+                            if (target.getLocation().getY() > block.getY() ? distance < 2 : distance < 0.9) {
+                                punchTarget(target);
+                            } else {
+                                shootTarget(spawnLocation, direction);
+                            }
+                            attack = true;
+                            break;
                         }
-                        attack = true;
-                        break;
+                    }
+
+                    if (attack) {
+                        isRunning = true;
+                        this.cancel();
+                        if (shootingInterval > minShootingInterval) shootingInterval -= intervalDecrement;
+                        if (shootingInterval < minShootingInterval) shootingInterval = minShootingInterval;
+                        startShootingTask();
+                        return;
                     }
                 }
 
-                if (attack) {
-                    isRunning = true;
-                    this.cancel();
-                    if (shootingInterval > minShootingInterval) shootingInterval -= intervalDecrement;
-
-                    if (shootingInterval < minShootingInterval) shootingInterval = minShootingInterval;
-                    startShootingTask();
-                } else {
-                    isRunning = false;
-                }
+                isRunning = false;
+                shootingInterval = initialShootingInterval;
             }
         };
         shootingTask.runTaskLater(getPlugin(), isRunning ? shootingInterval : 0);
@@ -256,36 +260,47 @@ public class Turret {
     }
 
     public void scanArea() {
-
-        List<Player> players = getPlayersInRadius();
-        if (players.isEmpty()) {
-            target = null;
-            return;
-        }
-
-        if (target == null || !players.contains(target)) {
-            target = players.getFirst();
-        }
+        targets = getEntitiesInRadius();
 
         if (!isRunning) startShootingTask();
     }
 
-    public List<Player> getPlayersInRadius() {
-        List<Player> playersInRadius = new ArrayList<>();
+    public List<LivingEntity> getEntitiesInRadius() {
+        List<LivingEntity> entitiesInRadius = new ArrayList<>();
         Game game = team.getGame();
 
-        for (GamePlayer gp : game.getPlayers()) {
-            Player p = gp.getPlayer();
+        for (GameTeam team : game.getTeams()) {
+            if (team.equals(this.team)) continue;
 
-            if (!team.isMember(gp)) {  // Assuming GameTeam has an isMember method to check team membership
-                double distance = p.getLocation().distance(block);
-                if (distance < (double) detectionRadius) {
-                    playersInRadius.add(p);
-                }
+            for (String entityId : team.getTeam().getEntries()) {
+                if (!isValidUUID(entityId)) continue;
+                LivingEntity entity = (LivingEntity) Bukkit.getEntity(UUID.fromString(entityId));
+                if (entity == null || entity.isDead()) continue;
+                double distance = entity.getLocation().distance(block);
+                if (distance > (double) detectionRadius) continue;
+                entitiesInRadius.add(entity);
+            }
+
+//            if (!entitiesInRadius.isEmpty()) continue;
+
+            for (GamePlayer gp : team.getPlayers()) {
+                LivingEntity entity = gp.getPlayer();
+                double distance = entity.getLocation().distance(block);
+                if (distance > (double) detectionRadius) continue;
+                entitiesInRadius.add(entity);
             }
         }
 
-        return playersInRadius;
+        entitiesInRadius.sort((e1, e2) -> {
+            if (e1 instanceof Player && !(e2 instanceof Player)) {
+                return 1; // Move e1 (player) after e2 (entity)
+            } else if (!(e1 instanceof Player) && e2 instanceof Player) {
+                return -1; // Move e1 (entity) before e2 (player)
+            }
+            return 0; // If both are players or both are entities, maintain their order
+        });
+
+        return entitiesInRadius;
     }
 
     private void shootTarget(Location spawnLocation, Vector direction) {
@@ -317,7 +332,7 @@ public class Turret {
         }.runTaskLater(getPlugin(), customLifespan);
     }
 
-    public void punchTarget() {
+    public void punchTarget(LivingEntity target) {
         target.damage(1);
 
         Vector direction = target.getEyeLocation().toVector().subtract(block.clone().add(0.5, 0.5, 0.5).toVector()).normalize();

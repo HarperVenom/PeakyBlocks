@@ -13,6 +13,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Utils {
 
@@ -87,6 +88,15 @@ public class Utils {
             return BlockFace.NORTH;
         } else {
             return BlockFace.EAST;
+        }
+    }
+
+    public static boolean isValidUUID(String str) {
+        try {
+            UUID uuid = UUID.fromString(str); // Try to convert the string to a UUID
+            return true; // If no exception is thrown, it's a valid UUID
+        } catch (IllegalArgumentException e) {
+            return false; // If an exception is thrown, it's not a valid UUID
         }
     }
 }

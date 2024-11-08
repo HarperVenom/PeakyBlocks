@@ -15,7 +15,7 @@ public class Items {
             if (!material.isItem()) continue;
             if (material == Material.AIR || material.name().contains("SHERD") || material.name().contains("DISC")
             || material.name().contains("DYE") || material.name().contains("TEMPLATE") || material == Material.COMMAND_BLOCK
-                    || material == Material.STRUCTURE_BLOCK || material.name().contains("FERN")) continue;
+                    || material == Material.STRUCTURE_BLOCK || material.name().contains("FERN") || material.name().contains("BANNER")) continue;
             lootItems.add(new ItemStack(material));
         }
     }

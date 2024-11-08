@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.queue;
 
 import me.harpervenom.peakyBlocks.lastwars.Map.Map;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
@@ -104,9 +105,10 @@ public class Queue {
         createWorld(this);
     }
 
-    public void delete() {
-        for (QueuePlayer p : getPlayers()) {
-            p.getTeam().removePlayer(p,false, true);
+    public void delete(boolean isStartingGame) {
+        List<QueuePlayer> listCopy = new ArrayList<>(getPlayers());
+        for (QueuePlayer p : listCopy) {
+            p.getTeam().removePlayer(p, isStartingGame, true);
         }
         scoreboard.remove();
         activeQueues.remove(this);

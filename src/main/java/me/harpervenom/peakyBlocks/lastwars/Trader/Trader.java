@@ -37,4 +37,8 @@ public class Trader{
 
         traderMenu.setItem(22, luckyBookPurchase);
     }
+
+    public Entity getEntity() {
+        return villager;
+    }
 }

@@ -6,10 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerSpawnChangeEvent;
+import org.bukkit.event.player.*;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -85,6 +82,16 @@ public class PlayerListener implements Listener {
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
         if (gp.isFrozen() && hasPlayerMoved(e.getFrom(), e.getTo() == null ? e.getFrom() : e.getTo())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void PlayerInteract(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        GamePlayer gp = getGamePlayer(p);
+        if (gp == null) return;
+        if (gp.isFrozen()) {
             e.setCancelled(true);
         }
     }

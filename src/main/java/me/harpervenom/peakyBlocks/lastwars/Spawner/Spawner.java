@@ -23,7 +23,7 @@ public class Spawner {
 
     private Location location;
     private EntityType type;
-    private int maxAmount = 3;
+    private int maxAmount = 2;
 
     private List<LivingEntity> entities = new ArrayList<>();
 
@@ -65,12 +65,16 @@ public class Spawner {
 
         entity.getEquipment().setHelmet(new ItemStack(Material.LEATHER_HELMET));
         entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
+
+//        entity.setHealth(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         if (entity instanceof Slime slime) {
-            slime.setSize(4);
+            slime.setSize(2);
         }
         if (entity instanceof MagmaCube magma) {
-            magma.setSize(4);
+            magma.setSize(2);
         }
+
+        entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(5);
 
         entities.add(entity);
 

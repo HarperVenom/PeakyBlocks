@@ -9,6 +9,9 @@ import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -19,12 +22,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.gamePlayers;
 
 public class GameTeam {
 
     private final ChatColor color;
     private final List<GamePlayer> members = new ArrayList<>();
+
+    public static GameTeam getEntityTeam(Entity entity) {
+        World world = entity.getWorld();
+        Game game = getGameByWorld(world);
+        for (GameTeam team : game.getTeams()) {
+            if (team.getTeam().getEntries().contains(entity.getUniqueId().toString())) return team;
+        }
+        return null;
+    }
 
     private Game game;
     private Location spawn;
@@ -40,7 +53,9 @@ public class GameTeam {
         Scoreboard scoreboard = game.getScoreboard();
         team = game.getScoreboard().registerNewTeam(queueTeam.getTeamName());
         team.setColor(color);
-        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+        team.setAllowFriendlyFire(false);
+        team.setCanSeeFriendlyInvisibles(false);
 
         for (QueuePlayer qp : queueTeam.getPlayers()) {
             GamePlayer gamePlayer = new GamePlayer(qp.getId());
@@ -91,6 +106,10 @@ public class GameTeam {
     }
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public Team getTeam() {
+        return team;
     }
 
     public Location getSpawn() {

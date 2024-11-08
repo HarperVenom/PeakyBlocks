@@ -8,7 +8,9 @@ import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
@@ -77,7 +79,8 @@ public class Game {
             team.setSpawn(locationSet.getSpawn());
             team.setCore(locationSet.getCore());
             team.setTurrets(locationSet.getTurrets());
-            new Trader(locationSet.getTrader());
+            Trader trader = new Trader(locationSet.getTrader());
+            team.getTeam().addEntry(trader.getEntity().getUniqueId().toString());
         }
 
         setSpawners(map.getSpawners());
@@ -126,7 +129,7 @@ public class Game {
             p.setLevel(0);
             p.sendMessage("Игра началась!");
         }
-        queue.delete();
+        queue.delete(true);
         queue = null;
 
         runTimer();

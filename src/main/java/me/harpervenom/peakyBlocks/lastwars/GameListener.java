@@ -9,25 +9,31 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.Game.activeGames;
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
+import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
 import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 
 public class GameListener implements Listener {
@@ -100,9 +106,9 @@ public class GameListener implements Listener {
             removeWorld(world);
         }
 
-        GamePlayer p = getGamePlayer(e.getPlayer());
-        if (p == null) return;
-        p.remove();
+        GamePlayer gp = getGamePlayer(e.getPlayer());
+        if (gp == null) return;
+        gp.remove();
     }
 
     @EventHandler
@@ -197,6 +203,82 @@ public class GameListener implements Listener {
                 break;
             }
         }
+    }
+
+    private final HashMap<UUID, EntityType> spawnEggUsers = new HashMap<>();
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        Player player = e.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        // Check if the item is a spawn egg
+        if (item.getType().toString().endsWith("_SPAWN_EGG")) {
+            EntityType entityType = getEntityTypeFromSpawnEgg(item.getType());
+            if (entityType != null) {
+                // Store the player and spawn egg type
+                spawnEggUsers.put(player.getUniqueId(), entityType);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onCreatureSpawn(CreatureSpawnEvent e) {
+        // Check if the entity was spawned with a spawn egg
+        if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
+            Entity entity = e.getEntity();
+            EntityType entityType = entity.getType();
+
+            // Find the player who used the spawn egg, if any
+            for (HashMap.Entry<UUID, EntityType> entry : spawnEggUsers.entrySet()) {
+                if (entry.getValue() == entityType) {
+                    Player p = Bukkit.getPlayer(entry.getKey());
+                    if (p == null) return;
+                    GamePlayer gp = getGamePlayer(p);
+                    if (gp == null) return;
+
+                    gp.getTeam().getTeam().addEntry(entity.getUniqueId().toString());
+
+                    spawnEggUsers.remove(p.getUniqueId());
+                    break;
+                }
+            }
+        }
+    }
+
+    // Helper method to get EntityType from spawn egg material
+    private EntityType getEntityTypeFromSpawnEgg(Material material) {
+        try {
+            return EntityType.valueOf(material.toString().replace("_SPAWN_EGG", ""));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent e) {
+        Entity target = e.getTarget();
+
+        if ((e.getEntity() instanceof Monster || e.getEntity() instanceof IronGolem) && target instanceof Player player) {
+            if (isEntityOnSameTeam(e.getEntity(), player)) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    private boolean isEntityOnSameTeam(Entity entity, Player p) {
+        GamePlayer gp = getGamePlayer(p);
+        if (gp == null) return false;
+
+        return gp.getTeam().getTeam().getEntries().contains(entity.getUniqueId().toString());
+    }
+
+    @EventHandler
+    public void EntityDeath(EntityDeathEvent e) {
+        Entity entity = e.getEntity();
+        GameTeam team = getEntityTeam(entity);
+        if (team == null) return;
+        team.getTeam().removeEntry(entity.getUniqueId().toString());
     }
 
 }

@@ -6,48 +6,36 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
+import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
 import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
 
 public class TurretListener implements Listener {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        // Check if the projectile is an arrow
-        if (event.getEntity() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getEntity();
-            Entity hitEntity = event.getHitEntity();
-            arrow.setGravity(true);
-            if (hitEntity == null) return;
-            if (hitEntity instanceof Player p) {
-                GamePlayer gp = getGamePlayer(p);
-                if (gp == null) return;
+        if (!(event.getEntity() instanceof Arrow arrow)) return;
 
-                Entity shooter = (Entity) arrow.getShooter();
+        Entity hitEntity = event.getHitEntity();
+        if (hitEntity == null) return;
+        if (!(arrow.getShooter() instanceof ArmorStand shooter)) return;
 
-                if (shooter instanceof Villager) {
-                    String shooterTeamName = shooter.getCustomName();
+        arrow.setGravity(true);
 
-                    GameTeam hitTeam = gp.getTeam();
+        GameTeam targetTeam = getEntityTeam(hitEntity);
+        GameTeam shooterTeam = getEntityTeam(shooter);
 
-                    if (hitTeam.getName().equals(shooterTeamName)) {
-                        event.setCancelled(true); // Cancel the hit event
-                        arrow.setVelocity(arrow.getVelocity());
-                    }
-                }
-                return;
-            }
-            event.setCancelled(true);
-            arrow.setVelocity(arrow.getVelocity());
-        }
+        if (targetTeam == null || shooterTeam == null) return;
+
+        if (!targetTeam.equals(shooterTeam)) return;
+
+        event.setCancelled(true);
+        arrow.setVelocity(arrow.getVelocity());
     }
 
     @EventHandler

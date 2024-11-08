@@ -138,17 +138,12 @@ public class Map {
 
         for (String spawnerKey : spawnersSection.getKeys(false)) {
             ConfigurationSection spawnerSection = spawnersSection.getConfigurationSection(spawnerKey);
-            System.out.println(spawnerSection);
 
             if (spawnerSection != null) {
-
-
                 Location spawnerLoc = new Location(null,
                         spawnerSection.getDouble("x"),
                         spawnerSection.getDouble("y"),
                         spawnerSection.getDouble("z"));
-
-                System.out.println(spawnerLoc);
 
                 EntityType type = EntityType.valueOf(spawnerSection.getString("type").toUpperCase());
 

@@ -130,9 +130,7 @@ public class GamePlayer {
 
         Scoreboard emptyScoreboard = manager.getNewScoreboard();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setScoreboard(emptyScoreboard);
-        }
+        getPlayer().setScoreboard(emptyScoreboard);
 
         getTeam().removePlayer(this);
         gamePlayers.remove(this);
