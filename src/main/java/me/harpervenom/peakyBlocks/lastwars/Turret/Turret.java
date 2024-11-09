@@ -34,8 +34,8 @@ public class Turret {
     private BukkitRunnable shootingTask;
     private BukkitRunnable scanningTask;
 
-    private static final int baseShootingInterval = 50;
-    private static final int baseMinShootingInterval = 50;
+    private static final int baseShootingInterval = 30;
+    private static final int baseMinShootingInterval = 30;
     private static final int baseIntervalDecrement = 1;
     private static final float baseArrowSpeed = 1.5F;
 

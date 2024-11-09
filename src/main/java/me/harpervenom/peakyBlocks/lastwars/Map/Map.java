@@ -176,12 +176,11 @@ public class Map {
     }
 
     public List<Spawner> getSpawners() {
-//        List<Spawner> spawnerCopies = new ArrayList<>();
-//        for (Spawner spawner : spawners) {
-//            spawnerCopies.add(new Spawner(spawner));  // Assumes Turret has a copy constructor
-//        }
-//        return spawnerCopies;
-        return spawners;
+        List<Spawner> spawnerCopies = new ArrayList<>();
+        for (Spawner spawner : spawners) {
+            spawnerCopies.add(new Spawner(spawner));  // Assumes Turret has a copy constructor
+        }
+        return spawnerCopies;
     }
 
     public HashMap<Chunk, List<Location>> getBlocks() {

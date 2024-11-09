@@ -10,12 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
+
 public class Spawner {
 
-    private static List<Spawner> spawners = new ArrayList<>();
+    private static List<Spawner> spawnerSamples = new ArrayList<>();
 
     public static Spawner getEntitySpawner(LivingEntity entity) {
-        for (Spawner spawner : spawners) {
+
+        Game game = getGameByWorld(entity.getWorld());
+        if (game == null) return null;
+        for (Spawner spawner : game.getSpawners()) {
             if (spawner.entities.contains(entity)) return spawner;
         }
         return null;
@@ -23,7 +28,7 @@ public class Spawner {
 
     private Location location;
     private EntityType type;
-    private int maxAmount = 2;
+    private int maxAmount = 3;
 
     private List<LivingEntity> entities = new ArrayList<>();
 
@@ -31,7 +36,7 @@ public class Spawner {
         this.location = location.add(0.5, 1, 0.5);
         this.type = type;
 
-        spawners.add(this);
+        spawnerSamples.add(this);
     }
 
     public Spawner(Spawner sample) {

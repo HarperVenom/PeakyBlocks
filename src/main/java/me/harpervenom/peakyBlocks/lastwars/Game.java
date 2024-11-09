@@ -93,6 +93,9 @@ public class Game {
     public void setSpawners(List<Spawner> spawners) {
         this.spawners = spawners;
     }
+    public List<Spawner> getSpawners() {
+        return spawners;
+    }
 
     public World getWorld() {
         return map.getWorld();

@@ -54,7 +54,7 @@ public class TraderListener implements Listener {
 
         e.setCancelled(true);
 
-        if (e.getClick() != ClickType.LEFT) return;
+        if (e.getClick() != ClickType.LEFT && e.getClick() != ClickType.SHIFT_LEFT) return;
 
         Inventory inv = e.getClickedInventory();
         if (inv == null || inv.getType() == InventoryType.PLAYER) return;
@@ -77,10 +77,18 @@ public class TraderListener implements Listener {
             return;
         }
 
+        ItemStack purchase = new ItemStack(luckyBook);
+        if (e.getClick() == ClickType.SHIFT_LEFT) {
+            int amount = gp.getBalance() / price;
+            price *= amount;
+
+            purchase.setAmount(amount);
+        }
+
         if (name.equals(luckyBookName)) {
             gp.changeBalance(-price);
 
-            HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(luckyBook);
+            HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(purchase);
 
             for (ItemStack droppedItem : remaining.values()) {
                 p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);

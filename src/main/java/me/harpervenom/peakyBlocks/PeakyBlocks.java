@@ -14,7 +14,7 @@ import me.harpervenom.peakyBlocks.lobby.MenuListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import static me.harpervenom.peakyBlocks.lastwars.Items.lootItems;
+import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot.Loot.getLootItemStack;
 
 public final class PeakyBlocks extends JavaPlugin {
 
@@ -45,7 +45,8 @@ public final class PeakyBlocks extends JavaPlugin {
         getCommand("lobby").setExecutor(new Lobby());
 
         System.out.println("[PeakyBlocks] Plugin has started!");
-        System.out.println(lootItems);
+
+        getLootItemStack();
     }
 
     @Override

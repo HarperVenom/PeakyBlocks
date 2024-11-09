@@ -11,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
+
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
 import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
@@ -62,6 +64,10 @@ public class TurretListener implements Listener {
                 }
 
                 turret.damage(p);
+                ItemStack tool = p.getInventory().getItemInMainHand();
+                if (tool instanceof Damageable damageable) {
+                    damageable.damage(10);
+                }
             }
         }
     }
