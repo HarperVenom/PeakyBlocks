@@ -22,25 +22,28 @@ public class Loot {
     public static List<Category> categories = new ArrayList<>();
 
     static {
-        Category decorativeBlocksCategory = new Category(2);
-        Category usefulResourcesCategory = new Category(3);
-        Category utilitiesCategory = new Category(2);
-        Category consumingCategory = new Category(2);
+        Category decorativeBlocksCategory = new Category(3);
+        Category usefulResourcesCategory = new Category(4);
+        Category utilitiesCategory = new Category(1.5);
+        Category consumingCategory = new Category(1);
         Category entitiesCategory = new Category(0.5);
 
         for (Material material : Material.values()) {
-            if(material.name().contains("OAK") || material.name().contains("SPRUCE") || material.name().contains("BIRCH")
-                    || material.name().contains("ACACIA") || material.name().contains("CHERRY") || material.name().contains("MANGROVE")
-                    || material.name().contains("JUNGLE") || material.name().contains("WARPED") || material.name().contains("CRIMSON")
-                    || material.name().contains("BAMBOO") || material.name().contains("STONE") || material.name().contains("DEEPSLATE")
-                    || material.name().contains("PRISMARINE") || material.name().contains("QUARTZ") || material.name().contains("COPPER")
-                    || material.name().contains("WOOL") || material.name().contains("GLASS") || material.name().contains("CONCRETE")
-                    || material.name().contains("TERRACOTTA") || material.name().contains("SHULKER") || material.name().contains("DIRT")) {
-                decorativeBlocksCategory.addItem(new ItemStack(material), 10, 3);
+            String name = material.name();
+            if(name.contains("OAK") || name.contains("SPRUCE") || name.contains("BIRCH")
+                    || name.contains("ACACIA") || name.contains("CHERRY") || name.contains("MANGROVE")
+                    || name.contains("JUNGLE") || (name.contains("WARPED") && !name.contains("STICK")) || name.contains("CRIMSON")
+                    || name.contains("BAMBOO") || name.contains("STONE") || name.contains("DEEPSLATE")
+                    || name.contains("PRISMARINE") || name.contains("QUARTZ") || name.contains("COPPER")
+                    || name.contains("WOOL") || name.contains("GLASS") || name.contains("CONCRETE")
+                    || name.contains("TERRACOTTA") || (name.contains("SHULKER") && !name.contains("EGG")) || name.contains("DIRT")) {
+                double chance = 1;
+                if (material.name().contains("COPPER")) chance = 0.1;
+                decorativeBlocksCategory.addItem(new ItemStack(material), chance, 3);
             }
         }
-        decorativeBlocksCategory.addItem(new ItemStack(Material.SAND), 10, 3);
-        decorativeBlocksCategory.addItem(new ItemStack(Material.GRAVEL), 10, 3);
+        decorativeBlocksCategory.addItem(new ItemStack(Material.SAND), 1, 3);
+        decorativeBlocksCategory.addItem(new ItemStack(Material.GRAVEL), 1, 3);
 
 
         for (Material material : Material.values()) {
@@ -48,17 +51,20 @@ public class Loot {
                 usefulResourcesCategory.addItem(new ItemStack(material), 0.5, 3);
             }
         }
+        usefulResourcesCategory.addItem(new ItemStack(Material.COBBLESTONE), 4, 3);
+
         usefulResourcesCategory.addItem(new ItemStack(Material.STONE), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.COBBLESTONE), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.LAPIS_LAZULI), 3, 3);
+//        usefulResourcesCategory.addItem(new ItemStack(Material.LAPIS_LAZULI), 3, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.GOLD_INGOT), 3, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.GOLD_NUGGET), 3, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.FEATHER), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.FLINT), 3, 1);
+        usefulResourcesCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 3, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.FLINT), 3, 3);
 
         usefulResourcesCategory.addItem(new ItemStack(Material.IRON_INGOT), 2, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.IRON_NUGGET), 2, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.STRING), 2, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.GUNPOWDER), 2, 3);
 
         usefulResourcesCategory.addItem(new ItemStack(Material.DIAMOND), 1, 3);
         usefulResourcesCategory.addItem(new ItemStack(Material.NETHERITE_INGOT), 1, 3);
@@ -71,20 +77,25 @@ public class Loot {
             if (material.name().contains("HELMET") || material.name().contains("CHESTPLATE") || material.name().contains("LEGGINGS")
             || material.name().contains("BOOTS") || material.name().contains("SWORD") || material.name().contains("AXE")
             || material.name().contains("SHOVEL") || material.name().contains("BOW") || material.name().contains("ARROW")) {
+
                 double chance = 1;
                 if (material.name().contains("NETHERITE")) chance -= 0.5;
                 if (material.name().contains("DIAMOND")) chance -= 0.4;
                 if (material.name().contains("IRON")) chance -= 0.3;
                 if (material.name().contains("ARROW")) chance = 2;
 
-                utilitiesCategory.addItem(new ItemStack(material), chance ,1);
+                int maxAmount = 1;
+
+                if (material.name().contains("ARROW")) maxAmount = 5;
+
+                utilitiesCategory.addItem(new ItemStack(material), chance, maxAmount);
             }
         }
         utilitiesCategory.addItem(new ItemStack(Material.WIND_CHARGE), 1 ,3);
         utilitiesCategory.addItem(new ItemStack(Material.ENDER_PEARL), 1 ,3);
         utilitiesCategory.addItem(new ItemStack(Material.FIREWORK_ROCKET), 1 ,3);
         utilitiesCategory.addItem(new ItemStack(Material.TNT), 1 ,2);
-        utilitiesCategory.addItem(new ItemStack(Material.SHIELD), 1 ,2);
+        utilitiesCategory.addItem(new ItemStack(Material.SHIELD), 1 ,1);
 //        utilitiesCategory.addItem(new ItemStack(Material.TOTEM_OF_UNDYING), 0.5 ,1);
 
         utilitiesCategory.addItem(new ItemStack(Material.TRIDENT), 0.5 ,1);
@@ -95,6 +106,9 @@ public class Loot {
         for (Material material : Material.values()) {
             if (material.isEdible()) {
                 consumingCategory.addItem(new ItemStack(material), 1, 3);
+            }
+            if (material == Material.ENCHANTED_GOLDEN_APPLE) {
+                consumingCategory.addItem(new ItemStack(material), 0.1, 1);
             }
             if (material.name().contains("POTION")) {
                 consumingCategory.addItem(new ItemStack(material), 1, 1);
@@ -107,8 +121,8 @@ public class Loot {
                 entitiesCategory.addItem(new ItemStack(material), 1, 1);
             }
         }
-        entitiesCategory.addItem(new ItemStack(Material.WARDEN_SPAWN_EGG), 0.1, 1);
-        entitiesCategory.addItem(new ItemStack(Material.WITHER_SPAWN_EGG), 0.1, 1);
+        entitiesCategory.addItem(new ItemStack(Material.WARDEN_SPAWN_EGG), 0.01, 1);
+        entitiesCategory.addItem(new ItemStack(Material.WITHER_SPAWN_EGG), 0.01, 1);
 
 
         categories.add(decorativeBlocksCategory);

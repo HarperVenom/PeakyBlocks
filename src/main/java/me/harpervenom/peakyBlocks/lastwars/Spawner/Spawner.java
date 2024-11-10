@@ -6,9 +6,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 
@@ -17,11 +15,10 @@ public class Spawner {
     private static List<Spawner> spawnerSamples = new ArrayList<>();
 
     public static Spawner getEntitySpawner(LivingEntity entity) {
-
         Game game = getGameByWorld(entity.getWorld());
         if (game == null) return null;
         for (Spawner spawner : game.getSpawners()) {
-            if (spawner.entities.contains(entity)) return spawner;
+            if (spawner.entities.contains(entity) || spawner.childEntities.contains(entity)) return spawner;
         }
         return null;
     }
@@ -30,7 +27,8 @@ public class Spawner {
     private EntityType type;
     private int maxAmount = 3;
 
-    private List<LivingEntity> entities = new ArrayList<>();
+    private Set<LivingEntity> entities = new HashSet<>();
+    private Set<LivingEntity> childEntities = new HashSet<>();
 
     public Spawner(Location location, EntityType type) {
         this.location = location.add(0.5, 1, 0.5);
@@ -55,7 +53,7 @@ public class Spawner {
         }
     }
 
-    public LivingEntity spawnMob(Location centerLocation, EntityType type) {
+    public void spawnMob(Location centerLocation, EntityType type) {
         World world = location.getWorld();
         Random random = new Random();
 
@@ -68,10 +66,8 @@ public class Spawner {
 
         world.spawnParticle(Particle.FLAME, spawnLocation, 20, 0.2, 0.5, 0.2, 0.05);
 
-        entity.getEquipment().setHelmet(new ItemStack(Material.LEATHER_HELMET));
         entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
 
-//        entity.setHealth(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         if (entity instanceof Slime slime) {
             slime.setSize(2);
         }
@@ -82,12 +78,15 @@ public class Spawner {
         entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(5);
 
         entities.add(entity);
+    }
 
-        return entity;
+    public void addChildEntity(LivingEntity entity) {
+        childEntities.add(entity);
     }
 
     public void killEntity(LivingEntity entity) {
         entities.remove(entity);
+        childEntities.remove(entity);
     }
 
     public Location getLocation() {

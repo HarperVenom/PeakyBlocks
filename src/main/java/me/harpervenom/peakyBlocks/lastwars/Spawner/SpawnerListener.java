@@ -4,9 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -14,6 +12,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner.getEntitySpawner;
 
@@ -30,6 +32,26 @@ public class SpawnerListener implements Listener {
 
         if (spawner == null) return;
         spawner.killEntity(entity);
+
+        if (e.getEntityType() == EntityType.SLIME || e.getEntityType() == EntityType.MAGMA_CUBE) {
+            Slime dyingSlime = (Slime) entity;
+
+            if (dyingSlime.getSize() > 1) {
+                Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+                    List<Slime> smallSlimes = new ArrayList<>();
+                    for (Entity currentEntity : dyingSlime.getNearbyEntities(5, 5, 5)) {
+                        if (currentEntity instanceof Slime smallSlime) {
+                            if (smallSlime.getSize() < dyingSlime.getSize()) {
+                                smallSlimes.add(smallSlime);
+                            }
+                        }
+                    }
+                    for (Slime slime : smallSlimes) {
+                        spawner.addChildEntity(slime);
+                    }
+                }, 30L);
+            }
+        }
     }
 
     @EventHandler

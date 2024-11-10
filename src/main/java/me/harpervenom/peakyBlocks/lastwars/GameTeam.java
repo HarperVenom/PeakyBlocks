@@ -33,6 +33,7 @@ public class GameTeam {
     public static GameTeam getEntityTeam(Entity entity) {
         World world = entity.getWorld();
         Game game = getGameByWorld(world);
+        if (game == null) return null;
         for (GameTeam team : game.getTeams()) {
             if (team.getTeam().getEntries().contains(entity.getUniqueId().toString())) return team;
         }

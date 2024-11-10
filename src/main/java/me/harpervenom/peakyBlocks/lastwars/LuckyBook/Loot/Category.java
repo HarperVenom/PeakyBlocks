@@ -24,7 +24,6 @@ public class Category {
             category.itemsWithChances.removeIf(existingItem -> existingItem.getItem().getType() == item.getType());
         }
 
-
         itemsWithChances.add(new ItemWithChance(item, chance, maxAmount));
     }
 
