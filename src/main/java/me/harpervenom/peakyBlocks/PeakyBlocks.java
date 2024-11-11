@@ -46,7 +46,7 @@ public final class PeakyBlocks extends JavaPlugin {
 
         System.out.println("[PeakyBlocks] Plugin has started!");
 
-        getLootItemStack();
+        getLootItemStack(null);
     }
 
     @Override

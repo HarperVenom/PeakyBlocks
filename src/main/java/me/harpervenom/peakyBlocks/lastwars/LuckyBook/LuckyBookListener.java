@@ -9,8 +9,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.giveLootToPlayer;
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBookName;
+import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.*;
 
 public class LuckyBookListener implements Listener {
 
@@ -22,7 +21,10 @@ public class LuckyBookListener implements Listener {
         ItemStack item = e.getItem();
         if (item == null) return;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !luckyBookName.equals(item.getItemMeta().getDisplayName())) return;
+        if (meta == null) return;
+        String name = item.getItemMeta().getDisplayName();
+        ItemStack book = getPurchase(name);
+        if (book == null) return;
 
         if (item.getAmount() > 1) {
             ItemStack remaining = new ItemStack(item);
@@ -32,6 +34,6 @@ public class LuckyBookListener implements Listener {
             p.getInventory().setItem(p.getInventory().getHeldItemSlot(), null);
         }
 
-        giveLootToPlayer(p);
+        giveLootToPlayer(p, name);
     }
 }

@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars.Spawner;
 
 import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
+import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
@@ -22,39 +23,6 @@ import static me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner.getEntitySpawn
 public class SpawnerListener implements Listener {
 
     @EventHandler
-    public void EntityDeath(EntityDeathEvent e) {
-        LivingEntity entity = e.getEntity();
-
-        e.setDroppedExp(0);
-        if (!(entity instanceof Player)) e.getDrops().clear();
-
-        Spawner spawner = getEntitySpawner(entity);
-
-        if (spawner == null) return;
-        spawner.killEntity(entity);
-
-        if (e.getEntityType() == EntityType.SLIME || e.getEntityType() == EntityType.MAGMA_CUBE) {
-            Slime dyingSlime = (Slime) entity;
-
-            if (dyingSlime.getSize() > 1) {
-                Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-                    List<Slime> smallSlimes = new ArrayList<>();
-                    for (Entity currentEntity : dyingSlime.getNearbyEntities(5, 5, 5)) {
-                        if (currentEntity instanceof Slime smallSlime) {
-                            if (smallSlime.getSize() < dyingSlime.getSize()) {
-                                smallSlimes.add(smallSlime);
-                            }
-                        }
-                    }
-                    for (Slime slime : smallSlimes) {
-                        spawner.addChildEntity(slime);
-                    }
-                }, 30L);
-            }
-        }
-    }
-
-    @EventHandler
     public void EntityDamage(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof LivingEntity entity) {
             Spawner spawner = getEntitySpawner(entity);
@@ -68,14 +36,29 @@ public class SpawnerListener implements Listener {
     public void PlayerKillEntity(EntityDeathEvent e) {
         LivingEntity entity = e.getEntity();
 
+        Turret turret = Turret.getTurret(entity);
+        if (turret != null) return;
+
         if (entity.getKiller() instanceof Player killer) {
             GamePlayer gp = getGamePlayer(killer);
             if (gp == null) return;
 
             double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) Math.max(entityMaxHealth * (entity.getType() == EntityType.MAGMA_CUBE ? 4 : 2), 1);
+            int exp = (int) (entityMaxHealth * 3);
+            if (entity.getType().equals(EntityType.CAVE_SPIDER) || entity.getType().equals(EntityType.MAGMA_CUBE)) {
+                exp = (int) (entityMaxHealth * 6);
+            }
 
             gp.changeBalance(exp);
+        }
+    }
+
+    @EventHandler
+    public void EntityDeath(EntityDeathEvent e) {
+        Entity entity = e.getEntity();
+        if (!(entity instanceof Player)){
+            e.getDrops().clear();
+            e.setDroppedExp(0);
         }
     }
 }

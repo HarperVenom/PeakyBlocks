@@ -7,6 +7,7 @@ import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
@@ -18,18 +19,29 @@ import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GameListener.*;
+import static me.harpervenom.peakyBlocks.lastwars.GameTeam.inSameTeam;
+import static me.harpervenom.peakyBlocks.lastwars.Turret.TurretListener.destroyedTurrets;
 import static me.harpervenom.peakyBlocks.utils.Utils.isValidUUID;
 
 public class Turret {
 
     public static List<Turret> turrets = new ArrayList<>();
 
+    public static Turret getTurret(Entity entity) {
+        for (Turret turret : turrets) {
+            if (turret.getShooter().getUniqueId().equals(entity.getUniqueId())) {
+                return turret;
+            }
+        }
+        return null;
+    }
+
     private final Location loc;
-    private Location block;
     private GameTeam team;
-    private static int maxHealth = 10;
+    private static int maxHealth = 300;
     private int health;
     private boolean isBreakable;
+    private String name;
 
     private BukkitRunnable shootingTask;
     private BukkitRunnable scanningTask;
@@ -49,8 +61,10 @@ public class Turret {
     private int shootingInterval = initialShootingInterval;
 
     public boolean isRunning;
-    private ArmorStand shooter;
+
+    private Slime shooter;
     private List<LivingEntity> targets;
+    private LivingEntity activeTarget;
 
     private List<Location> blocks = new ArrayList<>();
 
@@ -72,8 +86,7 @@ public class Turret {
     }
 
     public Turret(Turret sample) {
-        this.loc = sample.loc.clone();  // Clone location to avoid shared references
-        this.block = sample.block != null ? sample.block.clone() : null;  // Clone if block is not null
+        this.loc = sample.loc.clone();
         this.team = sample.team;
         this.health = sample.health;
         this.isBreakable = sample.isBreakable;
@@ -102,86 +115,115 @@ public class Turret {
 
         location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
 
-        if (isBreakable) {
-            block = location;
-            location.getBlock().setType(Material.LODESTONE);
-        } else {
+        if (!isBreakable) {
             location.getBlock().setType(Material.BEDROCK);
             blocks.add(location);
 
             location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 3, loc.getZ());
-            location.getBlock().setType(Material.LODESTONE);
-            block = location;
         }
         blocks.add(location);
 
         Map map = team.getGame().getMap();
         blocks.forEach(map::addLoc);
 
-        shooter = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0.5, 0.5, 0.5), EntityType.ARMOR_STAND);
-        shooter.setCustomName(team.getColor() + "[Турель]");
+        name = team.getColor() + "[Турель]";
+
+        shooter = (Slime) location.getWorld().spawnEntity(location.clone().add(0.5, 0, 0.5), EntityType.SLIME);
+        shooter.setSize(2);
+        shooter.setCustomName(name + (isBreakable ?  " " + maxHealth + "/" + maxHealth : ""));
         shooter.setAI(false);
-        shooter.setInvulnerable(true);
+        shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        shooter.setHealth(health);
         shooter.setSilent(true);
-        shooter.setInvisible(true);
-        shooter.setMarker(true);
+        if (!isBreakable) {
+            shooter.setInvulnerable(true);
+        }
         team.getTeam().addEntry(shooter.getUniqueId().toString());
 
         startScanningTask();
     }
 
-    public int getHealth() {
-        return health;
+    public double getHealth() {
+        return shooter.getHealth();
+    }
+
+    public static List<Turret> getTurrets() {
+        return turrets;
     }
 
     public List<Location> getBlocks() {
         return blocks;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public boolean isBreakable() {
         return isBreakable;
     }
 
-    public void damage(Player p) {
-        health--;
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
+    public boolean damage(Entity attacker, double damage) {
+        if (inSameTeam(shooter, attacker)) return false;
 
-        if (!isRunning) {
-            Location loc = block.clone().add(0.5, 0, 0.5);
-            turretExplosions.add(block);
-            noDamageExplosions.add(block);
-            block.getWorld().createExplosion(loc, 6);
-
-            int damage = 7;
-
-            p.setHealth(p.getHealth() < damage ? 0 : p.getHealth() - damage);
-            p.playSound(p, Sound.ENTITY_PLAYER_HURT, 1, 1);
-
-            scanArea();
+        Player p = null;
+        if (attacker instanceof Player player) {
+            p = player;
         }
 
-        if (health <= 0) {
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+        if (!(attacker instanceof TNTPrimed) && !isRunning) {
+            if (attacker instanceof LivingEntity livingAttacker && targets.contains(livingAttacker)) {
+                Location loc = shooter.getLocation().clone().add(0.5, 0, 0.5);
+                turretExplosions.get(loc.getWorld()).add(loc);
+                noDamageExplosions.get(loc.getWorld()).add(loc);
+                shooter.getLocation().getWorld().createExplosion(loc, 6);
+
+                int backFireDamage = 7;
+
+                livingAttacker.setHealth(livingAttacker.getHealth() < backFireDamage ? 0 : livingAttacker.getHealth() - backFireDamage);
+                if (p != null) p.playSound(p, Sound.ENTITY_PLAYER_HURT, 1, 1);
+
+                scanArea();
+            } else {
+                return false;
+            }
+        }
+
+        double newHealth = getHealth() - damage;
+        newHealth = Math.round(newHealth * 10.0) / 10.0;
+        if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.YELLOW + "" + newHealth + "/" + maxHealth));
+        shooter.setCustomName(name + " " + newHealth + "/" + maxHealth);
+
+        if (newHealth <= 0) {
+            if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             Bukkit.getPluginManager().callEvent(new TurretDestroyEvent(this));
         }
+
+        for (GamePlayer gp : getTeam().getPlayers()) {
+            Player player = gp.getPlayer();
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_HURT, 0.5f, 1);
+        }
+        shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_ENDER_DRAGON_HURT, 1, 1);
+        return true;
     }
 
     public void destroy() {
         shootingTask.cancel();
-        noDamageExplosions.add(block);
-        block.getWorld().createExplosion(block, 2, false, false);
+        scanningTask.cancel();
+        if (noDamageExplosions.containsKey(loc.getWorld())){
+            noDamageExplosions.get(loc.getWorld()).add(shooter.getLocation());
+        }
+        shooter.getWorld().createExplosion(shooter.getLocation(), 2, false, false);
 
         for (Location loc : blocks) {
             loc.getBlock().setType(Material.AIR);
         }
+        destroyedTurrets.add(this);
         turrets.remove(this);
     }
 
     public Location getLoc() {
         return loc;
-    }
-    public Location getBlock() {
-        return block;
     }
 
     public GameTeam getTeam() {
@@ -198,12 +240,10 @@ public class Turret {
                 isRunning = true;
                 scanArea();
 
+                Location spawnLocation = shooter.getLocation().clone().add(0, 0.5, 0);
                 for (LivingEntity target : targets) {
                     boolean attack = false;
                     if (target == null || target.isDead()) continue;
-
-                    Location blockCenter = block.clone().add(0.5, 0.5, 0.5);
-                    Location spawnLocation = blockCenter.clone();
 
                     List<Location> targetLocations = new ArrayList<>();
                     Location targetLocation = target.getEyeLocation().clone();
@@ -211,20 +251,18 @@ public class Turret {
                     targetLocations.add(targetLocation.clone().add(0, -1, 0));
 
                     for (Location targetLoc : targetLocations) {
+
                         Vector direction = targetLoc.toVector().subtract(spawnLocation.toVector()).normalize();
-
-                        spawnLocation.add(direction.multiply(0.8));
-
                         double distance = spawnLocation.distance(target.getEyeLocation());
-
                         RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation.clone().subtract(direction.multiply(0.2)),
                                 direction, distance);
 
                         if (result == null || result.getHitBlock() == null) {
-                            if (target.getLocation().getY() > block.getY() ? distance < 2 : distance < 0.9) {
+                            if (target.getLocation().clone().add(0, 0.7, 0).distance(spawnLocation) < (isBreakable ? 0.8 : 4)) {
                                 punchTarget(target);
                             } else {
-                                shootTarget(spawnLocation, direction);
+                                activeTarget = target;
+                                shootTarget(direction);
                             }
                             attack = true;
                             break;
@@ -276,16 +314,14 @@ public class Turret {
                 if (!isValidUUID(entityId)) continue;
                 LivingEntity entity = (LivingEntity) Bukkit.getEntity(UUID.fromString(entityId));
                 if (entity == null || entity.isDead()) continue;
-                double distance = entity.getLocation().distance(block);
+                double distance = entity.getLocation().distance(shooter.getLocation());
                 if (distance > (double) detectionRadius) continue;
                 entitiesInRadius.add(entity);
             }
 
-//            if (!entitiesInRadius.isEmpty()) continue;
-
             for (GamePlayer gp : team.getPlayers()) {
                 LivingEntity entity = gp.getPlayer();
-                double distance = entity.getLocation().distance(block);
+                double distance = entity.getLocation().distance(shooter.getLocation());
                 if (distance > (double) detectionRadius) continue;
                 entitiesInRadius.add(entity);
             }
@@ -303,14 +339,15 @@ public class Turret {
         return entitiesInRadius;
     }
 
-    private void shootTarget(Location spawnLocation, Vector direction) {
-        Arrow arrow = block.getWorld().spawnArrow(spawnLocation, direction, arrowSpeed, 0);  // Adjust arrow speed as needed
+    private void shootTarget(Vector direction) {
+        Location shooterLocation = shooter.getLocation().add(0, shooter.getHeight() * 0.5, 0);
 
-        arrow.getWorld().spawnParticle(Particle.SMOKE, arrow.getLocation(), 10, 0, 0, 0, 0.02);
-        arrow.getWorld().playSound(arrow.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1F, (float) (1 + 0.1*((float) 30 / shootingInterval)));
-
+        Arrow arrow = shooter.getWorld().spawnArrow(shooterLocation, direction, arrowSpeed, 0);
         arrow.setShooter(shooter);
         arrow.setGravity(false);
+
+        arrow.getWorld().spawnParticle(Particle.SMOKE, arrow.getLocation(), 20, 0.5, 0.2, 0.2, 0.02);
+        arrow.getWorld().playSound(arrow.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1F, (float) (1 + 0.1 * (30.0 / shootingInterval)));
 
         new BukkitRunnable() {
             @Override
@@ -335,18 +372,18 @@ public class Turret {
     public void punchTarget(LivingEntity target) {
         target.damage(1);
 
-        Vector direction = target.getEyeLocation().toVector().subtract(block.clone().add(0.5, 0.5, 0.5).toVector()).normalize();
+        Vector direction = target.getEyeLocation().toVector().subtract(shooter.getLocation().toVector()).normalize();
 
-        direction = direction.multiply(1.75);
+        direction = direction.multiply(1.5);
 
         target.setVelocity(direction);
 
-        block.getWorld()
-                .spawnParticle(Particle.FLAME, block.clone().add(0.5, 0.5, 0.5), 20, 0.5, 0.5, 0.5, 0);
-        block.getWorld().playSound(block, Sound.ENTITY_BLAZE_HURT, 1, 0.8f);
+        shooter.getLocation().getWorld()
+                .spawnParticle(Particle.FLAME, shooter.getLocation(), 20, 0.5, 0.5, 0.5, 0);
+        shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_BLAZE_HURT, 1, 0.8f);
     }
 
-    public ArmorStand getShooter() {
+    public Slime getShooter() {
         return shooter;
     }
 }

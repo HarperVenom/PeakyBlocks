@@ -4,6 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -22,8 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBook;
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.luckyBookName;
+import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.*;
 import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderMenu;
 import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderName;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.getCustomMenuHolder;
@@ -77,7 +77,10 @@ public class TraderListener implements Listener {
             return;
         }
 
-        ItemStack purchase = new ItemStack(luckyBook);
+        ItemStack purchase = getPurchase(name);
+        if (purchase == null) return;
+        purchase = new ItemStack(purchase);
+
         if (e.getClick() == ClickType.SHIFT_LEFT) {
             int amount = gp.getBalance() / price;
             price *= amount;
@@ -85,14 +88,12 @@ public class TraderListener implements Listener {
             purchase.setAmount(amount);
         }
 
-        if (name.equals(luckyBookName)) {
-            gp.changeBalance(-price);
+        gp.changeBalance(-price);
 
-            HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(purchase);
+        HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(purchase);
 
-            for (ItemStack droppedItem : remaining.values()) {
-                p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
-            }
+        for (ItemStack droppedItem : remaining.values()) {
+            p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
         }
     }
 }

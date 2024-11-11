@@ -1,14 +1,12 @@
 package me.harpervenom.peakyBlocks.lastwars.Core;
 
 
+import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.lastwars.GameTeam;
 import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Rotatable;
 import org.bukkit.entity.Player;
@@ -79,6 +77,11 @@ public class Core {
     public void damage(Player p) {
         health--;
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(health + "/" + maxHealth));
+        block.getWorld().playSound(block, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1, 0.5f);
+        for (GamePlayer gp : getTeam().getPlayers()) {
+            Player player = gp.getPlayer();
+            player.playSound(block, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.5f, 0.5f);
+        }
         if (health <= 0) {
             Bukkit.getPluginManager().callEvent(new CoreDestroyedEvent(this));
         }
@@ -86,7 +89,7 @@ public class Core {
 
     public void destroy() {
         block.getWorld().createExplosion(block, 3, false, false);
-//        noDamageExplosions.add(block);
+        block.getWorld().playSound(block, Sound.AMBIENT_NETHER_WASTES_MOOD, 10, 1);
         for (Location loc : blocks) {
             loc.getBlock().setType(Material.AIR);
         }

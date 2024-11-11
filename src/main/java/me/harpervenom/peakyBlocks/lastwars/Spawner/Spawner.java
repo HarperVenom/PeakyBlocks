@@ -75,8 +75,6 @@ public class Spawner {
             magma.setSize(2);
         }
 
-        entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(5);
-
         entities.add(entity);
     }
 

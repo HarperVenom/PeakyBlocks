@@ -7,26 +7,29 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
+import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.getTurret;
 import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
 
 public class TurretListener implements Listener {
 
     @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) {
-        if (!(event.getEntity() instanceof Arrow arrow)) return;
-
-        Entity hitEntity = event.getHitEntity();
+    public void onProjectileHit(ProjectileHitEvent e) {
+        Entity projectile = e.getEntity();
+        Entity hitEntity = e.getHitEntity();
         if (hitEntity == null) return;
-        if (!(arrow.getShooter() instanceof ArmorStand shooter)) return;
+        if (!(e.getEntity().getShooter() instanceof Entity shooter)) return;
 
-        arrow.setGravity(true);
+        projectile.setGravity(true);
 
         GameTeam targetTeam = getEntityTeam(hitEntity);
         GameTeam shooterTeam = getEntityTeam(shooter);
@@ -35,49 +38,42 @@ public class TurretListener implements Listener {
 
         if (!targetTeam.equals(shooterTeam)) return;
 
-        event.setCancelled(true);
-        arrow.setVelocity(arrow.getVelocity());
+        if (getTurret(hitEntity) == null){
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
-    public void TurretDamage(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        GamePlayer gp = getGamePlayer(p);
-        Block b = e.getBlock();
+    public void TurretDamage(EntityDamageByEntityEvent e) {
+        Entity entity = e.getEntity();
+        Turret turret = getTurret(entity);
+        if (turret == null) return;
+        double damage = e.getDamage();
 
-        if (gp == null) {
-            return;
+        Entity attacker = e.getDamager();
+        boolean damaged = false;
+
+        if (attacker instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+            damaged = turret.damage(shooter, damage);
+        } else if (attacker instanceof LivingEntity livingAttacker) {
+            damaged = turret.damage(livingAttacker, damage);
+        } else if (e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+            damaged = turret.damage(attacker, damage);
         }
 
-        int turretsSize = turrets.size();
-        for (int i = 0; i < turretsSize - 1; i++) {
-            Turret turret = turrets.get(i);
-            if (turret == null) return;
+        if (!damaged) e.setCancelled(true);
+    }
 
-            if (turret.getBlock().equals(b.getLocation())) {
-
-                GameTeam team = turret.getTeam();
-                if (gp.getTeam().equals(team)) {
-                    return;
-                }
-
-                turret.damage(p);
-
-                //Damage tool
-                ItemStack tool = p.getInventory().getItemInMainHand();
-                ItemMeta meta = tool.getItemMeta();
-
-                int toolDamage = 10;
-
-                if (meta instanceof Damageable damageable) {
-                    if (tool.getType().getMaxDurability() - damageable.getDamage() <= toolDamage) {
-                        p.getInventory().removeItem(tool);
-                        p.getWorld().playSound(p, Sound.ENTITY_ITEM_BREAK, 1, 1);
-                    } else {
-                        damageable.setDamage(toolDamage);
-                        tool.setItemMeta(meta);
-                    }
-                }
+    public static List<Turret> destroyedTurrets = new ArrayList<>();
+    @EventHandler
+    public void ShooterDeath(SlimeSplitEvent e) {
+        Slime entity = e.getEntity();
+        List<Turret> listCopy = new ArrayList<>(destroyedTurrets);
+        for (Turret turret : listCopy) {
+            if (turret.getShooter().getUniqueId().equals(entity.getUniqueId())) {
+                e.setCancelled(true);
+                destroyedTurrets.remove(turret);
             }
         }
     }

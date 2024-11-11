@@ -34,12 +34,13 @@ import static me.harpervenom.peakyBlocks.lastwars.Game.activeGames;
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
+import static me.harpervenom.peakyBlocks.lastwars.GameTeam.inSameTeam;
 import static me.harpervenom.peakyBlocks.lastwars.Map.MapManager.removeWorld;
 
 public class GameListener implements Listener {
 
-    public static List<Location> noDamageExplosions = new ArrayList<>();
-    public static List<Location> turretExplosions = new ArrayList<>();
+    public static HashMap<World, List<Location>> noDamageExplosions = new HashMap<>();
+    public static HashMap<World, List<Location>> turretExplosions = new HashMap<>();
 
     @EventHandler
     public void BlockBreak(BlockBreakEvent e) {
@@ -144,7 +145,7 @@ public class GameListener implements Listener {
         Game game = team.getGame();
 
         team.destroyTurret(turret);
-        game.sendMessage(turret.getShooter().getCustomName() + ChatColor.WHITE + " разрушена!");
+        game.sendMessage(turret.getName() + ChatColor.WHITE + " разрушена!");
     }
 
     @EventHandler
@@ -171,23 +172,23 @@ public class GameListener implements Listener {
 
         blocks.removeIf(block -> game.getMap().containsBlock(block));
 
-        int radius = 5; // Set your explosion radius
+        int radius = 5;
 
-        // Loop through blocks in the explosion radius
-        if (turretExplosions.contains(loc)) {
+        if (!turretExplosions.containsKey(world)) return;
+
+        if (turretExplosions.get(world).contains(loc)) {
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int z = -radius; z <= radius; z++) {
                         Block block = world.getBlockAt(loc.clone().add(x, y, z));
-                        // Check if block is obsidian and not already in the list
 
                         if (block.getType() == Material.OBSIDIAN && !blocks.contains(block)) {
-                            blocks.add(block); // Add obsidian to the explosion-affected blocks
+                            blocks.add(block);
                         }
                     }
                 }
             }
-            turretExplosions.remove(loc);
+            turretExplosions.get(world).remove(loc);
         }
     }
 
@@ -197,7 +198,8 @@ public class GameListener implements Listener {
 
         Location entityLoc = e.getEntity().getLocation();
 
-        for (Location explosionLoc : noDamageExplosions) {
+        if (!noDamageExplosions.containsKey(entityLoc.getWorld())) return;
+        for (Location explosionLoc : noDamageExplosions.get(entityLoc.getWorld())) {
             if (explosionLoc.distance(entityLoc) < 6) {
                 e.setCancelled(true);
                 break;
@@ -206,17 +208,14 @@ public class GameListener implements Listener {
     }
 
     private final HashMap<UUID, EntityType> spawnEggUsers = new HashMap<>();
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        // Check if the item is a spawn egg
         if (item.getType().toString().endsWith("_SPAWN_EGG")) {
             EntityType entityType = getEntityTypeFromSpawnEgg(item.getType());
             if (entityType != null) {
-                // Store the player and spawn egg type
                 spawnEggUsers.put(player.getUniqueId(), entityType);
             }
         }
@@ -224,12 +223,10 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e) {
-        // Check if the entity was spawned with a spawn egg
         if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
             Entity entity = e.getEntity();
             EntityType entityType = entity.getType();
 
-            // Find the player who used the spawn egg, if any
             for (HashMap.Entry<UUID, EntityType> entry : spawnEggUsers.entrySet()) {
                 if (entry.getValue() == entityType) {
                     Player p = Bukkit.getPlayer(entry.getKey());
@@ -246,7 +243,6 @@ public class GameListener implements Listener {
         }
     }
 
-    // Helper method to get EntityType from spawn egg material
     private EntityType getEntityTypeFromSpawnEgg(Material material) {
         try {
             return EntityType.valueOf(material.toString().replace("_SPAWN_EGG", ""));
@@ -260,17 +256,10 @@ public class GameListener implements Listener {
         Entity target = e.getTarget();
         Entity attacker = e.getEntity();
         if (attacker instanceof LivingEntity && target instanceof Player player) {
-            if (isEntityOnSameTeam(attacker, player)) {
+            if (inSameTeam(attacker, player)) {
                 e.setCancelled(true);
             }
         }
-    }
-
-    private boolean isEntityOnSameTeam(Entity entity, Player p) {
-        GamePlayer gp = getGamePlayer(p);
-        if (gp == null) return false;
-
-        return gp.getTeam().getTeam().getEntries().contains(entity.getUniqueId().toString());
     }
 
     @EventHandler

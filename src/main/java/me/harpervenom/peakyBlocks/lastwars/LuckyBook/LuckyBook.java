@@ -1,43 +1,60 @@
 package me.harpervenom.peakyBlocks.lastwars.LuckyBook;
 
-import org.bukkit.Bukkit;
+import me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot.Category;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.trim.ArmorTrim;
-import org.bukkit.inventory.meta.trim.TrimMaterial;
-import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot.Loot.getLootItemStack;
+import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot.Loot.*;
 import static me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener.goodsPrices;
+import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class LuckyBook {
 
     public static ItemStack luckyBook;
-    public static final String luckyBookName = ChatColor.YELLOW + "ЛакиБук";
+
+    public static ItemStack blocksLuckyBook;
+    public static ItemStack ingredientsLuckyBook;
+    public static ItemStack utilitiesLuckyBook;
+    public static ItemStack foodLuckyBook;
+    public static ItemStack eggsLuckyBook;
+
+    public static final String luckyBookName = ChatColor.WHITE + "Lucky Book";
+    public static final String blocksLuckyBookName = ChatColor.YELLOW + "Lucky Book";
+    public static final String ingredientsLuckyBookName = ChatColor.AQUA + "Lucky Book";
+    public static final String utilitiesLuckyBookName = ChatColor.LIGHT_PURPLE + "Lucky Book";
+    public static final String foodLuckyBookName = ChatColor.RED + "Lucky Book";
+    public static final String eggsLuckyBookName = ChatColor.GREEN + "Lucky Book";
+
 
     static {
-        luckyBook = new ItemStack(Material.BOOK);
-        ItemMeta meta = luckyBook.getItemMeta();
-        if (meta != null) meta.setDisplayName(luckyBookName);
-        luckyBook.setItemMeta(meta);
+        luckyBook = createItem(Material.BOOK, luckyBookName, List.of(ChatColor.GRAY + "Любые предметы."));
 
-        goodsPrices.put(luckyBookName, 25);
+        blocksLuckyBook = createItem(Material.BOOK, blocksLuckyBookName, List.of(ChatColor.GRAY + "Строительные блоки."));
+        ingredientsLuckyBook = createItem(Material.BOOK, ingredientsLuckyBookName, List.of(ChatColor.GRAY + "Ингридиенты."));
+        utilitiesLuckyBook = createItem(Material.BOOK, utilitiesLuckyBookName, List.of(ChatColor.GRAY + "Броня и инструменты."));
+        foodLuckyBook = createItem(Material.BOOK, foodLuckyBookName, List.of(ChatColor.GRAY + "Еда."));
+        eggsLuckyBook = createItem(Material.BOOK, eggsLuckyBookName, List.of(ChatColor.GRAY + "Яйца спавна."));
+
+        int basePrice = 20;
+
+        goodsPrices.put(luckyBookName, basePrice);
+
+        goodsPrices.put(blocksLuckyBookName, (int) (basePrice * 1.3));
+        goodsPrices.put(ingredientsLuckyBookName, (int) (basePrice * 1.3));
+        goodsPrices.put(utilitiesLuckyBookName, (int) (basePrice * 1.5));
+        goodsPrices.put(foodLuckyBookName, (int) (basePrice * 1.5));
+        goodsPrices.put(eggsLuckyBookName, basePrice * 3);
+
     }
 
-    public static void giveLootToPlayer(Player p) {
-        List<ItemStack> loot = generateLoot();
+    public static void giveLootToPlayer(Player p, String name) {
+        List<ItemStack> loot = generateLoot(name);
         for (ItemStack item : loot) {
             HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(item);
 
@@ -47,16 +64,50 @@ public class LuckyBook {
         }
     }
 
-    public static List<ItemStack> generateLoot() {
+    public static List<ItemStack> generateLoot(String name) {
         List<ItemStack> items = new ArrayList<>();
 
         for (int i = 0; i < 1; i++) {
-            ItemStack item = getLootItemStack();
+            ItemStack item = getLootItemStack(getCategory(name));
 
             items.add(item);
         }
 
         return items;
+    }
+
+    public static ItemStack getPurchase(String name) {
+        if (name.equals(luckyBookName)) {
+            return luckyBook;
+        } else if (name.equals(blocksLuckyBookName)) {
+            return blocksLuckyBook;
+        } else if (name.equals(ingredientsLuckyBookName)) {
+            return ingredientsLuckyBook;
+        } else if (name.equals(utilitiesLuckyBookName)) {
+            return utilitiesLuckyBook;
+        } else if (name.equals(foodLuckyBookName)) {
+            return foodLuckyBook;
+        } else if (name.equals(eggsLuckyBookName)) {
+            return eggsLuckyBook;
+        } else {
+            return null;
+        }
+    }
+
+    public static Category getCategory(String name) {
+        if (name.equals(blocksLuckyBookName)) {
+            return blocksCategory;
+        } else if (name.equals(ingredientsLuckyBookName)) {
+            return ingredientsCategory;
+        } else if (name.equals(utilitiesLuckyBookName)) {
+            return utilitiesCategory;
+        } else if (name.equals(foodLuckyBookName)) {
+            return foodCategory;
+        } else if (name.equals(eggsLuckyBookName)) {
+            return eggsCategory;
+        } else {
+            return null;
+        }
     }
 
 }

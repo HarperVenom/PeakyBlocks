@@ -86,6 +86,8 @@ public class Game {
         setSpawners(map.getSpawners());
 
         map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        map.getWorld().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        map.getWorld().setDifficulty(Difficulty.HARD);
 
         start();
     }
@@ -106,8 +108,17 @@ public class Game {
     }
 
     public List<GamePlayer> getPlayers() {
-        return teams.stream()
-                .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toList());
+        List<GamePlayer> gamePlayers = new ArrayList<>();
+
+        for (GameTeam team : teams) {
+            gamePlayers.addAll(team.getPlayers());
+        }
+
+        for (GameTeam team : deadTeams) {
+            gamePlayers.addAll(team.getPlayers());
+        }
+
+        return gamePlayers;
     }
 
     public void sendMessage(String message) {
@@ -155,7 +166,7 @@ public class Game {
 
                 if (time != 0 && time % 90 == 0) {
                     for (Spawner spawner : spawners) {
-                        if (spawner.getType() == EntityType.MAGMA_CUBE) {
+                        if (spawner.getType() == EntityType.CAVE_SPIDER || spawner.getType() == EntityType.MAGMA_CUBE) {
                             spawner.run();
                         }
                     }
@@ -163,7 +174,7 @@ public class Game {
 
                 if (time == 0 || time % 60 == 0) {
                     for (Spawner spawner : spawners) {
-                        if (spawner.getType() == EntityType.SLIME) {
+                        if (spawner.getType() == EntityType.SPIDER || spawner.getType() == EntityType.SLIME) {
                             spawner.run();
                         }
                     }
@@ -210,7 +221,6 @@ public class Game {
     }
 
     public void finish() {
-
         for (GameTeam gTeam : teams) {
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             if (manager == null) return;

@@ -72,8 +72,6 @@ public class PlayerListener implements Listener {
         int freezeTime = Math.max((int) (game.getTime() / 30), 10);
 
         gp.freeze(freezeTime);
-
-        p.setFoodLevel(6);
     }
 
     @EventHandler

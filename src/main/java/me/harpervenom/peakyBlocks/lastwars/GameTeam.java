@@ -46,6 +46,13 @@ public class GameTeam {
         return null;
     }
 
+    public static boolean inSameTeam(Entity entity1, Entity entity2) {
+        GameTeam team1 = getEntityTeam(entity1);
+        GameTeam team2 = getEntityTeam(entity2);
+        if (team1 == null || team2 == null) return false;
+        return team1.equals(team2);
+    }
+
     private Game game;
     private Location spawn;
     private Core core;
