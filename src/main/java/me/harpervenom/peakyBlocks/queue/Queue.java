@@ -109,6 +109,8 @@ public class Queue {
         List<QueuePlayer> listCopy = new ArrayList<>(getPlayers());
         for (QueuePlayer p : listCopy) {
             p.getTeam().removePlayer(p, isStartingGame, true);
+
+            if (!isStartingGame) p.getPlayer().sendMessage(ChatColor.GRAY + "Очередь была удалена.");
         }
         scoreboard.remove();
         activeQueues.remove(this);

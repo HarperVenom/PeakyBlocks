@@ -33,7 +33,7 @@ public class LuckyBook {
         if (meta != null) meta.setDisplayName(luckyBookName);
         luckyBook.setItemMeta(meta);
 
-        goodsPrices.put(luckyBookName, 10);
+        goodsPrices.put(luckyBookName, 25);
     }
 
     public static void giveLootToPlayer(Player p) {
@@ -50,13 +50,8 @@ public class LuckyBook {
     public static List<ItemStack> generateLoot() {
         List<ItemStack> items = new ArrayList<>();
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             ItemStack item = getLootItemStack();
-//            if (item != null) {
-//                Bukkit.broadcastMessage(item.getType() + " - " + item.getAmount());
-//            } else {
-//                Bukkit.broadcastMessage(null);
-//            }
 
             items.add(item);
         }

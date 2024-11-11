@@ -138,6 +138,11 @@ public class Game {
         runTimer();
 
         updateBountyBoard();
+
+        for (GamePlayer gp : getPlayers()) {
+            Player p = gp.getPlayer();
+            p.setScoreboard(scoreboard);
+        }
     }
 
     private void runTimer() {

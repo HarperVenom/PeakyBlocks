@@ -73,7 +73,7 @@ public class SpawnerListener implements Listener {
             if (gp == null) return;
 
             double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) Math.max(entityMaxHealth * (entity.getType() == EntityType.MAGMA_CUBE ? 3 : 2), 1);
+            int exp = (int) Math.max(entityMaxHealth * (entity.getType() == EntityType.MAGMA_CUBE ? 4 : 2), 1);
 
             gp.changeBalance(exp);
         }

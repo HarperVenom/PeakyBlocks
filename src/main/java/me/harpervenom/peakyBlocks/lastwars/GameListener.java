@@ -258,9 +258,9 @@ public class GameListener implements Listener {
     @EventHandler
     public void onEntityTarget(EntityTargetEvent e) {
         Entity target = e.getTarget();
-
-        if ((e.getEntity() instanceof Monster || e.getEntity() instanceof IronGolem) && target instanceof Player player) {
-            if (isEntityOnSameTeam(e.getEntity(), player)) {
+        Entity attacker = e.getEntity();
+        if (attacker instanceof LivingEntity && target instanceof Player player) {
+            if (isEntityOnSameTeam(attacker, player)) {
                 e.setCancelled(true);
             }
         }

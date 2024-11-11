@@ -29,11 +29,13 @@ public class Category {
 
     public ItemStack pickRandomItem() {
         double totalChance = itemsWithChances.stream().mapToDouble(ItemWithChance::getChance).sum();
-        double randomValue = random.nextDouble() * totalChance;
 
+        // Normalize each item's chance to fit in [0, 1] range
+        double randomValue = random.nextDouble();
         double cumulativeChance = 0.0;
+
         for (ItemWithChance itemWithChance : itemsWithChances) {
-            cumulativeChance += itemWithChance.getChance();
+            cumulativeChance += itemWithChance.getChance() / totalChance;  // Normalize the chance
             if (randomValue <= cumulativeChance) {
                 return itemWithChance.getItem();
             }

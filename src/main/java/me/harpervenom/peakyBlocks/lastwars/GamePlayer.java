@@ -84,7 +84,7 @@ public class GamePlayer {
     }
 
     public int getBounty() {
-        return expAfterDeath / 2;
+        return expAfterDeath / 3;
     }
 
     public void freeze(int seconds) {

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.gamePlayers;
+import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 
 public class GameTeam {
 
@@ -33,6 +34,11 @@ public class GameTeam {
     public static GameTeam getEntityTeam(Entity entity) {
         World world = entity.getWorld();
         Game game = getGameByWorld(world);
+        if (entity instanceof Player p) {
+            GamePlayer gp = getGamePlayer(p);
+            if (gp == null) return null;
+            return gp.getTeam();
+        }
         if (game == null) return null;
         for (GameTeam team : game.getTeams()) {
             if (team.getTeam().getEntries().contains(entity.getUniqueId().toString())) return team;
@@ -52,9 +58,9 @@ public class GameTeam {
         this.game = game;
 
         Scoreboard scoreboard = game.getScoreboard();
-        team = game.getScoreboard().registerNewTeam(queueTeam.getTeamName());
+        team = scoreboard.registerNewTeam(queueTeam.getTeamName());
         team.setColor(color);
-        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
         team.setAllowFriendlyFire(false);
         team.setCanSeeFriendlyInvisibles(false);
 
@@ -65,11 +71,6 @@ public class GameTeam {
             members.add(gamePlayer);
 
             team.addEntry(gamePlayer.getPlayer().getName());
-
-            Player p = gamePlayer.getPlayer();
-            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-                p.setScoreboard(scoreboard);
-            }, 2L);
         }
     }
 

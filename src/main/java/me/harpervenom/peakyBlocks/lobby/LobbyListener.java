@@ -22,7 +22,9 @@ public class LobbyListener implements Listener {
         Player p = e.getPlayer();
         e.setJoinMessage(ChatColor.GRAY + p.getDisplayName() + " в игре.");
         p.sendMessage("Добро пожаловать!");
+        p.sendMessage("");
         p.sendMessage("В случае отсутсвия игроков, Вы можете запустить игру даже в одиночестве, в экспериментальных целях.");
+        p.sendMessage("");
         setLobby(p);
 
         queuePlayers.add(new QueuePlayer(p.getUniqueId()));

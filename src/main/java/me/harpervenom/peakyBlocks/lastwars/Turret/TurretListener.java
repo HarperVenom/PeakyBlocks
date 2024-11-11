@@ -1,10 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars.Turret;
 
 import me.harpervenom.peakyBlocks.lastwars.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -12,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
@@ -47,12 +46,11 @@ public class TurretListener implements Listener {
         Block b = e.getBlock();
 
         if (gp == null) {
-            e.setCancelled(true);
             return;
         }
 
         int turretsSize = turrets.size();
-        for (int i = 0; i < turretsSize; i++) {
+        for (int i = 0; i < turretsSize - 1; i++) {
             Turret turret = turrets.get(i);
             if (turret == null) return;
 
@@ -64,9 +62,21 @@ public class TurretListener implements Listener {
                 }
 
                 turret.damage(p);
+
+                //Damage tool
                 ItemStack tool = p.getInventory().getItemInMainHand();
-                if (tool instanceof Damageable damageable) {
-                    damageable.damage(10);
+                ItemMeta meta = tool.getItemMeta();
+
+                int toolDamage = 10;
+
+                if (meta instanceof Damageable damageable) {
+                    if (tool.getType().getMaxDurability() - damageable.getDamage() <= toolDamage) {
+                        p.getInventory().removeItem(tool);
+                        p.getWorld().playSound(p, Sound.ENTITY_ITEM_BREAK, 1, 1);
+                    } else {
+                        damageable.setDamage(toolDamage);
+                        tool.setItemMeta(meta);
+                    }
                 }
             }
         }

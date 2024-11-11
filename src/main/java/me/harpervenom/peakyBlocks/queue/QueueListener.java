@@ -55,9 +55,10 @@ public class QueueListener implements Listener {
             qp.setTeam(null);
         }
 
+        updatePlayerInventory(qp.getPlayer());
+
         if (qp.getId() == queue.creator && !isChangingTeams) {
             queue.delete(false);
-            updatePlayerInventory(qp.getPlayer());
             if (!isSilent) p.sendMessage(ChatColor.DARK_GRAY + "Вы удалили очередь.");
             return;
         }
@@ -69,7 +70,7 @@ public class QueueListener implements Listener {
         queue.playersCount--;
 
         if (!isSilent) {
-            if (qp.getTeam().getQueue().getId() != queue.id) {
+            if (qp.getTeam() == null || team.getQueue().getId() != queue.id) {
                 p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули игру.");
             } else {
                 p.sendMessage(ChatColor.DARK_GRAY + "Вы покинули команду.");

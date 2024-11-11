@@ -1,11 +1,9 @@
 package me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
@@ -21,12 +19,16 @@ public class Loot {
     static Random random = new Random();
     public static List<Category> categories = new ArrayList<>();
 
+    public static List<PotionEffectType> drinkingPotionEffects = new ArrayList<>();
+    public static List<PotionEffectType> splashPotionEffects = new ArrayList<>();
+    public static List<PotionEffectType> arrowEffects = new ArrayList<>();
+
     static {
-        Category decorativeBlocksCategory = new Category(3);
-        Category usefulResourcesCategory = new Category(4);
-        Category utilitiesCategory = new Category(1.5);
-        Category consumingCategory = new Category(1);
-        Category entitiesCategory = new Category(0.5);
+        Category decorativeBlocksCategory = new Category(0.3);
+        Category usefulResourcesCategory = new Category(1);
+        Category utilitiesCategory = new Category(0.5);
+        Category consumingCategory = new Category(0.5);
+        Category entitiesCategory = new Category(0.2);
 
         for (Material material : Material.values()) {
             String name = material.name();
@@ -36,57 +38,68 @@ public class Loot {
                     || name.contains("BAMBOO") || name.contains("STONE") || name.contains("DEEPSLATE")
                     || name.contains("PRISMARINE") || name.contains("QUARTZ") || name.contains("COPPER")
                     || name.contains("WOOL") || name.contains("GLASS") || name.contains("CONCRETE")
-                    || name.contains("TERRACOTTA") || (name.contains("SHULKER") && !name.contains("EGG")) || name.contains("DIRT")) {
+                    || name.contains("TERRACOTTA") || name.contains("DIRT")
+                    || name.contains("MUD") || name.contains("OBSIDIAN")) {
+
+                if (material == Material.PRISMARINE_SHARD || material == Material.PRISMARINE_CRYSTALS || material == Material.MANGROVE_ROOTS
+                        || material == Material.GLASS_BOTTLE
+                        || name.contains("BUTTON") || name.contains("PLATE")
+                        || name.contains("GRIND") || name.contains("CUTTER")
+                        || name.contains("BOAT") || name.contains("GATE") || name.contains("PANE") || name.contains("DOOR")
+                        || name.contains("HOE") || name.contains("SWORD") || name.contains("AXE") || name.contains("SHOVEL")) continue;
+
                 double chance = 1;
-                if (material.name().contains("COPPER")) chance = 0.1;
-                decorativeBlocksCategory.addItem(new ItemStack(material), chance, 3);
+                if (name.contains("COPPER")) chance = 0.05;
+
+                decorativeBlocksCategory.addItem(new ItemStack(material), chance, 12);
             }
         }
-        decorativeBlocksCategory.addItem(new ItemStack(Material.SAND), 1, 3);
-        decorativeBlocksCategory.addItem(new ItemStack(Material.GRAVEL), 1, 3);
+        decorativeBlocksCategory.addItem(new ItemStack(Material.SAND), 1, 7);
+        decorativeBlocksCategory.addItem(new ItemStack(Material.GRAVEL), 1, 7);
 
 
         for (Material material : Material.values()) {
             if (material.name().contains("PLANKS") || material.name().contains("LOG")) {
-                usefulResourcesCategory.addItem(new ItemStack(material), 0.5, 3);
+                usefulResourcesCategory.addItem(new ItemStack(material), 0.05, 3);
             }
         }
-        usefulResourcesCategory.addItem(new ItemStack(Material.COBBLESTONE), 4, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.COBBLESTONE), 2, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.STONE), 2, 3);
 
-        usefulResourcesCategory.addItem(new ItemStack(Material.STONE), 3, 3);
-//        usefulResourcesCategory.addItem(new ItemStack(Material.LAPIS_LAZULI), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.GOLD_INGOT), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.GOLD_NUGGET), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.FEATHER), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 3, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.FLINT), 3, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.GOLD_INGOT), 1, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.FEATHER), 1, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 1, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.FLINT), 1, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.BONE), 1, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.STRING), 1, 3);
 
-        usefulResourcesCategory.addItem(new ItemStack(Material.IRON_INGOT), 2, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.IRON_NUGGET), 2, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.STRING), 2, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.GUNPOWDER), 2, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.IRON_INGOT), 0.8, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.GUNPOWDER), 0.8, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.BREEZE_ROD), 0.8, 1);
 
-        usefulResourcesCategory.addItem(new ItemStack(Material.DIAMOND), 1, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.NETHERITE_INGOT), 1, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.NETHERITE_SCRAP), 1, 3);
-        usefulResourcesCategory.addItem(new ItemStack(Material.BREEZE_ROD), 1, 1);
-        usefulResourcesCategory.addItem(new ItemStack(Material.HEAVY_CORE), 1, 1);
+        usefulResourcesCategory.addItem(new ItemStack(Material.DIAMOND), 0.5, 3);
+        usefulResourcesCategory.addItem(new ItemStack(Material.NETHERITE_INGOT), 0.5, 1);
+
+        usefulResourcesCategory.addItem(new ItemStack(Material.HEAVY_CORE), 0.3, 1);
 
 
         for (Material material : Material.values()) {
-            if (material.name().contains("HELMET") || material.name().contains("CHESTPLATE") || material.name().contains("LEGGINGS")
-            || material.name().contains("BOOTS") || material.name().contains("SWORD") || material.name().contains("AXE")
-            || material.name().contains("SHOVEL") || material.name().contains("BOW") || material.name().contains("ARROW")) {
+            String name = material.name();
+            if (name.contains("HELMET") || name.contains("CHESTPLATE") || name.contains("LEGGINGS")
+            || name.contains("BOOTS") || name.contains("SWORD") || name.contains("AXE ")
+            || name.contains("SHOVEL") || name.contains("BOW ") || name.contains("ARROW") ||
+            name.contains("SHULKER_BOX")) {
 
                 double chance = 1;
-                if (material.name().contains("NETHERITE")) chance -= 0.5;
-                if (material.name().contains("DIAMOND")) chance -= 0.4;
-                if (material.name().contains("IRON")) chance -= 0.3;
-                if (material.name().contains("ARROW")) chance = 2;
+                if (name.contains("NETHERITE")) chance = 0.3;
+                if (name.contains("DIAMOND")) chance = 0.5;
+                if (name.contains("IRON")) chance = 0.8;
+                if (name.contains("ARROW")) chance = 3;
+                if (material == Material.TIPPED_ARROW) chance = 10;
+                if (name.contains("SHULKER_BOX")) chance = 0.2;
 
                 int maxAmount = 1;
-
-                if (material.name().contains("ARROW")) maxAmount = 5;
+                if (name.contains("ARROW")) maxAmount = 5;
 
                 utilitiesCategory.addItem(new ItemStack(material), chance, maxAmount);
             }
@@ -96,6 +109,10 @@ public class Loot {
         utilitiesCategory.addItem(new ItemStack(Material.FIREWORK_ROCKET), 1 ,3);
         utilitiesCategory.addItem(new ItemStack(Material.TNT), 1 ,2);
         utilitiesCategory.addItem(new ItemStack(Material.SHIELD), 1 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.SADDLE), 1 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.SPYGLASS), 1 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.FIRE_CHARGE), 1 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.SLIME_BALL), 1 ,3);
 //        utilitiesCategory.addItem(new ItemStack(Material.TOTEM_OF_UNDYING), 0.5 ,1);
 
         utilitiesCategory.addItem(new ItemStack(Material.TRIDENT), 0.5 ,1);
@@ -104,6 +121,7 @@ public class Loot {
 
 
         for (Material material : Material.values()) {
+            if (material == Material.SPIDER_EYE || material == Material.OMINOUS_BOTTLE) continue;
             if (material.isEdible()) {
                 consumingCategory.addItem(new ItemStack(material), 1, 3);
             }
@@ -116,13 +134,66 @@ public class Loot {
         }
 
 
-        for (Material material : Material.values()) {
-            if (material.name().contains("SPAWN_EGG") && material != Material.ENDER_DRAGON_SPAWN_EGG){
-                entitiesCategory.addItem(new ItemStack(material), 1, 1);
-            }
-        }
-        entitiesCategory.addItem(new ItemStack(Material.WARDEN_SPAWN_EGG), 0.01, 1);
-        entitiesCategory.addItem(new ItemStack(Material.WITHER_SPAWN_EGG), 0.01, 1);
+        double chance = 1;
+        int maxAMount = 1;
+
+        entitiesCategory.addItem(new ItemStack(Material.ARMADILLO_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.CAMEL_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.CHICKEN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.COW_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.DONKEY_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.GOAT_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.HORSE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.LLAMA_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.MOOSHROOM_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.MULE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PANDA_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PIG_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.POLAR_BEAR_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SHEEP_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SKELETON_HORSE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SNIFFER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.TURTLE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.WOLF_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ZOMBIE_HORSE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ZOMBIFIED_PIGLIN_SPAWN_EGG), chance, maxAMount);
+
+        chance = 0.6;
+        entitiesCategory.addItem(new ItemStack(Material.BLAZE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.BOGGED_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.BREEZE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.CREEPER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.CAVE_SPIDER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ENDERMITE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.DROWNED_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.GUARDIAN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.HUSK_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PIGLIN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PILLAGER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PUFFERFISH_BUCKET), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SHULKER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SILVERFISH_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SKELETON_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SLIME_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.SPIDER_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.STRAY_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.VEX_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.VINDICATOR_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.WITCH_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.WITHER_SKELETON_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ZOMBIE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ZOMBIE_VILLAGER_SPAWN_EGG), chance, maxAMount);
+
+        chance = 0.3;
+        entitiesCategory.addItem(new ItemStack(Material.HOGLIN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ZOGLIN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.ELDER_GUARDIAN_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.GHAST_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.IRON_GOLEM_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.PIGLIN_BRUTE_SPAWN_EGG), chance, maxAMount);
+        entitiesCategory.addItem(new ItemStack(Material.RAVAGER_SPAWN_EGG), chance, maxAMount);
 
 
         categories.add(decorativeBlocksCategory);
@@ -130,6 +201,43 @@ public class Loot {
         categories.add(utilitiesCategory);
         categories.add(consumingCategory);
         categories.add(entitiesCategory);
+
+
+        //Potion Effects
+        drinkingPotionEffects.add(PotionEffectType.HASTE);
+        drinkingPotionEffects.add(PotionEffectType.RESISTANCE);
+        drinkingPotionEffects.add(PotionEffectType.FIRE_RESISTANCE);
+        drinkingPotionEffects.add(PotionEffectType.ABSORPTION);
+        drinkingPotionEffects.add(PotionEffectType.HEALTH_BOOST);
+        drinkingPotionEffects.add(PotionEffectType.INVISIBILITY);
+        drinkingPotionEffects.add(PotionEffectType.INSTANT_HEALTH);
+        drinkingPotionEffects.add(PotionEffectType.JUMP_BOOST);
+        drinkingPotionEffects.add(PotionEffectType.LEVITATION);
+        drinkingPotionEffects.add(PotionEffectType.REGENERATION);
+        drinkingPotionEffects.add(PotionEffectType.SATURATION);
+        drinkingPotionEffects.add(PotionEffectType.WATER_BREATHING);
+        drinkingPotionEffects.add(PotionEffectType.SLOW_FALLING);
+        drinkingPotionEffects.add(PotionEffectType.SPEED);
+        drinkingPotionEffects.add(PotionEffectType.STRENGTH);
+
+        arrowEffects.add(PotionEffectType.POISON);
+        arrowEffects.add(PotionEffectType.INSTANT_DAMAGE);
+        arrowEffects.add(PotionEffectType.MINING_FATIGUE);
+        arrowEffects.add(PotionEffectType.BLINDNESS);
+        arrowEffects.add(PotionEffectType.GLOWING);
+        arrowEffects.add(PotionEffectType.DARKNESS);
+        arrowEffects.add(PotionEffectType.HUNGER);
+        arrowEffects.add(PotionEffectType.INFESTED);
+        arrowEffects.add(PotionEffectType.NAUSEA);
+        arrowEffects.add(PotionEffectType.OOZING);
+        arrowEffects.add(PotionEffectType.SLOWNESS);
+        arrowEffects.add(PotionEffectType.WEAKNESS);
+        arrowEffects.add(PotionEffectType.WEAVING);
+        arrowEffects.add(PotionEffectType.WITHER);
+        arrowEffects.add(PotionEffectType.WIND_CHARGED);
+
+        splashPotionEffects.addAll(drinkingPotionEffects);
+        splashPotionEffects.addAll(arrowEffects);
     }
 
     public static ItemStack getLootItemStack() {
@@ -214,22 +322,28 @@ public class Loot {
     }
 
     public static void applyRandomPotionEffect(ItemStack item) {
-        List<PotionEffectType> potionEffectTypes = List.of(PotionEffectType.values());
+        List<PotionEffectType> potionEffectTypes = new ArrayList<>();
 
-        if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
-            PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+        if (item.getType() == Material.POTION) {
+            potionEffectTypes = drinkingPotionEffects;
+        } else if (item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
+            potionEffectTypes = splashPotionEffects;
+        } else {
+            return;
+        }
 
-            if (potionMeta != null) {
-                PotionEffectType randomEffectType = potionEffectTypes.get(random.nextInt(potionEffectTypes.size()));
+        PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 
-                int duration = (random.nextInt(31) + 10) * 20; // Random duration between 10 and 40 seconds (20 ticks = 1 second)
-                int amplifier = random.nextInt(3); // Random amplifier between 0 and 2
+        if (potionMeta != null) {
+            PotionEffectType randomEffectType = potionEffectTypes.get(random.nextInt(potionEffectTypes.size()));
 
-                PotionEffect randomEffect = new PotionEffect(randomEffectType, duration, amplifier);
-                potionMeta.addCustomEffect(randomEffect, true);
+            int duration = (random.nextInt(31) + 10) * 20; // Random duration between 10 and 40 seconds (20 ticks = 1 second)
+            int amplifier = random.nextInt(3); // Random amplifier between 0 and 2
 
-                item.setItemMeta(potionMeta);
-            }
+            PotionEffect randomEffect = new PotionEffect(randomEffectType, duration, amplifier);
+            potionMeta.addCustomEffect(randomEffect, true);
+
+            item.setItemMeta(potionMeta);
         }
     }
 
@@ -266,26 +380,20 @@ public class Loot {
     }
 
     public static void applyRandomTippedArrowEffect(ItemStack item) {
-        // List of all potion effect types
-        List<PotionEffectType> potionEffectTypes = List.of(PotionEffectType.values());
+        List<PotionEffectType> potionEffectTypes = arrowEffects;
 
-        // Check if the item is a tipped arrow
         if (item.getType() == Material.TIPPED_ARROW) {
             PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 
             if (potionMeta != null) {
-                // Get a random potion effect type
                 PotionEffectType randomEffectType = potionEffectTypes.get(random.nextInt(potionEffectTypes.size()));
 
-                // Randomize duration and amplifier
-                int duration = (random.nextInt(21) + 10) * 20; // Random duration between 10 and 30 seconds (20 ticks = 1 second)
+                int duration = (random.nextInt(21) + 10) * 20 * 4; // Random duration between 10 and 30 seconds (20 ticks = 1 second)
                 int amplifier = random.nextInt(2); // Random amplifier between 0 and 1 (Level I to II)
 
-                // Add the random potion effect to the PotionMeta
                 PotionEffect randomEffect = new PotionEffect(randomEffectType, duration, amplifier);
                 potionMeta.addCustomEffect(randomEffect, true);
 
-                // Apply the modified meta back to the item
                 item.setItemMeta(potionMeta);
             }
         }

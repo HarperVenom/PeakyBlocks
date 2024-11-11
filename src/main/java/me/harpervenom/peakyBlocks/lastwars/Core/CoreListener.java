@@ -24,7 +24,6 @@ public class CoreListener implements Listener {
         Block b = e.getBlock();
 
         if (gp == null) {
-            e.setCancelled(true);
             return;
         }
 
