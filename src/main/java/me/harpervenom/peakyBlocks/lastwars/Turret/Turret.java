@@ -36,7 +36,8 @@ public class Turret {
         return null;
     }
 
-    private final Location loc;
+    private final Location baseLoc;
+    private Location loc;
     private GameTeam team;
     private static int maxHealth = 300;
     private int health;
@@ -68,8 +69,8 @@ public class Turret {
 
     private List<Location> blocks = new ArrayList<>();
 
-    public Turret(Location loc, boolean isBreakable) {
-        this.loc = loc;
+    public Turret(Location baseLoc, boolean isBreakable) {
+        this.baseLoc = baseLoc;
         this.isBreakable = isBreakable;
 
         if (!isBreakable) {
@@ -86,7 +87,7 @@ public class Turret {
     }
 
     public Turret(Turret sample) {
-        this.loc = sample.loc.clone();
+        this.baseLoc = sample.baseLoc.clone();
         this.team = sample.team;
         this.health = sample.health;
         this.isBreakable = sample.isBreakable;
@@ -109,19 +110,19 @@ public class Turret {
     }
 
     public void buildStructure() {
-        Location location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
+        Location location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 1, baseLoc.getZ());
         blocks.add(location);
         location.getBlock().setType(isBreakable ? Material.SMOOTH_STONE : Material.BEDROCK);
 
-        location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
+        location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 2, baseLoc.getZ());
 
         if (!isBreakable) {
             location.getBlock().setType(Material.BEDROCK);
             blocks.add(location);
 
-            location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 3, loc.getZ());
+            location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 3, baseLoc.getZ());
         }
-        blocks.add(location);
+        loc = location;
 
         Map map = team.getGame().getMap();
         blocks.forEach(map::addLoc);
@@ -171,9 +172,18 @@ public class Turret {
             p = player;
         }
 
-        if (!(attacker instanceof TNTPrimed) && !isRunning) {
+//        if (attacker instanceof TNTPrimed) {
+//            if (turretExplosions.containsKey(baseLoc.getWorld())) {
+//                if (turretExplosions.get(baseLoc.getWorld()).contains(attacker.getLocation())) {
+//                    Bukkit.broadcastMessage("own explosion");
+//                    return false;
+//                }
+//            }
+//        } else
+
+        if (!isRunning) {
             if (attacker instanceof LivingEntity livingAttacker && targets.contains(livingAttacker)) {
-                Location loc = shooter.getLocation().clone().add(0.5, 0, 0.5);
+                Location loc = shooter.getLocation();
                 turretExplosions.get(loc.getWorld()).add(loc);
                 noDamageExplosions.get(loc.getWorld()).add(loc);
                 shooter.getLocation().getWorld().createExplosion(loc, 6);
@@ -210,9 +220,7 @@ public class Turret {
     public void destroy() {
         shootingTask.cancel();
         scanningTask.cancel();
-        if (noDamageExplosions.containsKey(loc.getWorld())){
-            noDamageExplosions.get(loc.getWorld()).add(shooter.getLocation());
-        }
+        noDamageExplosions.get(baseLoc.getWorld()).add(shooter.getLocation());
         shooter.getWorld().createExplosion(shooter.getLocation(), 2, false, false);
 
         for (Location loc : blocks) {
@@ -222,6 +230,9 @@ public class Turret {
         turrets.remove(this);
     }
 
+    public Location getBaseLoc() {
+        return baseLoc;
+    }
     public Location getLoc() {
         return loc;
     }

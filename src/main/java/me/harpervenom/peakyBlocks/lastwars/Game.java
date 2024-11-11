@@ -4,6 +4,7 @@ import me.harpervenom.peakyBlocks.lastwars.Map.LocationSet;
 import me.harpervenom.peakyBlocks.lastwars.Map.Map;
 import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
+import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
+import static me.harpervenom.peakyBlocks.lastwars.GameListener.noDamageExplosions;
+import static me.harpervenom.peakyBlocks.lastwars.GameListener.turretExplosions;
+import static me.harpervenom.peakyBlocks.lastwars.Turret.Turret.turrets;
 
 public class Game {
 
@@ -88,6 +92,9 @@ public class Game {
         map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         map.getWorld().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
         map.getWorld().setDifficulty(Difficulty.HARD);
+
+        turretExplosions.put(map.getWorld(), new ArrayList<>());
+        noDamageExplosions.put(map.getWorld(), new ArrayList<>());
 
         start();
     }
@@ -199,6 +206,10 @@ public class Game {
 
     public boolean isBlockProtected(Block b) {
         Location blockLoc = b.getLocation();
+
+        for (Turret turret : turrets) {
+            if (turret.getLoc().equals(blockLoc)) return true;
+        }
 
         for (GameTeam team : teams) {
             Location spawn = team.getSpawn().clone().subtract(0.5, 0, 0.5);

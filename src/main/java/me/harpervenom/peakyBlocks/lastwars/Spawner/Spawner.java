@@ -26,6 +26,7 @@ public class Spawner {
     private Location location;
     private EntityType type;
     private int maxAmount = 3;
+    private Game game;
 
     private Set<LivingEntity> entities = new HashSet<>();
     private Set<LivingEntity> childEntities = new HashSet<>();
@@ -35,6 +36,11 @@ public class Spawner {
         this.type = type;
 
         spawnerSamples.add(this);
+
+        Game game = getGameByWorld(location.getWorld());
+        this.game = game;
+        if (game == null) return;
+        maxAmount += Math.max(game.getPlayers().size() - 2, 0);
     }
 
     public Spawner(Spawner sample) {
@@ -47,7 +53,7 @@ public class Spawner {
 
         if (entities.size() >= maxAmount) return;
 
-        int amount = Math.min(maxAmount - entities.size(), 2);
+        int amount = Math.min(maxAmount - entities.size(), 2 + Math.max(game.getPlayers().size() - 2, 0));
         for (int i = 0; i < amount; i++) {
             spawnMob(location, type);
         }
@@ -76,6 +82,13 @@ public class Spawner {
         }
 
         entities.add(entity);
+    }
+
+    public boolean containsEntity(Entity entity) {
+        for (LivingEntity child : childEntities) {
+            if (child.getUniqueId().equals(entity.getUniqueId())) return true;
+        }
+        return false;
     }
 
     public void addChildEntity(LivingEntity entity) {

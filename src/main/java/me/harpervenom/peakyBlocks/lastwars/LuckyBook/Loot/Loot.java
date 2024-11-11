@@ -81,6 +81,8 @@ public class Loot {
         ingredientsCategory.addItem(new ItemStack(Material.FLINT), 1, 1);
         ingredientsCategory.addItem(new ItemStack(Material.BONE), 1, 4);
         ingredientsCategory.addItem(new ItemStack(Material.STRING), 1, 3);
+        ingredientsCategory.addItem(new ItemStack(Material.SLIME_BALL), 1 ,3);
+        ingredientsCategory.addItem(new ItemStack(Material.COAL), 1 ,3);
 
         ingredientsCategory.addItem(new ItemStack(Material.IRON_INGOT), 0.8, 5);
         ingredientsCategory.addItem(new ItemStack(Material.GUNPOWDER), 0.8, 3);
@@ -103,14 +105,14 @@ public class Loot {
                 if (name.contains("NETHERITE")) chance = 0.3;
                 if (name.contains("DIAMOND")) chance = 0.5;
                 if (name.contains("IRON")) chance = 0.8;
-                if (name.contains("ARROW")) chance = 3;
-                if (material == Material.TIPPED_ARROW) chance = 10;
+                if (name.contains("ARROW")) chance = 1;
+                if (material == Material.TIPPED_ARROW) chance = 5;
                 if (name.contains("SHULKER_BOX")) chance = 0.1;
                 if (name.contains("POTION")) chance = 2;
                 if (name.contains("BOW")) chance = 3;
 
                 int maxAmount = 1;
-                if (name.contains("ARROW")) maxAmount = 4;
+                if (name.contains("ARROW")) maxAmount = 5;
 
                 utilitiesCategory.addItem(new ItemStack(material), chance, maxAmount);
             }
@@ -123,8 +125,6 @@ public class Loot {
         utilitiesCategory.addItem(new ItemStack(Material.SADDLE), 1 ,1);
         utilitiesCategory.addItem(new ItemStack(Material.SPYGLASS), 0.5 ,1);
         utilitiesCategory.addItem(new ItemStack(Material.FIRE_CHARGE), 1 ,1);
-        utilitiesCategory.addItem(new ItemStack(Material.SLIME_BALL), 1 ,3);
-        utilitiesCategory.addItem(new ItemStack(Material.COAL), 1 ,3);
 //        utilitiesCategory.addItem(new ItemStack(Material.TOTEM_OF_UNDYING), 0.5 ,1);
 
         utilitiesCategory.addItem(new ItemStack(Material.TRIDENT), 0.5 ,1);
@@ -514,7 +514,7 @@ public class Loot {
     }
 
     public static int getEffectMultiplier(PotionEffectType effect) {
-        if (effect == PotionEffectType.INVISIBILITY) return 3;
+        if (effect == PotionEffectType.INVISIBILITY || effect == PotionEffectType.HEALTH_BOOST) return 3;
         return 1;
     }
 }

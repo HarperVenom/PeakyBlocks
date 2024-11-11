@@ -150,7 +150,7 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void Explode(BlockExplodeEvent e) {
-        Location loc = e.getBlock().getLocation();
+        Location loc = e.getBlock().getLocation().clone().add(0.5, 0, 0.5);
         List<Block> blocks = e.blockList();
 
         updateBlockList(loc, blocks);
@@ -174,15 +174,13 @@ public class GameListener implements Listener {
 
         int radius = 5;
 
-        if (!turretExplosions.containsKey(world)) return;
-
         if (turretExplosions.get(world).contains(loc)) {
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int z = -radius; z <= radius; z++) {
                         Block block = world.getBlockAt(loc.clone().add(x, y, z));
 
-                        if (block.getType() == Material.OBSIDIAN && !blocks.contains(block)) {
+                        if ((block.getType() == Material.OBSIDIAN || block.getType() == Material.CRYING_OBSIDIAN) && !blocks.contains(block)) {
                             blocks.add(block);
                         }
                     }
@@ -198,8 +196,14 @@ public class GameListener implements Listener {
 
         Location entityLoc = e.getEntity().getLocation();
 
-        if (!noDamageExplosions.containsKey(entityLoc.getWorld())) return;
         for (Location explosionLoc : noDamageExplosions.get(entityLoc.getWorld())) {
+            if (explosionLoc.distance(entityLoc) < 6) {
+                e.setCancelled(true);
+                break;
+            }
+        }
+
+        for (Location explosionLoc : turretExplosions.get(entityLoc.getWorld())) {
             if (explosionLoc.distance(entityLoc) < 6) {
                 e.setCancelled(true);
                 break;

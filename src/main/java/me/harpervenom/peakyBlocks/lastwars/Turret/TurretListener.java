@@ -11,6 +11,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,23 @@ public class TurretListener implements Listener {
         }
 
         if (!damaged) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void FireDamage(EntityDamageEvent e) {
+        Entity entity = e.getEntity();
+        Turret turret = getTurret(entity);
+        if (turret == null) return;
+        if (!(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK ||
+                e.getCause() == EntityDamageEvent.DamageCause.PROJECTILE)
+//                || e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+//                || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+//                || e.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK
+        ) {
+            e.setCancelled(true);
+            return;
+        }
+        turret.damage(null, e.getDamage());
     }
 
     public static List<Turret> destroyedTurrets = new ArrayList<>();

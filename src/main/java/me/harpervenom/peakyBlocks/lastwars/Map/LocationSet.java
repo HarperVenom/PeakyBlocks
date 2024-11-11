@@ -1,13 +1,11 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
 
-import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class LocationSet {
@@ -29,7 +27,7 @@ public class LocationSet {
         trader.setWorld(world);
 
         for (Turret turret : turrets) {
-            turret.getLoc().setWorld(world);
+            turret.getBaseLoc().setWorld(world);
         }
     }
 
