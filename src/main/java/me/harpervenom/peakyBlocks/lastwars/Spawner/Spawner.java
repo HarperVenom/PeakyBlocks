@@ -4,7 +4,6 @@ import me.harpervenom.peakyBlocks.lastwars.Game;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -25,8 +24,7 @@ public class Spawner {
 
     private Location location;
     private EntityType type;
-    private int maxAmount = 3;
-    private Game game;
+    private int baseMaxAmount = 4;
 
     private Set<LivingEntity> entities = new HashSet<>();
     private Set<LivingEntity> childEntities = new HashSet<>();
@@ -36,24 +34,20 @@ public class Spawner {
         this.type = type;
 
         spawnerSamples.add(this);
-
-        Game game = getGameByWorld(location.getWorld());
-        this.game = game;
-        if (game == null) return;
-        maxAmount += Math.max(game.getPlayers().size() - 2, 0);
     }
 
     public Spawner(Spawner sample) {
-        this.location = sample.location;
+        this.location = sample.location.clone();
         this.type = sample.type;
     }
 
     public void run() {
         entities.removeIf(Entity::isDead);
 
-        if (entities.size() >= maxAmount) return;
+        int maxAmount = baseMaxAmount + Math.max((getGame().getPlayers().size() - 2 + 1) / 2, 0);
 
-        int amount = Math.min(maxAmount - entities.size(), 2 + Math.max(game.getPlayers().size() - 2, 0));
+        if (entities.size() >= maxAmount) return;
+        int amount = Math.min(maxAmount - entities.size(), 3 + Math.max(getGame().getPlayers().size() - 2, 0));
         for (int i = 0; i < amount; i++) {
             spawnMob(location, type);
         }
@@ -73,6 +67,7 @@ public class Spawner {
         world.spawnParticle(Particle.FLAME, spawnLocation, 20, 0.2, 0.5, 0.2, 0.05);
 
         entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
+        entity.setRemoveWhenFarAway(false);
 
         if (entity instanceof Slime slime) {
             slime.setSize(2);
@@ -100,6 +95,10 @@ public class Spawner {
         childEntities.remove(entity);
     }
 
+    public void setWorld(World world) {
+        location.setWorld(world);
+    }
+
     public Location getLocation() {
         return location;
     }
@@ -108,4 +107,7 @@ public class Spawner {
         return type;
     }
 
+    public Game getGame() {
+        return getGameByWorld(location.getWorld());
+    }
 }

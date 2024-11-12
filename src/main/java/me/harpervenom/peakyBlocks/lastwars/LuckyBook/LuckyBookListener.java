@@ -24,7 +24,6 @@ public class LuckyBookListener implements Listener {
     public void PlayerConsumeLuckyBook(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (e.getHand() != EquipmentSlot.HAND) return;
         ItemStack item = e.getItem();
         if (item == null) return;
         ItemMeta meta = item.getItemMeta();
@@ -39,7 +38,10 @@ public class LuckyBookListener implements Listener {
             }
             return;
         }
-
+        if (e.getHand() == EquipmentSlot.OFF_HAND) {
+            e.setCancelled(true);
+            return;
+        }
         if (item.getAmount() > 1) {
             ItemStack remaining = new ItemStack(item);
             remaining.setAmount(item.getAmount() - 1);
@@ -52,6 +54,6 @@ public class LuckyBookListener implements Listener {
         cooldown.put(p.getUniqueId(), true);
         Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
             cooldown.remove(p.getUniqueId());
-        }, 20);
+        }, 40);
     }
 }

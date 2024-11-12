@@ -66,6 +66,10 @@ public class Game {
         setMap(queue.getMap());
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Scoreboard getScoreboard() {
         return scoreboard;
     }
@@ -214,8 +218,8 @@ public class Game {
         for (GameTeam team : teams) {
             Location spawn = team.getSpawn().clone().subtract(0.5, 0, 0.5);
 
-            if (Math.abs(spawn.getX() - blockLoc.getX()) <= 3 &&
-                    Math.abs(spawn.getZ() - blockLoc.getZ()) <= 3) {
+            if (Math.abs(spawn.getX() - blockLoc.getX()) <= 2 &&
+                    Math.abs(spawn.getZ() - blockLoc.getZ()) <= 2) {
                 return true;
             }
         }
@@ -232,6 +236,8 @@ public class Game {
     }
 
     public void finish() {
+        timer.cancel();
+
         for (GameTeam gTeam : teams) {
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             if (manager == null) return;

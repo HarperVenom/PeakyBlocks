@@ -78,7 +78,7 @@ public class Turret {
             initialShootingInterval = 10;
             shootingInterval = 10;
             arrowSpeed = 3F;
-            detectionRadius = 8;
+            detectionRadius = 12;
         }
 
         this.health = maxHealth;
@@ -136,6 +136,7 @@ public class Turret {
         shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
         shooter.setHealth(health);
         shooter.setSilent(true);
+        shooter.setRotation(baseLoc.getYaw(), baseLoc.getPitch());
         if (!isBreakable) {
             shooter.setInvulnerable(true);
         }
@@ -171,15 +172,6 @@ public class Turret {
         if (attacker instanceof Player player) {
             p = player;
         }
-
-//        if (attacker instanceof TNTPrimed) {
-//            if (turretExplosions.containsKey(baseLoc.getWorld())) {
-//                if (turretExplosions.get(baseLoc.getWorld()).contains(attacker.getLocation())) {
-//                    Bukkit.broadcastMessage("own explosion");
-//                    return false;
-//                }
-//            }
-//        } else
 
         if (!isRunning) {
             if (attacker instanceof LivingEntity livingAttacker && targets.contains(livingAttacker)) {

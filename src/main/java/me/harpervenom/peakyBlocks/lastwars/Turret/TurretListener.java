@@ -80,7 +80,7 @@ public class TurretListener implements Listener {
             e.setCancelled(true);
             return;
         }
-        turret.damage(null, e.getDamage());
+//        turret.damage(null, e.getDamage());
     }
 
     public static List<Turret> destroyedTurrets = new ArrayList<>();

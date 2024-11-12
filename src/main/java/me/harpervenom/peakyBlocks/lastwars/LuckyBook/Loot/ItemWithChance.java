@@ -19,7 +19,7 @@ public class ItemWithChance {
     public ItemStack getItem() {
         ItemStack newItem = new ItemStack(item);
         Random random = new Random();
-        newItem.setAmount(Math.max(1, random.nextInt(maxAmount)));
+        newItem.setAmount(Math.max(1, random.nextInt(maxAmount) + 1));
         return newItem;
     }
 

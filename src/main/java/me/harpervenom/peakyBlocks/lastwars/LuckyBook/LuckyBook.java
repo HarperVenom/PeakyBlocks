@@ -35,11 +35,11 @@ public class LuckyBook {
     static {
         luckyBook = createItem(Material.BOOK, luckyBookName, List.of(ChatColor.GRAY + "Любые предметы."));
 
-        blocksLuckyBook = createItem(Material.BOOK, blocksLuckyBookName, List.of(ChatColor.GRAY + "Строительные блоки."));
+        blocksLuckyBook = createItem(Material.BOOK, blocksLuckyBookName, List.of(ChatColor.GRAY + "Блоки."));
         ingredientsLuckyBook = createItem(Material.BOOK, ingredientsLuckyBookName, List.of(ChatColor.GRAY + "Ингридиенты."));
-        utilitiesLuckyBook = createItem(Material.BOOK, utilitiesLuckyBookName, List.of(ChatColor.GRAY + "Броня и инструменты."));
+        utilitiesLuckyBook = createItem(Material.BOOK, utilitiesLuckyBookName, List.of(ChatColor.GRAY + "Снаряжение."));
         foodLuckyBook = createItem(Material.BOOK, foodLuckyBookName, List.of(ChatColor.GRAY + "Еда."));
-        eggsLuckyBook = createItem(Material.BOOK, eggsLuckyBookName, List.of(ChatColor.GRAY + "Яйца спавна."));
+        eggsLuckyBook = createItem(Material.BOOK, eggsLuckyBookName, List.of(ChatColor.GRAY + "Существа."));
 
         int basePrice = 20;
 

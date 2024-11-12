@@ -178,7 +178,7 @@ public class Map {
     public List<Spawner> getSpawners() {
         List<Spawner> spawnerCopies = new ArrayList<>();
         for (Spawner spawner : spawners) {
-            spawnerCopies.add(new Spawner(spawner));  // Assumes Turret has a copy constructor
+            spawnerCopies.add(new Spawner(spawner));
         }
         return spawnerCopies;
     }
@@ -195,7 +195,7 @@ public class Map {
         }
 
         for (Spawner spawner : spawners) {
-            spawner.getLocation().setWorld(world);
+            spawner.setWorld(world);
         }
     }
     public World getWorld() {

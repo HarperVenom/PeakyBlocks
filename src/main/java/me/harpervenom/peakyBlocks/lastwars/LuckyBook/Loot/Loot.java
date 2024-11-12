@@ -49,12 +49,13 @@ public class Loot {
 
                 if (material == Material.PRISMARINE_SHARD || material == Material.PRISMARINE_CRYSTALS || material == Material.MANGROVE_ROOTS
                         || material == Material.GLASS_BOTTLE || material == Material.REDSTONE || material == Material.SPYGLASS
+                        || material == Material.REINFORCED_DEEPSLATE
                         || name.contains("BUTTON") || name.contains("PLATE") || name.contains("LOG")
                         || name.contains("PLANKS") || name.contains("WOOD") || name.contains("SAPLING")
                         || material.name().contains("STEM") || material.name().contains("HYPHAE") || material.name().contains("SIGN")
                         || name.contains("GRIND") || name.contains("CUTTER") || name.contains("ROOTS")
-                        || name.contains("BOAT") || name.contains("GATE") || name.contains("PANE") || name.contains("DOOR")
-                        || name.contains("HOE") || name.contains("SWORD") || name.contains("AXE") || name.contains("SHOVEL")) continue;
+                        || name.contains("BOAT") || name.contains("GATE") || name.contains("PANE") || name.contains("DOOR") ||
+                        !material.isBlock()) continue;
 
                 double chance = 1;
                 if (name.contains("COPPER")) chance = 0.05;
@@ -67,9 +68,12 @@ public class Loot {
 
 
         for (Material material : Material.values()) {
-            if (material.name().contains("PLANKS") || material.name().contains("LOG") || material.name().contains("WOOD ")
-                    || material.name().contains("SAPLING") || material.name().contains("STEM") || material.name().contains("HYPHAE")) {
-                ingredientsCategory.addItem(new ItemStack(material), 0.05, 3);
+            String name = material.name();
+            if (name.contains("PLANKS") || name.contains("LOG") || name.contains("WOOD ")
+                    || name.contains("SAPLING") || name.contains("STEM") || name.contains("HYPHAE")) {
+                int maxAmount = 3;
+                if (name.contains("SAPLING")) maxAmount = 1;
+                ingredientsCategory.addItem(new ItemStack(material), 0.08, maxAmount);
             }
         }
         ingredientsCategory.addItem(new ItemStack(Material.COBBLESTONE), 2, 3);
@@ -78,7 +82,7 @@ public class Loot {
         ingredientsCategory.addItem(new ItemStack(Material.GOLD_INGOT), 1, 3);
         ingredientsCategory.addItem(new ItemStack(Material.FEATHER), 1, 3);
         ingredientsCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 1, 1);
-        ingredientsCategory.addItem(new ItemStack(Material.FLINT), 1, 1);
+        ingredientsCategory.addItem(new ItemStack(Material.FLINT), 1, 3);
         ingredientsCategory.addItem(new ItemStack(Material.BONE), 1, 4);
         ingredientsCategory.addItem(new ItemStack(Material.STRING), 1, 3);
         ingredientsCategory.addItem(new ItemStack(Material.SLIME_BALL), 1 ,3);
@@ -136,10 +140,10 @@ public class Loot {
             if (material == Material.SPIDER_EYE || material == Material.OMINOUS_BOTTLE || material == Material.PUFFERFISH
             || material == Material.POISONOUS_POTATO) continue;
             if (material.isEdible()) {
-                foodCategory.addItem(new ItemStack(material), 1, 3);
+                foodCategory.addItem(new ItemStack(material), 1, 4);
             }
             if (material == Material.ENCHANTED_GOLDEN_APPLE) {
-                foodCategory.addItem(new ItemStack(material), 0.1, 1);
+                foodCategory.addItem(new ItemStack(material), 0.05, 1);
             }
         }
 
@@ -514,7 +518,9 @@ public class Loot {
     }
 
     public static int getEffectMultiplier(PotionEffectType effect) {
-        if (effect == PotionEffectType.INVISIBILITY || effect == PotionEffectType.HEALTH_BOOST) return 3;
+        if (effect == PotionEffectType.INVISIBILITY || effect == PotionEffectType.HEALTH_BOOST
+                || effect == PotionEffectType.ABSORPTION) return 3;
+        if (effect == PotionEffectType.SPEED || effect == PotionEffectType.JUMP_BOOST) return 2;
         return 1;
     }
 }

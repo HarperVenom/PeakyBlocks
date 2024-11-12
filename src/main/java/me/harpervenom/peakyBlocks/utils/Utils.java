@@ -45,21 +45,18 @@ public class Utils {
     }
 
     public static BlockFace getBlockFace(String facing) {
-        switch (facing) {
-            case "east" -> {
-                return BlockFace.EAST;
-            }
-            case "west" -> {
-                return BlockFace.WEST;
-            }
-            case "north" -> {
-                return BlockFace.NORTH;
-            }
-            case "south" -> {
-                return BlockFace.SOUTH;
-            }
-        }
-        return null;
+        if (facing == null) return null;
+        return switch (facing.toLowerCase()) {
+            case "east" -> BlockFace.EAST;
+            case "west" -> BlockFace.WEST;
+            case "north" -> BlockFace.NORTH;
+            case "south" -> BlockFace.SOUTH;
+            case "north_east" -> BlockFace.NORTH_EAST;
+            case "north_west" -> BlockFace.NORTH_WEST;
+            case "south_east" -> BlockFace.SOUTH_EAST;
+            case "south_west" -> BlockFace.SOUTH_WEST;
+            default -> null;
+        };
     }
 
     public static float getYawFromBlockFace(BlockFace face) {
@@ -77,17 +74,25 @@ public class Utils {
     }
 
     public static BlockFace yawToFace(float yaw) {
-        // Normalize the yaw to 0 - 360
+        // Normalize the yaw to a range of 0 - 360
         yaw = (yaw % 360 + 360) % 360;
 
-        if (yaw >= 315 || yaw < 45) {
+        if (yaw >= 337.5 || yaw < 22.5) {
             return BlockFace.SOUTH;
-        } else if (yaw >= 45 && yaw < 135) {
+        } else if (yaw >= 22.5 && yaw < 67.5) {
+            return BlockFace.SOUTH_WEST;
+        } else if (yaw >= 67.5 && yaw < 112.5) {
             return BlockFace.WEST;
-        } else if (yaw >= 135 && yaw < 225) {
+        } else if (yaw >= 112.5 && yaw < 157.5) {
+            return BlockFace.NORTH_WEST;
+        } else if (yaw >= 157.5 && yaw < 202.5) {
             return BlockFace.NORTH;
-        } else {
+        } else if (yaw >= 202.5 && yaw < 247.5) {
+            return BlockFace.NORTH_EAST;
+        } else if (yaw >= 247.5 && yaw < 292.5) {
             return BlockFace.EAST;
+        } else {
+            return BlockFace.SOUTH_EAST;
         }
     }
 
