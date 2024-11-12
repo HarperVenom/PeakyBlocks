@@ -18,8 +18,6 @@ import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.*;
 
 public class LuckyBookListener implements Listener {
 
-    public HashMap<UUID, Boolean> cooldown = new HashMap<>();
-
     @EventHandler
     public void PlayerConsumeLuckyBook(PlayerInteractEvent e) {
         Player p = e.getPlayer();
@@ -32,12 +30,8 @@ public class LuckyBookListener implements Listener {
 
 
         ItemStack book = getPurchase(name);
-        if (book == null){
-            if (cooldown.containsKey(p.getUniqueId())) {
-                e.setCancelled(true);
-            }
-            return;
-        }
+        if (book == null)return;
+
         if (e.getHand() == EquipmentSlot.OFF_HAND) {
             e.setCancelled(true);
             return;
@@ -51,9 +45,5 @@ public class LuckyBookListener implements Listener {
         }
 
         giveLootToPlayer(p, name);
-        cooldown.put(p.getUniqueId(), true);
-        Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-            cooldown.remove(p.getUniqueId());
-        }, 40);
     }
 }

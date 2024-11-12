@@ -56,6 +56,7 @@ public class LuckyBook {
     public static void giveLootToPlayer(Player p, String name) {
         List<ItemStack> loot = generateLoot(name);
         for (ItemStack item : loot) {
+            p.setCooldown(item.getType(), 20);
             HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(item);
 
             for (ItemStack droppedItem : remaining.values()) {
