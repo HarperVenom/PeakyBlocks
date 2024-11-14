@@ -47,9 +47,10 @@ public class GameTeam {
     }
 
     public static boolean inSameTeam(Entity entity1, Entity entity2) {
+        if (!(entity1 instanceof LivingEntity) || !(entity2 instanceof LivingEntity)) return false;
         GameTeam team1 = getEntityTeam(entity1);
         GameTeam team2 = getEntityTeam(entity2);
-        if (team1 == null || team2 == null) return false;
+        if (team1 == null || team2 == null) return true;
         return team1.equals(team2);
     }
 

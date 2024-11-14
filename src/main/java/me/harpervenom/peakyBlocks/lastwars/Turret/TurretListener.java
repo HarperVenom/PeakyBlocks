@@ -63,24 +63,24 @@ public class TurretListener implements Listener {
             damaged = turret.damage(attacker, damage);
         }
 
-        if (!damaged) e.setCancelled(true);
+        if (!damaged){
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
-    public void FireDamage(EntityDamageEvent e) {
+    public void Damage(EntityDamageEvent e) {
         Entity entity = e.getEntity();
         Turret turret = getTurret(entity);
         if (turret == null) return;
-        if (!(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK ||
-                e.getCause() == EntityDamageEvent.DamageCause.PROJECTILE)
-//                || e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
-//                || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+        if (!(e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                || e.getCause() == EntityDamageEvent.DamageCause.PROJECTILE
+                || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                || e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)
 //                || e.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK
         ) {
             e.setCancelled(true);
-            return;
         }
-//        turret.damage(null, e.getDamage());
     }
 
     public static List<Turret> destroyedTurrets = new ArrayList<>();

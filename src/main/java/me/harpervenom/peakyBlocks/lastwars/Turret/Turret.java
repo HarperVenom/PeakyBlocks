@@ -137,6 +137,7 @@ public class Turret {
         shooter.setHealth(health);
         shooter.setSilent(true);
         shooter.setRotation(baseLoc.getYaw(), baseLoc.getPitch());
+        shooter.setRemoveWhenFarAway(false);
         if (!isBreakable) {
             shooter.setInvulnerable(true);
         }

@@ -94,8 +94,11 @@ public class Game {
         setSpawners(map.getSpawners());
 
         map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        map.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, true);
         map.getWorld().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
         map.getWorld().setDifficulty(Difficulty.HARD);
+        map.getWorld().setTime(1000);
+        map.getWorld().setWeatherDuration(0);
 
         turretExplosions.put(map.getWorld(), new ArrayList<>());
         noDamageExplosions.put(map.getWorld(), new ArrayList<>());

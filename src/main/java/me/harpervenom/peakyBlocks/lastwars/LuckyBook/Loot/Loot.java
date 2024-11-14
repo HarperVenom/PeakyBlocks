@@ -173,10 +173,11 @@ public class Loot {
         eggsCategory.addItem(new ItemStack(Material.ZOMBIE_HORSE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.ZOMBIFIED_PIGLIN_SPAWN_EGG), chance, maxAMount);
 
+        //ghast shalker iron golem
+
         chance = 0.6;
         eggsCategory.addItem(new ItemStack(Material.BLAZE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.BOGGED_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.BREEZE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.CREEPER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.CAVE_SPIDER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.ENDERMITE_SPAWN_EGG), chance, maxAMount);
@@ -202,7 +203,8 @@ public class Loot {
 
         chance = 0.3;
 //        entitiesCategory.addItem(new ItemStack(Material.HOGLIN_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ZOGLIN_SPAWN_EGG), chance, maxAMount);
+//        eggsCategory.addItem(new ItemStack(Material.ZOGLIN_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.BREEZE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.ELDER_GUARDIAN_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.GHAST_SPAWN_EGG), chance, maxAMount);
 

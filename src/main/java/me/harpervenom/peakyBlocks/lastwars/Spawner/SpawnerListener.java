@@ -42,9 +42,9 @@ public class SpawnerListener implements Listener {
             if (gp == null) return;
 
             double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) (entityMaxHealth * 5);
+            int exp = (int) (entityMaxHealth * 3);
             if (entity.getType().equals(EntityType.CAVE_SPIDER) || entity.getType().equals(EntityType.MAGMA_CUBE)) {
-                exp = (int) (entityMaxHealth * 10);
+                exp = (int) (entityMaxHealth * 7);
             }
 
             gp.changeBalance(exp);

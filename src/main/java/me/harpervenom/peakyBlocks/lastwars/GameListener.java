@@ -244,6 +244,9 @@ public class GameListener implements Listener {
                     break;
                 }
             }
+
+            if (!(e.getEntity() instanceof Mob mob)) return;
+            runScanningTask(mob);
         }
     }
 
@@ -257,13 +260,63 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityTarget(EntityTargetEvent e) {
-        Entity target = e.getTarget();
+        if (!(e.getTarget() instanceof LivingEntity target)) return;
         Entity attacker = e.getEntity();
-        if (attacker instanceof LivingEntity && target instanceof Player player) {
-            if (inSameTeam(attacker, player)) {
+        if (attacker instanceof Mob mob) {
+            if (inSameTeam(attacker, target)) {
                 e.setCancelled(true);
+
+                scanAreaForTargets(mob);
             }
         }
+    }
+
+    public void scanAreaForTargets(Mob mob) {
+        if (getEntityTeam(mob) == null) return;
+
+        double radius = 16;
+        List<Entity> nearbyEntities = mob.getNearbyEntities(radius, radius, radius);
+        LivingEntity closestTarget = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (Entity nearby : nearbyEntities) {
+            if (nearby.isInvulnerable()) continue;
+            if (!(nearby instanceof LivingEntity livingNearby)) continue;
+
+            if (inSameTeam(mob, livingNearby)) continue;
+
+            double distance = mob.getLocation().distance(livingNearby.getLocation());
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestTarget = livingNearby;
+            }
+        }
+
+        if (closestTarget != null) {
+            mob.setTarget(closestTarget);
+        }
+    }
+
+
+    HashMap<UUID, BukkitRunnable> scanningTasks = new HashMap<>();
+
+    public void runScanningTask(Mob mob) {
+        if (scanningTasks.containsKey(mob.getUniqueId())) return;
+
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (mob.isDead() || !mob.isValid()) {
+                    scanningTasks.get(mob.getUniqueId()).cancel();
+                    scanningTasks.remove(mob.getUniqueId());
+                }
+                scanAreaForTargets(mob);
+            }
+        };
+
+        task.runTaskTimer(getPlugin(), 0, 20);
+        scanningTasks.put(mob.getUniqueId(), task);
     }
 
     @EventHandler

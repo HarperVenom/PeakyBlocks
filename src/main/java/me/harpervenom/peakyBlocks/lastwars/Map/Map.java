@@ -100,8 +100,7 @@ public class Map {
 
                 Location trader = getLocationFromConfig(teamSection, "trader");
 
-                // Process locations or store them as needed
-                System.out.println("Loaded locations for team: " + teamKey);
+//                System.out.println("Loaded locations for team: " + teamKey);
 
                 locSets.add(new LocationSet(spawn, core, turrets, trader));
             }
