@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -160,7 +161,6 @@ public class GameListener implements Listener {
     public void EntityExplode(EntityExplodeEvent e) {
         Location loc = e.getEntity().getLocation();
         List<Block> blocks = e.blockList();
-
         updateBlockList(loc, blocks);
     }
 
@@ -174,7 +174,9 @@ public class GameListener implements Listener {
 
         int radius = 5;
 
-        if (turretExplosions.get(world).contains(loc)) {
+        for (Location location : turretExplosions.get(world)) {
+            if (!(location.getX() == loc.getX() && location.getY() == loc.getY() && location.getZ() == loc.getZ())) continue;
+
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int z = -radius; z <= radius; z++) {
@@ -227,6 +229,10 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e) {
+        if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
+            e.setCancelled(true);
+            return;
+        }
         if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
             Entity entity = e.getEntity();
             EntityType entityType = entity.getType();
@@ -325,6 +331,15 @@ public class GameListener implements Listener {
         GameTeam team = getEntityTeam(entity);
         if (team == null) return;
         team.getTeam().removeEntry(entity.getUniqueId().toString());
+    }
+
+    @EventHandler
+    public void ChatMessage(AsyncPlayerChatEvent e) {
+        Player p = e.getPlayer();
+        GamePlayer gp = getGamePlayer(p);
+        if (gp == null) return;
+        e.setCancelled(true);
+        gp.getTeam().sendMessage(p, e.getMessage());
     }
 
 }

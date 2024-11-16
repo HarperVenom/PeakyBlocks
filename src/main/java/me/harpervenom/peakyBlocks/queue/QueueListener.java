@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 
 import static me.harpervenom.peakyBlocks.lastwars.Game.activeGames;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.updatePlayerInventory;
+import static me.harpervenom.peakyBlocks.lobby.MenuListener.updateTeamMenu;
 
 public class QueueListener implements Listener {
 
@@ -39,6 +40,7 @@ public class QueueListener implements Listener {
         }
         queue.scoreboard.update();
         updatePlayerInventory(qp.getPlayer());
+        updateTeamMenu(queue);
     }
 
     @EventHandler
@@ -56,6 +58,7 @@ public class QueueListener implements Listener {
         }
 
         updatePlayerInventory(qp.getPlayer());
+        updateTeamMenu(queue);
 
         if (qp.getId() == queue.creator && !isChangingTeams) {
             queue.delete(false);

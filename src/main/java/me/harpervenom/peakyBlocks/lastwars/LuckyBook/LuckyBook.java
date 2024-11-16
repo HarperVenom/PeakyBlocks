@@ -36,7 +36,7 @@ public class LuckyBook {
         luckyBook = createItem(Material.BOOK, luckyBookName, List.of(ChatColor.GRAY + "Любые предметы."));
 
         blocksLuckyBook = createItem(Material.BOOK, blocksLuckyBookName, List.of(ChatColor.GRAY + "Блоки."));
-        ingredientsLuckyBook = createItem(Material.BOOK, ingredientsLuckyBookName, List.of(ChatColor.GRAY + "Ингридиенты."));
+        ingredientsLuckyBook = createItem(Material.BOOK, ingredientsLuckyBookName, List.of(ChatColor.GRAY + "Ингредиенты."));
         utilitiesLuckyBook = createItem(Material.BOOK, utilitiesLuckyBookName, List.of(ChatColor.GRAY + "Снаряжение."));
         foodLuckyBook = createItem(Material.BOOK, foodLuckyBookName, List.of(ChatColor.GRAY + "Еда."));
         eggsLuckyBook = createItem(Material.BOOK, eggsLuckyBookName, List.of(ChatColor.GRAY + "Существа."));
@@ -49,7 +49,7 @@ public class LuckyBook {
         goodsPrices.put(ingredientsLuckyBookName, (int) (basePrice * 1.3));
         goodsPrices.put(utilitiesLuckyBookName, (int) (basePrice * 1.5));
         goodsPrices.put(foodLuckyBookName, (int) (basePrice * 1.5));
-        goodsPrices.put(eggsLuckyBookName, basePrice * 3);
+        goodsPrices.put(eggsLuckyBookName, basePrice * 5);
 
     }
 

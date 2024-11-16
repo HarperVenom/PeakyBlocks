@@ -14,7 +14,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
@@ -94,5 +96,11 @@ public class TurretListener implements Listener {
                 destroyedTurrets.remove(turret);
             }
         }
+    }
+    public static HashMap<UUID, UUID> attackers = new HashMap<>(); //attacker & target
+    @EventHandler
+    public void TeammateAttacked(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Player target && e.getDamager() instanceof Player attacker)) return;
+        attackers.put(attacker.getUniqueId(), target.getUniqueId());
     }
 }

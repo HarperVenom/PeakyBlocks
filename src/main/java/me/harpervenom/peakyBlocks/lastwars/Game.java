@@ -99,6 +99,7 @@ public class Game {
         map.getWorld().setDifficulty(Difficulty.HARD);
         map.getWorld().setTime(1000);
         map.getWorld().setWeatherDuration(0);
+//        map.getWorld().setClearWeatherDuration(0);
 
         turretExplosions.put(map.getWorld(), new ArrayList<>());
         noDamageExplosions.put(map.getWorld(), new ArrayList<>());
@@ -242,6 +243,10 @@ public class Game {
         timer.cancel();
 
         for (GameTeam gTeam : teams) {
+            for (Turret turret : gTeam.getTurrets()) {
+                turret.destroy();
+            }
+
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             if (manager == null) return;
 

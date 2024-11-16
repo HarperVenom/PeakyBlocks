@@ -13,13 +13,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GameListener.*;
+import static me.harpervenom.peakyBlocks.lastwars.GameTeam.getEntityTeam;
 import static me.harpervenom.peakyBlocks.lastwars.GameTeam.inSameTeam;
+import static me.harpervenom.peakyBlocks.lastwars.Turret.TurretListener.attackers;
 import static me.harpervenom.peakyBlocks.lastwars.Turret.TurretListener.destroyedTurrets;
 import static me.harpervenom.peakyBlocks.utils.Utils.isValidUUID;
 
@@ -65,7 +65,7 @@ public class Turret {
 
     private Slime shooter;
     private List<LivingEntity> targets;
-    private LivingEntity activeTarget;
+    private LivingEntity priorityTarget;
 
     private List<Location> blocks = new ArrayList<>();
 
@@ -179,7 +179,7 @@ public class Turret {
                 Location loc = shooter.getLocation();
                 turretExplosions.get(loc.getWorld()).add(loc);
                 noDamageExplosions.get(loc.getWorld()).add(loc);
-                shooter.getLocation().getWorld().createExplosion(loc, 6);
+                loc.getWorld().createExplosion(loc, 6);
 
                 int backFireDamage = 7;
 
@@ -220,7 +220,10 @@ public class Turret {
             loc.getBlock().setType(Material.AIR);
         }
         destroyedTurrets.add(this);
-        turrets.remove(this);
+
+        Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+            turrets.remove(this);
+        }, 5);
     }
 
     public Location getBaseLoc() {
@@ -261,14 +264,21 @@ public class Turret {
                         RayTraceResult result = spawnLocation.getWorld().rayTraceBlocks(spawnLocation.clone().subtract(direction.multiply(0.2)),
                                 direction, distance);
 
+                        if (result != null && priorityTarget instanceof Player && distance < 6) {
+                            Location loc = shooter.getLocation();
+                            turretExplosions.get(loc.getWorld()).add(loc);
+                            noDamageExplosions.get(loc.getWorld()).add(loc);
+                            loc.getWorld().createExplosion(loc, 6);
+                        }
+
                         if (result == null || result.getHitBlock() == null) {
                             if (target.getLocation().clone().add(0, 0.7, 0).distance(spawnLocation) < (isBreakable ? 0.8 : 4)) {
                                 punchTarget(target);
                             } else {
-                                activeTarget = target;
                                 shootTarget(direction);
                             }
                             attack = true;
+                            priorityTarget = target;
                             break;
                         }
                     }
@@ -331,6 +341,37 @@ public class Turret {
             }
         }
 
+        if (priorityTarget == null || !entitiesInRadius.contains(priorityTarget)
+                || !(priorityTarget instanceof Player)) {
+
+            if (priorityTarget instanceof Player) priorityTarget = null;
+
+            boolean selected = false;
+
+            Iterator<HashMap.Entry<UUID, UUID>> iterator = attackers.entrySet().iterator();
+            while (iterator.hasNext()) {
+                HashMap.Entry<UUID, UUID> entry = iterator.next();
+                Player attacker = Bukkit.getPlayer(entry.getKey());
+                Player target = Bukkit.getPlayer(entry.getValue());
+
+                if (attacker == null || target == null) continue;
+
+                if (team.equals(getEntityTeam(attacker))) continue;
+
+                if (selected) {
+                    iterator.remove(); // Safe removal
+                }
+
+                if (entitiesInRadius.contains(attacker)) {
+                    priorityTarget = attacker;
+                    iterator.remove(); // Safe removal
+                    selected = true;
+                }
+            }
+        }
+
+        entitiesInRadius.remove(priorityTarget);
+
         entitiesInRadius.sort((e1, e2) -> {
             if (e1 instanceof Player && !(e2 instanceof Player)) {
                 return 1; // Move e1 (player) after e2 (entity)
@@ -339,6 +380,8 @@ public class Turret {
             }
             return 0; // If both are players or both are entities, maintain their order
         });
+
+        if (priorityTarget != null) entitiesInRadius.addFirst(priorityTarget);
 
         return entitiesInRadius;
     }

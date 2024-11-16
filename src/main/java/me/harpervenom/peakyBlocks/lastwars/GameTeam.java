@@ -171,4 +171,19 @@ public class GameTeam {
             p.sendTitle("Поражение!", "", 10, 100, 2);
         }
     }
+
+    public void sendMessage(Player p, String message) {
+        if (message.startsWith("!")) {
+            message = message.substring(1);
+            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                player.sendMessage(team.getColor() + player.getDisplayName() + ChatColor.GRAY + ": " + ChatColor.GRAY + message);
+            }
+            return;
+        }
+
+        for (GamePlayer gp : getPlayers()) {
+            Player player = gp.getPlayer();
+            player.sendMessage(team.getColor() + "[Команда] " + ChatColor.WHITE + p.getDisplayName() + ChatColor.GRAY + ": " + ChatColor.GRAY + message);
+        }
+    }
 }

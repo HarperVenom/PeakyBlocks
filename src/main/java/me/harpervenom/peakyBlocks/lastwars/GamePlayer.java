@@ -118,13 +118,15 @@ public class GamePlayer {
 
     public void unfreeze() {
         Player p = getPlayer();
+        if (p == null) return;
         p.setGameMode(GameMode.SURVIVAL);
-        p.removePotionEffect(PotionEffectType.BLINDNESS);
 
         frozen = false;
     }
 
     public void remove() {
+        getTeam().removePlayer(this);
+
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager == null) return;
 
@@ -132,7 +134,7 @@ public class GamePlayer {
 
         getPlayer().setScoreboard(emptyScoreboard);
 
-        getTeam().removePlayer(this);
+        if (freezeTask != null) freezeTask.cancel();
         gamePlayers.remove(this);
     }
 }

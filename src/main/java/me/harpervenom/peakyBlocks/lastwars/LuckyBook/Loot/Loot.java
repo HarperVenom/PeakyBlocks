@@ -30,13 +30,14 @@ public class Loot {
     public static Category eggsCategory;
 
     static {
-        blocksCategory = new Category(0.3);
+        blocksCategory = new Category(0.1);
         ingredientsCategory = new Category(1);
         utilitiesCategory = new Category(0.6);
         foodCategory = new Category(0.5);
-        eggsCategory = new Category(0.2);
+        eggsCategory = new Category(0.08);
 
         for (Material material : Material.values()) {
+            if (!material.isItem()) continue;
             String name = material.name();
             if(name.contains("OAK") || name.contains("SPRUCE") || name.contains("BIRCH")
                     || name.contains("ACACIA") || name.contains("CHERRY") || name.contains("MANGROVE")
@@ -68,12 +69,13 @@ public class Loot {
 
 
         for (Material material : Material.values()) {
+            if (!material.isItem()) continue;
             String name = material.name();
             if (name.contains("PLANKS") || name.contains("LOG") || name.contains("WOOD ")
                     || name.contains("SAPLING") || name.contains("STEM") || name.contains("HYPHAE")) {
                 int maxAmount = 3;
                 if (name.contains("SAPLING")) maxAmount = 1;
-                ingredientsCategory.addItem(new ItemStack(material), 0.08, maxAmount);
+                ingredientsCategory.addItem(new ItemStack(material), 0.1, maxAmount);
             }
         }
         ingredientsCategory.addItem(new ItemStack(Material.COBBLESTONE), 2, 3);
@@ -99,11 +101,14 @@ public class Loot {
 
 
         for (Material material : Material.values()) {
+            if (!material.isItem()) continue;
             String name = material.name();
             if (name.contains("HELMET") || name.contains("CHESTPLATE") || name.contains("LEGGINGS")
             || name.contains("BOOTS") || name.contains("SWORD") || name.contains("AXE ")
-            || name.contains("SHOVEL") || name.contains("BOW ") || name.contains("ARROW") ||
+            || name.contains("SHOVEL") || name.contains("BOW") || name.contains("ARROW") ||
             name.contains("SHULKER_BOX") || name.contains("POTION")) {
+
+                if (material == Material.BOWL) continue;
 
                 double chance = 1;
                 if (name.contains("NETHERITE")) chance = 0.3;
@@ -113,7 +118,7 @@ public class Loot {
                 if (material == Material.TIPPED_ARROW) chance = 5;
                 if (name.contains("SHULKER_BOX")) chance = 0.1;
                 if (name.contains("POTION")) chance = 2;
-                if (name.contains("BOW")) chance = 3;
+                if (name.contains("BOW")) chance = 1;
 
                 int maxAmount = 1;
                 if (name.contains("ARROW")) maxAmount = 5;
@@ -137,6 +142,7 @@ public class Loot {
 
 
         for (Material material : Material.values()) {
+            if (!material.isItem()) continue;
             if (material == Material.SPIDER_EYE || material == Material.OMINOUS_BOTTLE || material == Material.PUFFERFISH
             || material == Material.POISONOUS_POTATO) continue;
             if (material.isEdible()) {
@@ -148,70 +154,57 @@ public class Loot {
         }
 
 
-        double chance = 1;
         int maxAMount = 1;
 
-        eggsCategory.addItem(new ItemStack(Material.ARMADILLO_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.CAMEL_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.CHICKEN_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.COW_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.DONKEY_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.GOAT_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.HORSE_SPAWN_EGG), chance, maxAMount);
+        double chance = 1;
         eggsCategory.addItem(new ItemStack(Material.LLAMA_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.MOOSHROOM_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.MULE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.PANDA_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.PIG_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.POLAR_BEAR_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.SHEEP_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.SKELETON_HORSE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.SNIFFER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.TURTLE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.WOLF_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ZOMBIE_HORSE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ZOMBIFIED_PIGLIN_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.ENDERMITE_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.SILVERFISH_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.CREEPER_SPAWN_EGG), chance, maxAMount);
 
-        //ghast shalker iron golem
 
         chance = 0.6;
-        eggsCategory.addItem(new ItemStack(Material.BLAZE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.BOGGED_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.CREEPER_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.CAVE_SPIDER_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ENDERMITE_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.PANDA_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.POLAR_BEAR_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.WOLF_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.ZOMBIE_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.HUSK_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.DROWNED_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.GUARDIAN_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.HUSK_SPAWN_EGG), chance, maxAMount);
-//        entitiesCategory.addItem(new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG), chance, maxAMount);
-//        entitiesCategory.addItem(new ItemStack(Material.PIGLIN_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.SPIDER_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.WITCH_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.ZOMBIE_VILLAGER_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.ZOMBIFIED_PIGLIN_SPAWN_EGG), chance, maxAMount);
+
+
+        chance = 0.4;
+        eggsCategory.addItem(new ItemStack(Material.BLAZE_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.BOGGED_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.CAVE_SPIDER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.PILLAGER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.PUFFERFISH_BUCKET), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.SHULKER_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.SILVERFISH_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.SKELETON_SPAWN_EGG), chance, maxAMount);
-//        entitiesCategory.addItem(new ItemStack(Material.SLIME_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.SPIDER_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.STRAY_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.VEX_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.VINDICATOR_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.WITCH_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.WITHER_SKELETON_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ZOMBIE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.ZOMBIE_VILLAGER_SPAWN_EGG), chance, maxAMount);
+
 
         chance = 0.3;
-//        entitiesCategory.addItem(new ItemStack(Material.HOGLIN_SPAWN_EGG), chance, maxAMount);
-//        eggsCategory.addItem(new ItemStack(Material.ZOGLIN_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.BREEZE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.ELDER_GUARDIAN_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.GHAST_SPAWN_EGG), chance, maxAMount);
 
-        chance = 0.05;
-        eggsCategory.addItem(new ItemStack(Material.IRON_GOLEM_SPAWN_EGG), chance, maxAMount);
-//        entitiesCategory.addItem(new ItemStack(Material.PIGLIN_BRUTE_SPAWN_EGG), chance, maxAMount);
-        eggsCategory.addItem(new ItemStack(Material.RAVAGER_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.CAMEL_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.DONKEY_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.HORSE_SPAWN_EGG), chance, maxAMount);
+        eggsCategory.addItem(new ItemStack(Material.MULE_SPAWN_EGG), chance, maxAMount);
+
+//        chance = 0.05;
+//        eggsCategory.addItem(new ItemStack(Material.IRON_GOLEM_SPAWN_EGG), chance, maxAMount);
+//        eggsCategory.addItem(new ItemStack(Material.RAVAGER_SPAWN_EGG), chance, maxAMount);
 
         categories.add(blocksCategory);
         categories.add(ingredientsCategory);

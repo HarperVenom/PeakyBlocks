@@ -49,6 +49,8 @@ public class PlayerListener implements Listener {
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
 
+        e.setDroppedExp(0);
+
         Player killer = e.getEntity().getKiller();
         if (killer != null) {
             GamePlayer gKiller = getGamePlayer(killer);

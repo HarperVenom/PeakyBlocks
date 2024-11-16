@@ -44,7 +44,7 @@ public class MenuListener implements Listener {
     private static Inventory queuesMenu; // first and only game. When new games appear, this will turn into a hashmap game name / this game's queues menu
     private Inventory mapMenu;
     private final Inventory maxPlayersMenu;
-    private final HashMap<Integer, Inventory> teamMenus = new HashMap<>(); //game id and its inventory
+    private static final HashMap<Integer, Inventory> teamMenus = new HashMap<>(); //game id and its inventory
 
 
     public HashMap<UUID, Queue> playerCreatingQueue = new HashMap<>();
@@ -207,7 +207,7 @@ public class MenuListener implements Listener {
         if (playerSelectingQueue.containsKey(playerId)) {
             queue = playerSelectingQueue.get(playerId);
         }
-//        p.sendMessage("0");
+
         if (queue == null) return;
 
         List<QueueTeam> teams = queue.getTeams();
@@ -226,7 +226,6 @@ public class MenuListener implements Listener {
         playerSelectingQueue.put(playerId, queue);
 
         updateQueueMenu();
-        updateTeamMenu(queue);
     }
 
     @EventHandler
@@ -306,14 +305,6 @@ public class MenuListener implements Listener {
         return meta != null && meta.getDisplayName().equals(displayName);
     }
 
-
-    public Queue getGameById(int id) {
-        for (Queue queue : activeQueues) {
-            if (queue.getId() == id) return queue;
-        }
-        return null;
-    }
-
     public static void updateQueueMenu() {
         queuesMenu.clear();
 
@@ -343,7 +334,6 @@ public class MenuListener implements Listener {
 
         int teamSize = queue.getTeamSize();
         String playerSizeString = teamSize + "x" + teamSize;
-        int totalMaxPlayers = queue.getNumberOfTeams() * teamSize;
 
         meta.setDisplayName(ChatColor.WHITE + "Игра " + queue.getId() + " (" + playerSizeString + ")");
 
@@ -354,7 +344,7 @@ public class MenuListener implements Listener {
         return gameItem;
     }
 
-    public void updateTeamMenu(Queue queue) {
+    public static void updateTeamMenu(Queue queue) {
         Inventory menu = teamMenus.get(queue.getId());
         menu.clear();
 
@@ -364,7 +354,7 @@ public class MenuListener implements Listener {
         updateTeamItem(menu, teams.get(1), "Синие", Material.BLUE_CONCRETE, 15, ChatColor.BLUE);
     }
 
-    private void updateTeamItem(Inventory menu, QueueTeam team, String teamName, Material material, int slot, ChatColor color) {
+    private static void updateTeamItem(Inventory menu, QueueTeam team, String teamName, Material material, int slot, ChatColor color) {
         ItemStack teamItem = new ItemStack(material);
         ItemMeta meta = teamItem.getItemMeta();
         if (meta == null) return;
