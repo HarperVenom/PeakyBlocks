@@ -176,7 +176,7 @@ public class GameTeam {
         if (message.startsWith("!")) {
             message = message.substring(1);
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                player.sendMessage(team.getColor() + player.getDisplayName() + ChatColor.GRAY + ": " + ChatColor.GRAY + message);
+                player.sendMessage(team.getColor() + p.getDisplayName() + ChatColor.GRAY + ": " + ChatColor.GRAY + message);
             }
             return;
         }

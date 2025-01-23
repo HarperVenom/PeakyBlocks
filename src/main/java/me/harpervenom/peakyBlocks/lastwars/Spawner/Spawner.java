@@ -68,6 +68,7 @@ public class Spawner {
 
         entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
         entity.setRemoveWhenFarAway(false);
+        entity.setSilent(true);
 
         if (entity instanceof Slime slime) {
             slime.setSize(2);
@@ -88,6 +89,7 @@ public class Spawner {
 
     public void addChildEntity(LivingEntity entity) {
         childEntities.add(entity);
+        entity.setSilent(true);
     }
 
     public void killEntity(LivingEntity entity) {

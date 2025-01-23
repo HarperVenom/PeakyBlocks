@@ -1,30 +1,34 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
 
+import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LocationSet {
     private final Location spawn;
     private final Location core;
     private final List<Turret> turrets;
-    private final Location trader;
+    private final List<Trader> traders;
 
-    public LocationSet(Location spawn, Location core, List<Turret> turrets, Location trader) {
+    public LocationSet(Location spawn, Location core, List<Turret> turrets, List<Trader> traders) {
         this.spawn = spawn.add(0.5, 1, 0.5);
         this.core = core;
         this.turrets = turrets;
-        this.trader = trader.add(0.5, 1, 0.5);
+        this.traders = traders.stream()
+                .peek(trader -> trader.loc.add(0.5, 1, 0.5))
+                .collect(Collectors.toList());
     }
 
     public void setWorld(World world) {
         spawn.setWorld(world);
         core.setWorld(world);
-        trader.setWorld(world);
+        traders.forEach(trader -> trader.loc.setWorld(world));
 
         for (Turret turret : turrets) {
             turret.getBaseLoc().setWorld(world);
@@ -55,7 +59,7 @@ public class LocationSet {
 //        return spawnerCopies;
 //    }
 
-    public Location getTrader() {
-        return trader;
+    public List<Trader> getTraders() {
+        return traders;
     }
 }

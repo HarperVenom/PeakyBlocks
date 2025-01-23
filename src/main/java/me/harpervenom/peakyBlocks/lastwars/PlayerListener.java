@@ -2,11 +2,14 @@ package me.harpervenom.peakyBlocks.lastwars;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -71,9 +74,9 @@ public class PlayerListener implements Listener {
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
 
-        int freezeTime = Math.max((int) (game.getTime() / 30), 10);
+        int freezeSeconds = Math.max((int) (game.getTime() / 40), 10);
 
-        gp.freeze(freezeTime);
+        gp.freeze(freezeSeconds);
     }
 
     @EventHandler
@@ -94,6 +97,12 @@ public class PlayerListener implements Listener {
         if (gp.isFrozen()) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void Craft(PrepareItemCraftEvent e) {
+        if (e.getRecipe() == null) return;
+        e.getInventory().setResult(null);
     }
 
     private boolean hasPlayerMoved(Location from, Location to) {

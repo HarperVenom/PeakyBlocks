@@ -46,7 +46,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <outputDirectory>C:\Users\Harper\Desktop\PeakyBlocks\Server\plugins</outputDirectory>
+                    <outputDirectory>C:\Users\Harper\Desktop\top\PeakyBlocks\Server\plugins</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>

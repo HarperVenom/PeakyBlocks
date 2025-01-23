@@ -82,13 +82,12 @@ public class Loot {
         ingredientsCategory.addItem(new ItemStack(Material.STONE), 2, 3);
 
         ingredientsCategory.addItem(new ItemStack(Material.GOLD_INGOT), 1, 3);
-        ingredientsCategory.addItem(new ItemStack(Material.FEATHER), 1, 3);
-        ingredientsCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 1, 1);
-        ingredientsCategory.addItem(new ItemStack(Material.FLINT), 1, 3);
+        ingredientsCategory.addItem(new ItemStack(Material.FEATHER), 1, 4);
+        ingredientsCategory.addItem(new ItemStack(Material.PHANTOM_MEMBRANE), 0.4, 1);
+        ingredientsCategory.addItem(new ItemStack(Material.FLINT), 1, 4);
         ingredientsCategory.addItem(new ItemStack(Material.BONE), 1, 4);
         ingredientsCategory.addItem(new ItemStack(Material.STRING), 1, 3);
-        ingredientsCategory.addItem(new ItemStack(Material.SLIME_BALL), 1 ,3);
-        ingredientsCategory.addItem(new ItemStack(Material.COAL), 1 ,3);
+        ingredientsCategory.addItem(new ItemStack(Material.SLIME_BALL), 0.8,3);
 
         ingredientsCategory.addItem(new ItemStack(Material.IRON_INGOT), 0.8, 5);
         ingredientsCategory.addItem(new ItemStack(Material.GUNPOWDER), 0.8, 3);
@@ -105,8 +104,7 @@ public class Loot {
             String name = material.name();
             if (name.contains("HELMET") || name.contains("CHESTPLATE") || name.contains("LEGGINGS")
             || name.contains("BOOTS") || name.contains("SWORD") || name.contains("AXE ")
-            || name.contains("SHOVEL") || name.contains("BOW") || name.contains("ARROW") ||
-            name.contains("SHULKER_BOX") || name.contains("POTION")) {
+            || name.contains("SHOVEL") || name.contains("BOW") || name.contains("POTION")) {
 
                 if (material == Material.BOWL) continue;
 
@@ -114,25 +112,21 @@ public class Loot {
                 if (name.contains("NETHERITE")) chance = 0.3;
                 if (name.contains("DIAMOND")) chance = 0.5;
                 if (name.contains("IRON")) chance = 0.8;
-                if (name.contains("ARROW")) chance = 1;
-                if (material == Material.TIPPED_ARROW) chance = 5;
-                if (name.contains("SHULKER_BOX")) chance = 0.1;
+                if (material == Material.TIPPED_ARROW) chance = 2;
                 if (name.contains("POTION")) chance = 2;
-                if (name.contains("BOW")) chance = 1;
 
                 int maxAmount = 1;
-                if (name.contains("ARROW")) maxAmount = 5;
 
                 utilitiesCategory.addItem(new ItemStack(material), chance, maxAmount);
             }
         }
-        utilitiesCategory.addItem(new ItemStack(Material.WIND_CHARGE), 1 ,3);
-        utilitiesCategory.addItem(new ItemStack(Material.ENDER_PEARL), 1 ,3);
-        utilitiesCategory.addItem(new ItemStack(Material.FIREWORK_ROCKET), 1 ,3);
-        utilitiesCategory.addItem(new ItemStack(Material.TNT), 1 ,2);
+//        utilitiesCategory.addItem(new ItemStack(Material.WIND_CHARGE), 1 ,4);
+        utilitiesCategory.addItem(new ItemStack(Material.ENDER_PEARL), 1 ,2);
+//        utilitiesCategory.addItem(new ItemStack(Material.FIREWORK_ROCKET), 0.8 ,3);
+//        utilitiesCategory.addItem(new ItemStack(Material.TNT), 1 ,2);
         utilitiesCategory.addItem(new ItemStack(Material.SHIELD), 1 ,1);
-        utilitiesCategory.addItem(new ItemStack(Material.SADDLE), 1 ,1);
-        utilitiesCategory.addItem(new ItemStack(Material.SPYGLASS), 0.5 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.SADDLE), 0.5 ,1);
+        utilitiesCategory.addItem(new ItemStack(Material.SPYGLASS), 0.3 ,1);
         utilitiesCategory.addItem(new ItemStack(Material.FIRE_CHARGE), 1 ,1);
 //        utilitiesCategory.addItem(new ItemStack(Material.TOTEM_OF_UNDYING), 0.5 ,1);
 
@@ -202,9 +196,6 @@ public class Loot {
         eggsCategory.addItem(new ItemStack(Material.HORSE_SPAWN_EGG), chance, maxAMount);
         eggsCategory.addItem(new ItemStack(Material.MULE_SPAWN_EGG), chance, maxAMount);
 
-//        chance = 0.05;
-//        eggsCategory.addItem(new ItemStack(Material.IRON_GOLEM_SPAWN_EGG), chance, maxAMount);
-//        eggsCategory.addItem(new ItemStack(Material.RAVAGER_SPAWN_EGG), chance, maxAMount);
 
         categories.add(blocksCategory);
         categories.add(ingredientsCategory);
@@ -225,7 +216,6 @@ public class Loot {
         drinkingPotionEffects.add(PotionEffectType.LEVITATION);
         drinkingPotionEffects.add(PotionEffectType.REGENERATION);
         drinkingPotionEffects.add(PotionEffectType.SATURATION);
-        drinkingPotionEffects.add(PotionEffectType.WATER_BREATHING);
         drinkingPotionEffects.add(PotionEffectType.SLOW_FALLING);
         drinkingPotionEffects.add(PotionEffectType.SPEED);
         drinkingPotionEffects.add(PotionEffectType.STRENGTH);
@@ -234,17 +224,12 @@ public class Loot {
         arrowEffects.add(PotionEffectType.INSTANT_DAMAGE);
         arrowEffects.add(PotionEffectType.MINING_FATIGUE);
         arrowEffects.add(PotionEffectType.BLINDNESS);
-        arrowEffects.add(PotionEffectType.GLOWING);
         arrowEffects.add(PotionEffectType.DARKNESS);
         arrowEffects.add(PotionEffectType.HUNGER);
-        arrowEffects.add(PotionEffectType.INFESTED);
         arrowEffects.add(PotionEffectType.NAUSEA);
-        arrowEffects.add(PotionEffectType.OOZING);
         arrowEffects.add(PotionEffectType.SLOWNESS);
         arrowEffects.add(PotionEffectType.WEAKNESS);
-        arrowEffects.add(PotionEffectType.WEAVING);
         arrowEffects.add(PotionEffectType.WITHER);
-        arrowEffects.add(PotionEffectType.WIND_CHARGED);
 
         splashPotionEffects.addAll(drinkingPotionEffects);
         splashPotionEffects.addAll(arrowEffects);
@@ -515,7 +500,7 @@ public class Loot {
     public static int getEffectMultiplier(PotionEffectType effect) {
         if (effect == PotionEffectType.INVISIBILITY || effect == PotionEffectType.HEALTH_BOOST
                 || effect == PotionEffectType.ABSORPTION) return 3;
-        if (effect == PotionEffectType.SPEED || effect == PotionEffectType.JUMP_BOOST) return 2;
+        if (effect == PotionEffectType.SPEED || effect == PotionEffectType.JUMP_BOOST || effect == PotionEffectType.RESISTANCE) return 2;
         return 1;
     }
 }

@@ -4,7 +4,6 @@ import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.utils.CustomMenuHolder;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -18,14 +17,13 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 
 import static me.harpervenom.peakyBlocks.lastwars.GamePlayer.getGamePlayer;
-import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBook.*;
-import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderMenu;
-import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.traderName;
+import static me.harpervenom.peakyBlocks.lastwars.Trader.Good.getGood;
+import static me.harpervenom.peakyBlocks.lastwars.Trader.Good.getGoodId;
+import static me.harpervenom.peakyBlocks.lastwars.Trader.Trader.*;
 import static me.harpervenom.peakyBlocks.lobby.MenuListener.getCustomMenuHolder;
 
 public class TraderListener implements Listener {
@@ -37,18 +35,16 @@ public class TraderListener implements Listener {
         Player p = e.getPlayer();
         Entity entity = e.getRightClicked();
 
-        if (entity instanceof Villager trader) {
+        if (!(entity instanceof Villager)) return;
 
-            if (traderName.equals(trader.getCustomName())) {
-                e.setCancelled(true);
-
-                p.openInventory(traderMenu);
-            }
-        }
+        Trader trader = getTrader(entity.getUniqueId());
+        if (trader == null) return;
+        e.setCancelled(true);
+        p.openInventory(trader.getShop());
     }
 
     @EventHandler
-    public void BuyLuckyBook(InventoryClickEvent e) {
+    public void BuyGood(InventoryClickEvent e) {
         CustomMenuHolder holder = getCustomMenuHolder(e);
         if (holder == null || !holder.getType().equals("traderMenu")) return;
 
@@ -64,12 +60,12 @@ public class TraderListener implements Listener {
         if (gp == null) return;
         ItemStack item = e.getCurrentItem();
         if (item == null) return;
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
-        String name = meta.getDisplayName();
 
-        if (!goodsPrices.containsKey(name)) return;
-        int price = goodsPrices.get(name);
+        Integer goodId = getGoodId(item);
+        if (goodId == null) return;
+        Good good = getGood(goodId);
+        if (good == null) return;
+        int price = good.getPrice();
 
         if (gp.getBalance() < price) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1, 1);
@@ -77,15 +73,15 @@ public class TraderListener implements Listener {
             return;
         }
 
-        ItemStack purchase = getPurchase(name);
+        ItemStack purchase = good.getItem();
         if (purchase == null) return;
         purchase = new ItemStack(purchase);
 
         if (e.getClick() == ClickType.SHIFT_LEFT) {
-            int amount = gp.getBalance() / price;
-            price *= amount;
+            int multiplier = gp.getBalance() / price;
+            price *= multiplier;
 
-            purchase.setAmount(amount);
+            purchase.setAmount(purchase.getAmount() * multiplier);
         }
 
         gp.changeBalance(-price);

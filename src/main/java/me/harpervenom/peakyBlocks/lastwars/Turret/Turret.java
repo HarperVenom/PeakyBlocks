@@ -39,7 +39,7 @@ public class Turret {
     private final Location baseLoc;
     private Location loc;
     private GameTeam team;
-    private static int maxHealth = 300;
+    private static int maxHealth = 150;
     private int health;
     private boolean isBreakable;
     private String name;

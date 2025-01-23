@@ -1,6 +1,7 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
 import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
+import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -98,11 +99,24 @@ public class Map {
                     }
                 }
 
-                Location trader = getLocationFromConfig(teamSection, "trader");
+                ConfigurationSection tradersSection = teamSection.getConfigurationSection("traders");
+                List<Trader> traders = new ArrayList<>();
+                if (tradersSection == null) {
+                    System.out.println("No traders section found in the config for map: " + name);
+                } else {
+                    for (String traderKey : tradersSection.getKeys(false)) {
+                        ConfigurationSection traderSection = tradersSection.getConfigurationSection(traderKey);
+                        if (traderSection != null) {
+                            String type = tradersSection.getString(traderKey + ".type");
+                            Trader trader = new Trader(getLocationFromConfig(tradersSection, traderKey), type);
+                            traders.add(trader);
+                        }
+                    }
+                }
 
 //                System.out.println("Loaded locations for team: " + teamKey);
 
-                locSets.add(new LocationSet(spawn, core, turrets, trader));
+                locSets.add(new LocationSet(spawn, core, turrets, traders));
             }
         }
 

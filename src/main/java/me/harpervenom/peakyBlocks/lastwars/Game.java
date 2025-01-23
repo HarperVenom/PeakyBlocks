@@ -9,16 +9,13 @@ import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.GameListener.noDamageExplosions;
@@ -87,8 +84,10 @@ public class Game {
             team.setSpawn(locationSet.getSpawn());
             team.setCore(locationSet.getCore());
             team.setTurrets(locationSet.getTurrets());
-            Trader trader = new Trader(locationSet.getTrader());
-            team.getTeam().addEntry(trader.getEntity().getUniqueId().toString());
+            locationSet.getTraders().forEach(trader -> {
+                trader.spawn();
+                team.getTeam().addEntry(trader.getEntity().getUniqueId().toString());
+            });
         }
 
         setSpawners(map.getSpawners());

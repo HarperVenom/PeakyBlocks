@@ -17,7 +17,7 @@ public class QueueScoreBoard {
     private final Objective objective;
     private final Queue queue;
     private int countdownId = -1;
-    final int[] timeLeft = {7};
+    final int[] timeLeft = {10};
 
     public QueueScoreBoard(Queue queue) {
         this.queue = queue;
