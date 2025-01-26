@@ -1,5 +1,6 @@
 package me.harpervenom.peakyBlocks.lastwars.Map;
 
+import me.harpervenom.peakyBlocks.lastwars.Spawner.ItemSpawner;
 import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
@@ -31,6 +32,7 @@ public class Map {
     private List<LocationSet> locSets = new ArrayList<>();
     private HashMap<Chunk, List<Location>> blocks = new HashMap<>();
     private List<Spawner> spawners = new ArrayList<>();
+    private List<ItemSpawner> itemSpawners = new ArrayList<>();
 
     private Location corner1;
     private Location corner2;
@@ -48,6 +50,7 @@ public class Map {
                 .map(Map::getLocSets)
                 .orElse(null);
         spawners = sample.getSpawners();
+        itemSpawners = sample.getItemSpawners();
 
         //world is null here
         world = sample.world;
@@ -165,6 +168,29 @@ public class Map {
                 spawners.add(spawner);
             }
         }
+
+        ConfigurationSection itemSpawnersSection = config.getConfigurationSection("item_spawners");
+        if (itemSpawnersSection == null) {
+            System.out.println("No item_spawners section found in the config for map: " + name);
+            return;
+        }
+
+        for (String itemSpawnerKey : itemSpawnersSection.getKeys(false)) {
+            ConfigurationSection itemSpawnerSection = itemSpawnersSection.getConfigurationSection(itemSpawnerKey);
+
+            if (itemSpawnerSection != null) {
+                Location spawnerLoc = new Location(null,
+                        itemSpawnerSection.getDouble("x"),
+                        itemSpawnerSection.getDouble("y"),
+                        itemSpawnerSection.getDouble("z"));
+
+                Material type = Material.valueOf(itemSpawnerSection.getString("type").toUpperCase());
+
+                ItemSpawner spawner = new ItemSpawner(spawnerLoc, type);
+
+                itemSpawners.add(spawner);
+            }
+        }
     }
 
     private Location getLocationFromConfig(ConfigurationSection section, String path) {
@@ -196,8 +222,12 @@ public class Map {
         return spawnerCopies;
     }
 
-    public HashMap<Chunk, List<Location>> getBlocks() {
-        return blocks;
+    public List<ItemSpawner> getItemSpawners() {
+        List<ItemSpawner> spawnerCopies = new ArrayList<>();
+        for (ItemSpawner itemSpawner : itemSpawners) {
+            spawnerCopies.add(new ItemSpawner(itemSpawner));
+        }
+        return spawnerCopies;
     }
 
     public void setWorld(World world) {
@@ -208,6 +238,10 @@ public class Map {
         }
 
         for (Spawner spawner : spawners) {
+            spawner.setWorld(world);
+        }
+
+        for (ItemSpawner spawner : itemSpawners) {
             spawner.setWorld(world);
         }
     }

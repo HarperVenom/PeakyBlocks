@@ -94,7 +94,8 @@ public class QueueListener implements Listener {
     @EventHandler
     public void OnWorldCreated(MapCreatedEvent e) {
         Queue queue = e.getQueue();
-
-        activeGames.add(new Game(queue));
+        Game newGame = new Game(queue);
+        activeGames.add(newGame);
+        newGame.start();
     }
 }

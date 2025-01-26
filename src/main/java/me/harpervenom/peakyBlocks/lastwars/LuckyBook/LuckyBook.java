@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static me.harpervenom.peakyBlocks.lastwars.LuckyBook.Loot.Loot.*;
-import static me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener.goodsPrices;
 import static me.harpervenom.peakyBlocks.utils.Utils.createItem;
 
 public class LuckyBook {

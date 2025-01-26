@@ -39,9 +39,9 @@ public class Turret {
     private final Location baseLoc;
     private Location loc;
     private GameTeam team;
-    private static int maxHealth = 150;
-    private int health;
-    private boolean isBreakable;
+    private static final int maxHealth = 200;
+    private double health;
+    private final boolean isBreakable;
     private String name;
 
     private BukkitRunnable shootingTask;
@@ -78,7 +78,6 @@ public class Turret {
             initialShootingInterval = 10;
             shootingInterval = 10;
             arrowSpeed = 3F;
-            detectionRadius = 12;
         }
 
         this.health = maxHealth;
@@ -146,10 +145,6 @@ public class Turret {
         startScanningTask();
     }
 
-    public double getHealth() {
-        return shooter.getHealth();
-    }
-
     public static List<Turret> getTurrets() {
         return turrets;
     }
@@ -192,12 +187,13 @@ public class Turret {
             }
         }
 
-        double newHealth = getHealth() - damage;
-        newHealth = Math.round(newHealth * 10.0) / 10.0;
-        if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.YELLOW + "" + newHealth + "/" + maxHealth));
-        shooter.setCustomName(name + " " + newHealth + "/" + maxHealth);
+        health -= damage;
+        health = Math.round(health * 10.0) / 10.0;
+        if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.YELLOW + "" + health + "/" + maxHealth));
+        shooter.setCustomName(name + " " + health + "/" + maxHealth);
+        shooter.setHealth(Math.max(0, health));
 
-        if (newHealth <= 0) {
+        if (health <= 0) {
             if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             Bukkit.getPluginManager().callEvent(new TurretDestroyEvent(this));
         }

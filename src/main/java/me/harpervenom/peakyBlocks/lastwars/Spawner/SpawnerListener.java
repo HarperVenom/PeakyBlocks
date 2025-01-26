@@ -3,12 +3,14 @@ package me.harpervenom.peakyBlocks.lastwars.Spawner;
 import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -30,34 +32,47 @@ public class SpawnerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void PlayerKillEntity(EntityDeathEvent e) {
-        LivingEntity entity = e.getEntity();
-
-        Turret turret = Turret.getTurret(entity);
-        if (turret != null) return;
-
-        if (entity.getKiller() instanceof Player killer) {
-            GamePlayer gp = getGamePlayer(killer);
-            if (gp == null) return;
-
-            double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-            int exp = (int) (entityMaxHealth * 3);
-            if (entity.getType().equals(EntityType.CAVE_SPIDER) || entity.getType().equals(EntityType.MAGMA_CUBE)) {
-                exp = (int) (entityMaxHealth * 7);
-            }
-
-            gp.changeBalance(exp);
-        }
-    }
+//    @EventHandler
+//    public void PlayerKillEntity(EntityDeathEvent e) {
+//        LivingEntity entity = e.getEntity();
+//
+//        Turret turret = Turret.getTurret(entity);
+//        if (turret != null) return;
+//
+//        if (entity.getKiller() instanceof Player killer) {
+//            GamePlayer gp = getGamePlayer(killer);
+//            if (gp == null) return;
+//
+////            double entityMaxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+////            int exp = (int) (entityMaxHealth * 3);
+////            if (entity.getType().equals(EntityType.CAVE_SPIDER) || entity.getType().equals(EntityType.MAGMA_CUBE)) {
+////                exp = (int) (entityMaxHealth * 7);
+////            }
+////
+////            gp.changeBalance(exp);
+//        }
+//    }
 
     @EventHandler
     public void EntityDeath(EntityDeathEvent e) {
-        Entity entity = e.getEntity();
+        LivingEntity entity = e.getEntity();
+
         if (!(entity instanceof Player)){
             e.getDrops().clear();
             e.setDroppedExp(0);
         }
+
+        if (entity instanceof Slime slime) {
+            int size = slime.getSize();
+            Material material = entity instanceof MagmaCube ? Material.NETHER_BRICK : Material.EMERALD;
+            ItemStack drop = new ItemStack(material, size);
+            e.getDrops().add(drop);
+
+            if (size > 1) return;
+        }
+        Spawner spawner = getEntitySpawner(entity);
+        if (spawner == null) return;
+        spawner.killEntity(entity);
     }
 
     @EventHandler
@@ -65,7 +80,7 @@ public class SpawnerListener implements Listener {
         Slime slime = e.getEntity();
         Spawner spawner = getEntitySpawner(slime);
         if (spawner == null) return;
-
+        spawner.killEntity(slime);
         // Schedule a task to run right after the split, to find smaller slimes nearby
         Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
             List<Slime> childSlimes = new ArrayList<>();

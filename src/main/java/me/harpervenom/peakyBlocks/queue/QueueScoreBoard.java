@@ -82,11 +82,6 @@ public class QueueScoreBoard {
         assignToPlayers(queue.getPlayers().stream().map(QueuePlayer::getPlayer).toList());
     }
 
-    // Assign the scoreboard to a player
-    public void assignToPlayer(Player p) {
-        p.setScoreboard(scoreboard);
-    }
-
     public void removeForPlayer(Player p) {
         p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
@@ -96,6 +91,10 @@ public class QueueScoreBoard {
         for (Player player : players) {
             assignToPlayer(player);
         }
+    }
+
+    public void assignToPlayer(Player p) {
+        p.setScoreboard(scoreboard);
     }
 
     public void startCountdown() {

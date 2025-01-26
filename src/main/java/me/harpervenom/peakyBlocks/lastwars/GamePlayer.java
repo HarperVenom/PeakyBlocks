@@ -31,7 +31,6 @@ public class GamePlayer {
     private final UUID id;
     private GameTeam team;
     private int deaths;
-    private int expAfterDeath;
 
     private boolean frozen;
     private BukkitRunnable freezeTask;
@@ -39,7 +38,6 @@ public class GamePlayer {
     public GamePlayer(UUID id) {
         this.id = id;
         deaths = 0;
-        expAfterDeath = 0;
     }
 
     public UUID getId() {
@@ -59,33 +57,30 @@ public class GamePlayer {
 
     public void addDeath(boolean byPlayer) {
         deaths++;
-        if (byPlayer) expAfterDeath = 0;
-
-        team.getGame().updateBountyBoard();
     }
-    public int getDeaths() {
-        return deaths;
-    }
+//    public int getDeaths() {
+//        return deaths;
+//    }
+//
+//    public void changeBalance(int exp) {
+//        Player p = getPlayer();
+//        p.giveExpLevels(exp);
+//        if (exp > 0) {
+//            expAfterDeath += exp;
+//        }
+//
+//        team.getGame().updateBountyBoard();
+//
+//        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1);
+//    }
+//
+//    public int getBalance() {
+//        return getPlayer().getLevel();
+//    }
 
-    public void changeBalance(int exp) {
-        Player p = getPlayer();
-        p.giveExpLevels(exp);
-        if (exp > 0) {
-            expAfterDeath += exp;
-        }
-
-        team.getGame().updateBountyBoard();
-
-        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1);
-    }
-
-    public int getBalance() {
-        return getPlayer().getLevel();
-    }
-
-    public int getBounty() {
-        return expAfterDeath / 3;
-    }
+//    public int getBounty() {
+//        return expAfterDeath / 3;
+//    }
 
     public void freeze(int seconds) {
         frozen = true;

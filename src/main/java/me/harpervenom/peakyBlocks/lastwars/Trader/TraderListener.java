@@ -28,7 +28,7 @@ import static me.harpervenom.peakyBlocks.lobby.MenuListener.getCustomMenuHolder;
 
 public class TraderListener implements Listener {
 
-    public static HashMap<String, Integer> goodsPrices = new HashMap<>();
+//    public static HashMap<String, Integer> goodsPrices = new HashMap<>();
 
     @EventHandler
     public void TraderInteract(PlayerInteractEntityEvent e) {
@@ -40,56 +40,56 @@ public class TraderListener implements Listener {
         Trader trader = getTrader(entity.getUniqueId());
         if (trader == null) return;
         e.setCancelled(true);
-        p.openInventory(trader.getShop());
+        p.openMerchant(trader.getShop(), true);
     }
 
-    @EventHandler
-    public void BuyGood(InventoryClickEvent e) {
-        CustomMenuHolder holder = getCustomMenuHolder(e);
-        if (holder == null || !holder.getType().equals("traderMenu")) return;
-
-        e.setCancelled(true);
-
-        if (e.getClick() != ClickType.LEFT && e.getClick() != ClickType.SHIFT_LEFT) return;
-
-        Inventory inv = e.getClickedInventory();
-        if (inv == null || inv.getType() == InventoryType.PLAYER) return;
-
-        Player p = (Player) e.getWhoClicked();
-        GamePlayer gp = getGamePlayer(p);
-        if (gp == null) return;
-        ItemStack item = e.getCurrentItem();
-        if (item == null) return;
-
-        Integer goodId = getGoodId(item);
-        if (goodId == null) return;
-        Good good = getGood(goodId);
-        if (good == null) return;
-        int price = good.getPrice();
-
-        if (gp.getBalance() < price) {
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1, 1);
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Недостаточно опыта"));
-            return;
-        }
-
-        ItemStack purchase = good.getItem();
-        if (purchase == null) return;
-        purchase = new ItemStack(purchase);
-
-        if (e.getClick() == ClickType.SHIFT_LEFT) {
-            int multiplier = gp.getBalance() / price;
-            price *= multiplier;
-
-            purchase.setAmount(purchase.getAmount() * multiplier);
-        }
-
-        gp.changeBalance(-price);
-
-        HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(purchase);
-
-        for (ItemStack droppedItem : remaining.values()) {
-            p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
-        }
-    }
+//    @EventHandler
+//    public void BuyGood(InventoryClickEvent e) {
+//        CustomMenuHolder holder = getCustomMenuHolder(e);
+//        if (holder == null || !holder.getType().equals("traderMenu")) return;
+//
+//        e.setCancelled(true);
+//
+//        if (e.getClick() != ClickType.LEFT && e.getClick() != ClickType.SHIFT_LEFT) return;
+//
+//        Inventory inv = e.getClickedInventory();
+//        if (inv == null || inv.getType() == InventoryType.PLAYER) return;
+//
+//        Player p = (Player) e.getWhoClicked();
+//        GamePlayer gp = getGamePlayer(p);
+//        if (gp == null) return;
+//        ItemStack item = e.getCurrentItem();
+//        if (item == null) return;
+//
+//        Integer goodId = getGoodId(item);
+//        if (goodId == null) return;
+//        Good good = getGood(goodId);
+//        if (good == null) return;
+//        int price = good.getPrice();
+//
+//        if (gp.getBalance() < price) {
+//            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1, 1);
+//            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Недостаточно опыта"));
+//            return;
+//        }
+//
+//        ItemStack purchase = good.getItem();
+//        if (purchase == null) return;
+//        purchase = new ItemStack(purchase);
+//
+//        if (e.getClick() == ClickType.SHIFT_LEFT) {
+//            int multiplier = gp.getBalance() / price;
+//            price *= multiplier;
+//
+//            purchase.setAmount(purchase.getAmount() * multiplier);
+//        }
+//
+//        gp.changeBalance(-price);
+//
+//        HashMap<Integer, ItemStack> remaining = p.getInventory().addItem(purchase);
+//
+//        for (ItemStack droppedItem : remaining.values()) {
+//            p.getWorld().dropItemNaturally(p.getLocation(), droppedItem);
+//        }
+//    }
 }

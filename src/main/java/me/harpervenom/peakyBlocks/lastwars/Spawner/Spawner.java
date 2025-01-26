@@ -1,17 +1,20 @@
 package me.harpervenom.peakyBlocks.lastwars.Spawner;
 
 import me.harpervenom.peakyBlocks.lastwars.Game;
+import me.harpervenom.peakyBlocks.lastwars.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
+import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 
 public class Spawner {
 
-    private static List<Spawner> spawnerSamples = new ArrayList<>();
+//    private static List<Spawner> spawnerSamples = new ArrayList<>();
 
     public static Spawner getEntitySpawner(LivingEntity entity) {
         Game game = getGameByWorld(entity.getWorld());
@@ -22,35 +25,48 @@ public class Spawner {
         return null;
     }
 
-    private Location location;
-    private EntityType type;
-    private int baseMaxAmount = 4;
+    private final Location location;
+    private final EntityType type;
 
-    private Set<LivingEntity> entities = new HashSet<>();
-    private Set<LivingEntity> childEntities = new HashSet<>();
+    private BukkitTask task;
+
+    private final Set<LivingEntity> entities = new HashSet<>();
+    private final Set<LivingEntity> childEntities = new HashSet<>();
 
     public Spawner(Location location, EntityType type) {
         this.location = location.add(0.5, 1, 0.5);
         this.type = type;
 
-        spawnerSamples.add(this);
+//        spawnerSamples.add(this);
     }
 
     public Spawner(Spawner sample) {
         this.location = sample.location.clone();
         this.type = sample.type;
+        task = null;
+    }
+
+    public void start() {
+        scheduleRun();
+    }
+
+    private void scheduleRun() {
+        if (task != null && !task.isCancelled()) return;
+
+        entities.removeIf(Entity::isDead);
+        int baseMaxAmount = 4;
+        int maxAmount = baseMaxAmount + Math.max((getGame().getPlayers().size() - 2 + 1) / 2, 0);
+        if (entities.size() >= maxAmount) return;
+
+        int delay = type == EntityType.SLIME ? 45 : 120;
+
+        task = Bukkit.getScheduler().runTaskLater(getPlugin(), this::run, delay * 20);
     }
 
     public void run() {
-        entities.removeIf(Entity::isDead);
-
-        int maxAmount = baseMaxAmount + Math.max((getGame().getPlayers().size() - 2 + 1) / 2, 0);
-
-        if (entities.size() >= maxAmount) return;
-        int amount = Math.min(maxAmount - entities.size(), 3 + Math.max(getGame().getPlayers().size() - 2, 0));
-        for (int i = 0; i < amount; i++) {
-            spawnMob(location, type);
-        }
+        spawnMob(location, type);
+        task = null;
+        scheduleRun();
     }
 
     public void spawnMob(Location centerLocation, EntityType type) {
@@ -73,8 +89,10 @@ public class Spawner {
         if (entity instanceof Slime slime) {
             slime.setSize(2);
         }
-        if (entity instanceof MagmaCube magma) {
-            magma.setSize(2);
+        if (entity instanceof MagmaCube) {
+            for (GamePlayer gp : getGame().getPlayers()) {
+                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ENTITY_BLAZE_SHOOT, 0.3f, 0.5f);
+            }
         }
 
         entities.add(entity);
@@ -95,6 +113,8 @@ public class Spawner {
     public void killEntity(LivingEntity entity) {
         entities.remove(entity);
         childEntities.remove(entity);
+
+        scheduleRun();
     }
 
     public void setWorld(World world) {
@@ -111,5 +131,11 @@ public class Spawner {
 
     public Game getGame() {
         return getGameByWorld(location.getWorld());
+    }
+
+    public void stop() {
+        if (!task.isCancelled()) {
+            task.cancel();
+        }
     }
 }

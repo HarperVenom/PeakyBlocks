@@ -52,19 +52,11 @@ public class PlayerListener implements Listener {
         GamePlayer gp = getGamePlayer(p);
         if (gp == null) return;
 
-        e.setDroppedExp(0);
-
         Player killer = e.getEntity().getKiller();
         if (killer != null) {
             GamePlayer gKiller = getGamePlayer(killer);
-            if (gKiller == null) {
-                gp.addDeath(false);
-            } else {
-                gKiller.changeBalance(gp.getBounty());
-                gp.addDeath(true);
-            }
+            gp.addDeath(gKiller != null);
         }
-        e.setKeepLevel(true);
     }
 
     @EventHandler
@@ -74,7 +66,7 @@ public class PlayerListener implements Listener {
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
 
-        int freezeSeconds = Math.max((int) (game.getTime() / 40), 10);
+        int freezeSeconds = Math.min((int) (game.getTime() / 40), 10);
 
         gp.freeze(freezeSeconds);
     }
@@ -97,12 +89,6 @@ public class PlayerListener implements Listener {
         if (gp.isFrozen()) {
             e.setCancelled(true);
         }
-    }
-
-    @EventHandler
-    public void Craft(PrepareItemCraftEvent e) {
-        if (e.getRecipe() == null) return;
-        e.getInventory().setResult(null);
     }
 
     private boolean hasPlayerMoved(Location from, Location to) {

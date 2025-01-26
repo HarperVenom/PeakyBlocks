@@ -2,14 +2,13 @@ package me.harpervenom.peakyBlocks.lastwars;
 
 import me.harpervenom.peakyBlocks.lastwars.Map.LocationSet;
 import me.harpervenom.peakyBlocks.lastwars.Map.Map;
+import me.harpervenom.peakyBlocks.lastwars.Spawner.ItemSpawner;
 import me.harpervenom.peakyBlocks.lastwars.Spawner.Spawner;
-import me.harpervenom.peakyBlocks.lastwars.Trader.Trader;
 import me.harpervenom.peakyBlocks.lastwars.Turret.Turret;
 import me.harpervenom.peakyBlocks.queue.Queue;
 import me.harpervenom.peakyBlocks.queue.QueueTeam;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
@@ -33,27 +32,22 @@ public class Game {
         return null;
     }
 
-    private final int id;
     private Map map;
     public final List<GameTeam> teams = new ArrayList<>();
     public final List<GameTeam> deadTeams = new ArrayList<>();
     public List<Spawner> spawners = new ArrayList<>();
+    public List<ItemSpawner> itemSpawners = new ArrayList<>();
 
     private Queue queue;
-    private long time;
-    private Scoreboard scoreboard;
-    private Objective bountyObjective;
+    private final int id;
 
-    private BukkitRunnable timer;
+    private final GameScoreboard scoreboard;
 
     public Game(Queue queue) {
         this.queue = queue;
         this.id = queue.getId();
 
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        scoreboard = manager.getNewScoreboard();
-        bountyObjective = scoreboard.registerNewObjective("bountyScores", "dummy", "Player Scores");
-        bountyObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        scoreboard = new GameScoreboard(this);
 
         for (QueueTeam queueTeam : queue.getTeams()) {
             GameTeam gameTeam = new GameTeam(this, queueTeam);
@@ -68,7 +62,7 @@ public class Game {
     }
 
     public Scoreboard getScoreboard() {
-        return scoreboard;
+        return scoreboard.getScoreboard();
     }
 
     public Map getMap() {
@@ -91,6 +85,7 @@ public class Game {
         }
 
         setSpawners(map.getSpawners());
+        setItemSpawners(map.getItemSpawners());
 
         map.getWorld().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         map.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, true);
@@ -98,12 +93,9 @@ public class Game {
         map.getWorld().setDifficulty(Difficulty.HARD);
         map.getWorld().setTime(1000);
         map.getWorld().setWeatherDuration(0);
-//        map.getWorld().setClearWeatherDuration(0);
 
         turretExplosions.put(map.getWorld(), new ArrayList<>());
         noDamageExplosions.put(map.getWorld(), new ArrayList<>());
-
-        start();
     }
 
     public void setSpawners(List<Spawner> spawners) {
@@ -111,6 +103,10 @@ public class Game {
     }
     public List<Spawner> getSpawners() {
         return spawners;
+    }
+
+    public void setItemSpawners(List<ItemSpawner> spawners) {
+        this.itemSpawners = spawners;
     }
 
     public World getWorld() {
@@ -160,49 +156,19 @@ public class Game {
         queue.delete(true);
         queue = null;
 
-        runTimer();
-
-        updateBountyBoard();
-
-        for (GamePlayer gp : getPlayers()) {
-            Player p = gp.getPlayer();
-            p.setScoreboard(scoreboard);
+        for (Spawner spawner : spawners) {
+            spawner.start();
         }
-    }
 
-    private void runTimer() {
-        timer = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (time != 0 && time % 60 == 0) {
-                    sendMessage(ChatColor.GRAY + "Минута: " + (time / 60));
-                }
+        for (ItemSpawner spawner : itemSpawners) {
+            spawner.start();
+        }
 
-                if (time != 0 && time % 90 == 0) {
-                    for (Spawner spawner : spawners) {
-                        if (spawner.getType() == EntityType.CAVE_SPIDER || spawner.getType() == EntityType.MAGMA_CUBE) {
-                            spawner.run();
-                        }
-                    }
-                }
-
-                if (time == 0 || time % 60 == 0) {
-                    for (Spawner spawner : spawners) {
-                        if (spawner.getType() == EntityType.SPIDER || spawner.getType() == EntityType.SLIME) {
-                            spawner.run();
-                        }
-                    }
-                }
-
-                time++;
-            }
-        };
-
-        timer.runTaskTimer(getPlugin(), 0 ,20);
+        scoreboard.startTimer();
     }
 
     public long getTime() {
-        return time;
+        return scoreboard.getTotalSeconds();
     }
 
     public void checkTeams() {
@@ -229,17 +195,26 @@ public class Game {
         return false;
     }
 
-    public void updateBountyBoard() {
-        for (GamePlayer gp : getPlayers()) {
-            Player p = gp.getPlayer();
+//    private void updateGameInfo() {
+//        for (GamePlayer gp : getPlayers()) {
+//            Player p = gp.getPlayer();
+//
+//            Score score = bountyObjective.getScore(p.getName());
+////            score.setScore(gp.getBounty());
+//        }
+//    }
 
-            Score score = bountyObjective.getScore(p.getName());
-            score.setScore(gp.getBounty());
-        }
-    }
+//    public void updateBountyBoard() {
+//        for (GamePlayer gp : getPlayers()) {
+//            Player p = gp.getPlayer();
+//
+//            Score score = bountyObjective.getScore(p.getName());
+////            score.setScore(gp.getBounty());
+//        }
+//    }
 
     public void finish() {
-        timer.cancel();
+        scoreboard.close();
 
         for (GameTeam gTeam : teams) {
             for (Turret turret : gTeam.getTurrets()) {
@@ -267,6 +242,13 @@ public class Game {
             if (!p.getWorld().equals(Bukkit.getWorld("lobby"))) {
                 p.performCommand("lobby");
             }
+        }
+
+        for (Spawner spawner : spawners) {
+            spawner.stop();
+        }
+        for (ItemSpawner itemSpawner : itemSpawners) {
+            itemSpawner.stop();
         }
 
         activeGames.remove(this);
