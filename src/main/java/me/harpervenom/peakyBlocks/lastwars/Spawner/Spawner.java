@@ -134,6 +134,7 @@ public class Spawner {
     }
 
     public void stop() {
+        if (task == null) return;
         if (!task.isCancelled()) {
             task.cancel();
         }

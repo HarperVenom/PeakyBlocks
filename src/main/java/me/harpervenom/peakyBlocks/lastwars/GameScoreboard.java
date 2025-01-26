@@ -13,32 +13,34 @@ import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class GameScoreboard {
 
-    final Game game;
+    private final Game game;
 
     private final Scoreboard scoreboard;
     private final Objective gameInfoObjective;
-    private Objective bountyObjective;
 
     private BukkitRunnable timer;
 
     private int totalSeconds;
+    private String lastTimeEntry; // Keep track of the last displayed time
 
     public GameScoreboard(Game game) {
         this.game = game;
 
+        // Initialize the scoreboard and objectives
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         scoreboard = manager.getNewScoreboard();
 
         gameInfoObjective = scoreboard.registerNewObjective("gameInfo", "dummy", ChatColor.GRAY + "Игра #" + game.getId());
         gameInfoObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        bountyObjective = scoreboard.registerNewObjective("bountyScores", "dummy", "Player Scores");
-        bountyObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        // Initialize last time entry
+        lastTimeEntry = "";
     }
 
     public void startTimer() {
-        if (timer != null && timer.isCancelled()) return;
-        update();
+        // Prevent creating a new timer if one is already running
+        if (timer != null && !timer.isCancelled()) return;
+
         timer = new BukkitRunnable() {
             @Override
             public void run() {
@@ -46,8 +48,10 @@ public class GameScoreboard {
                 update();
             }
         };
-        timer.runTaskTimer(getPlugin(), 20, 20);
 
+        timer.runTaskTimer(getPlugin(), 20, 20); // Run every 20 ticks (1 second)
+
+        // Assign the scoreboard to all players only once
         for (GamePlayer gp : game.getPlayers()) {
             Player p = gp.getPlayer();
             p.setScoreboard(scoreboard);
@@ -55,22 +59,16 @@ public class GameScoreboard {
     }
 
     private void update() {
-        clear();
+        String currentTime = ChatColor.GRAY + getTimeString();
 
-        Score score = gameInfoObjective.getScore(ChatColor.GRAY + getTimeString());
-        score.setScore(0);
+        if (currentTime.equals(lastTimeEntry)) return;
 
-        assignToPlayers(game.getPlayers().stream().map(GamePlayer::getPlayer).toList());
-    }
-
-    public void assignToPlayers(List<Player> players) {
-        for (Player player : players) {
-            assignToPlayer(player);
+        if (!lastTimeEntry.isEmpty()) {
+            scoreboard.resetScores(lastTimeEntry);
         }
-    }
 
-    public void assignToPlayer(Player p) {
-        p.setScoreboard(scoreboard);
+        gameInfoObjective.getScore(currentTime).setScore(0);
+        lastTimeEntry = currentTime;
     }
 
     public String getTimeString() {
@@ -89,15 +87,10 @@ public class GameScoreboard {
         return scoreboard;
     }
 
-    public void clear() {
-        Set<String> entries = scoreboard.getEntries();
-        for (String entry : entries) {
-            scoreboard.resetScores(entry);
-        }
-    }
-
     public void close() {
+        // Stop the timer and clear the sidebar
         if (timer != null) timer.cancel();
         scoreboard.clearSlot(DisplaySlot.SIDEBAR);
     }
 }
+

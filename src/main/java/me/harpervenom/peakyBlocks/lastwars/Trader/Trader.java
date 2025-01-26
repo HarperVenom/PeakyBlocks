@@ -68,13 +68,13 @@ public class Trader{
         trades.clear();
 
         creaturesShop = Bukkit.createMerchant("Существа");
-        trades.add(createMerchantRecipe(new ItemStack(Material.ZOMBIE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 10)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.ZOMBIE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 6)));
         creaturesShop.setRecipes(trades);
         trades.clear();
 
         exchangeShop = Bukkit.createMerchant("Обмен валют");
         trades.add(createMerchantRecipe(new ItemStack(Material.EMERALD, 1), new ItemStack(Material.BRICK, 8)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.NETHER_BRICK, 1), new ItemStack(Material.EMERALD, 8)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.NETHER_BRICK, 1), new ItemStack(Material.EMERALD, 16)));
         trades.add(createMerchantRecipe(new ItemStack(Material.EMERALD, 6), new ItemStack(Material.NETHER_BRICK, 1)));
         exchangeShop.setRecipes(trades);
         trades.clear();
