@@ -63,7 +63,7 @@ public class Turret {
 
     public boolean isRunning;
 
-    private Slime shooter;
+    private Mob shooter;
     private List<LivingEntity> targets;
     private LivingEntity priorityTarget;
 
@@ -128,8 +128,10 @@ public class Turret {
 
         name = team.getColor() + "[Турель]";
 
-        shooter = (Slime) location.getWorld().spawnEntity(location.clone().add(0.5, 0, 0.5), EntityType.SLIME);
-        shooter.setSize(2);
+        shooter = (Mob) location.getWorld().spawnEntity(location.clone().add(0.5, -1, 0.5), isBreakable ? EntityType.SKELETON : EntityType.WITHER_SKELETON);
+
+        shooter.getEquipment().setItemInMainHand(null);
+
         shooter.setCustomName(name + (isBreakable ?  " " + maxHealth + "/" + maxHealth : ""));
         shooter.setAI(false);
         shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
@@ -189,14 +191,14 @@ public class Turret {
 
         health -= damage;
         health = Math.round(health * 10.0) / 10.0;
-        if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.YELLOW + "" + health + "/" + maxHealth));
-        shooter.setCustomName(name + " " + health + "/" + maxHealth);
-        shooter.setHealth(Math.max(0, health));
 
         if (health <= 0) {
             if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             Bukkit.getPluginManager().callEvent(new TurretDestroyEvent(this));
         }
+
+        if (p != null) p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.YELLOW + "" + health + "/" + maxHealth));
+        shooter.setCustomName(name + " " + health + "/" + maxHealth);
 
         for (GamePlayer gp : getTeam().getPlayers()) {
             Player player = gp.getPlayer();
@@ -426,7 +428,7 @@ public class Turret {
         shooter.getLocation().getWorld().playSound(shooter.getLocation(), Sound.ENTITY_BLAZE_HURT, 1, 0.8f);
     }
 
-    public Slime getShooter() {
+    public Mob getShooter() {
         return shooter;
     }
 }

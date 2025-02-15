@@ -3,6 +3,7 @@ package me.harpervenom.peakyBlocks.lastwars.Trader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Nameable;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +27,6 @@ public class Trader{
     }
 
     private static final Merchant blocksShop;
-    private static final Merchant materialsShop;
     private static final Merchant equipmentShop;
     private static final Merchant foodShop;
     private static final Merchant creaturesShop;
@@ -35,28 +35,33 @@ public class Trader{
         List<MerchantRecipe> trades = new ArrayList<>();
 
         blocksShop = Bukkit.createMerchant("Блоки");
-        trades.add(createMerchantRecipe(new ItemStack(Material.AZALEA_LEAVES, 16), new ItemStack(Material.BRICK, 1)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.AZALEA_LEAVES, 4), new ItemStack(Material.BRICK, 1)));
         trades.add(createMerchantRecipe(new ItemStack(Material.SANDSTONE, 16), new ItemStack(Material.EMERALD, 2)));
         trades.add(createMerchantRecipe(new ItemStack(Material.DEEPSLATE, 16), new ItemStack(Material.EMERALD, 4)));
         trades.add(createMerchantRecipe(new ItemStack(Material.OBSIDIAN, 1), new ItemStack(Material.EMERALD, 32)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.CHEST, 1), new ItemStack(Material.EMERALD, 10)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.TORCH, 6), new ItemStack(Material.EMERALD, 1)));
         blocksShop.setRecipes(trades);
         trades.clear();
 
-        materialsShop = Bukkit.createMerchant("Материалы");
-        trades.add(createMerchantRecipe(new ItemStack(Material.OAK_PLANKS, 4), new ItemStack(Material.EMERALD, 1)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.COBBLESTONE, 4), new ItemStack(Material.EMERALD, 3)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.LEATHER, 4), new ItemStack(Material.EMERALD, 4)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.IRON_INGOT, 4), new ItemStack(Material.EMERALD, 16)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.DIAMOND, 2), new ItemStack(Material.EMERALD, 24)));
-        materialsShop.setRecipes(trades);
-        trades.clear();
-
         equipmentShop = Bukkit.createMerchant("Снаряжение");
-        trades.add(createMerchantRecipe(new ItemStack(Material.BOW, 1), new ItemStack(Material.EMERALD, 16)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.CROSSBOW, 1), new ItemStack(Material.EMERALD, 18)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.WOODEN_SHOVEL, 1), new ItemStack(Material.EMERALD, 5)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.WOODEN_PICKAXE, 1), new ItemStack(Material.EMERALD, 5)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.WOODEN_SWORD, 1), new ItemStack(Material.EMERALD, 12)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.STONE_SWORD, 1), new ItemStack(Material.EMERALD, 24)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.IRON_SWORD, 1), new ItemStack(Material.NETHER_BRICK, 6)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.DIAMOND_PICKAXE, 1), new ItemStack(Material.NETHER_BRICK, 6)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.DIAMOND_SWORD, 1), new ItemStack(Material.NETHER_BRICK, 12)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.NETHERITE_SWORD, 1), new ItemStack(Material.NETHER_BRICK, 28)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.BOW, 1), new ItemStack(Material.NETHER_BRICK, 15)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.CROSSBOW, 1), new ItemStack(Material.NETHER_BRICK, 18)));
         trades.add(createMerchantRecipe(new ItemStack(Material.ARROW, 4), new ItemStack(Material.EMERALD, 4)));
         trades.add(createMerchantRecipe(new ItemStack(Material.FLINT_AND_STEEL, 1), new ItemStack(Material.EMERALD, 4)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.TORCH, 6), new ItemStack(Material.EMERALD, 1)));
+
+        trades.add(createMerchantRecipe(new ItemStack(Material.LEATHER_BOOTS, 1), new ItemStack(Material.EMERALD, 4)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.LEATHER_LEGGINGS, 1), new ItemStack(Material.EMERALD, 8)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.LEATHER_CHESTPLATE, 1), new ItemStack(Material.EMERALD, 10)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.LEATHER_HELMET, 1), new ItemStack(Material.EMERALD, 4)));
         equipmentShop.setRecipes(trades);
         trades.clear();
 
@@ -68,14 +73,16 @@ public class Trader{
         trades.clear();
 
         creaturesShop = Bukkit.createMerchant("Существа");
+        trades.add(createMerchantRecipe(new ItemStack(Material.SILVERFISH_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 3)));
         trades.add(createMerchantRecipe(new ItemStack(Material.ZOMBIE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 6)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.SKELETON_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 14)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.BLAZE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 24)));
         creaturesShop.setRecipes(trades);
         trades.clear();
 
         exchangeShop = Bukkit.createMerchant("Обмен валют");
         trades.add(createMerchantRecipe(new ItemStack(Material.EMERALD, 1), new ItemStack(Material.BRICK, 8)));
         trades.add(createMerchantRecipe(new ItemStack(Material.NETHER_BRICK, 1), new ItemStack(Material.EMERALD, 16)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.EMERALD, 6), new ItemStack(Material.NETHER_BRICK, 1)));
         exchangeShop.setRecipes(trades);
         trades.clear();
     }
@@ -125,33 +132,27 @@ public class Trader{
             case "blocks" -> {
                 if (villager == null) return;
                 villager.setProfession(Villager.Profession.MASON);
-
-                shop = blocksShop;
-            }
-            case "materials" -> {
-                if (villager == null) return;
-                villager.setProfession(Villager.Profession.TOOLSMITH);
-                shop = materialsShop;
+                shop = copyMerchant(blocksShop);
             }
             case "equipment" -> {
                 if (villager == null) return;
                 villager.setProfession(Villager.Profession.WEAPONSMITH);
-                shop = equipmentShop;
+                shop = copyMerchant(equipmentShop);
             }
             case "food" -> {
                 if (villager == null) return;
                 villager.setProfession(Villager.Profession.FARMER);
-                shop = foodShop;
+                shop = copyMerchant(foodShop);
             }
             case "creatures" -> {
                 if (villager == null) return;
                 villager.setProfession(Villager.Profession.CLERIC);
-                shop = creaturesShop;
+                shop = copyMerchant(creaturesShop);
             }
             case "exchange" -> {
                 if (villager == null) return;
                 villager.setProfession(Villager.Profession.CARTOGRAPHER);
-                shop = exchangeShop;
+                shop = copyMerchant(exchangeShop);
             }
         }
     }
@@ -164,9 +165,6 @@ public class Trader{
         switch (type) {
             case "blocks" -> {
                 return "Блоки";
-            }
-            case "materials" -> {
-                return "Материалы";
             }
             case "equipment" -> {
                 return "Снаряжение";
@@ -189,4 +187,29 @@ public class Trader{
         trade.addIngredient(cost);
         return trade;
     }
+
+    private static Merchant copyMerchant(Merchant merchant) {
+        // Create a new Merchant (without a direct name since Merchant doesn't store it)
+        Merchant newMerchant = Bukkit.createMerchant(merchant instanceof Nameable ? ((Nameable) merchant).getCustomName() : null);
+
+        // Copy all trade recipes
+        List<MerchantRecipe> copiedRecipes = new ArrayList<>();
+        for (MerchantRecipe recipe : merchant.getRecipes()) {
+            MerchantRecipe copiedRecipe = new MerchantRecipe(
+                    recipe.getResult(),
+                    recipe.getUses(),
+                    recipe.getMaxUses(),
+                    recipe.hasExperienceReward(),
+                    recipe.getVillagerExperience(),
+                    recipe.getPriceMultiplier()
+            );
+
+            copiedRecipe.setIngredients(new ArrayList<>(recipe.getIngredients())); // Clone ingredients
+            copiedRecipes.add(copiedRecipe);
+        }
+
+        newMerchant.setRecipes(copiedRecipes); // Set copied trades
+        return newMerchant;
+    }
+
 }

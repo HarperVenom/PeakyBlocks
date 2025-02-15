@@ -38,7 +38,7 @@ public class ItemSpawner {
             }
         };
 
-        timer.runTaskTimer(getPlugin(),0, 16 * 20);
+        timer.runTaskTimer(getPlugin(),0, 4 * 20);
     }
 
     public void run() {

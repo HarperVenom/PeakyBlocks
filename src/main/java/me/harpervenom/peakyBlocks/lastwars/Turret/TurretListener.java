@@ -48,10 +48,11 @@ public class TurretListener implements Listener {
 
     @EventHandler
     public void TurretDamage(EntityDamageByEntityEvent e) {
-        Entity entity = e.getEntity();
+        if (!(e.getEntity() instanceof LivingEntity entity)) return;
         Turret turret = getTurret(entity);
+
         if (turret == null) return;
-        double damage = e.getDamage();
+        double damage = e.getFinalDamage();
 
         Entity attacker = e.getDamager();
         boolean damaged = false;
@@ -102,5 +103,14 @@ public class TurretListener implements Listener {
     public void TeammateAttacked(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player target && e.getDamager() instanceof Player attacker)) return;
         attackers.put(attacker.getUniqueId(), target.getUniqueId());
+    }
+
+
+    @EventHandler
+    public void DayBurn(EntityCombustEvent e) {
+        Entity entity = e.getEntity();
+
+        Turret turret = getTurret(entity);
+        if (turret != null) e.setCancelled(true);
     }
 }

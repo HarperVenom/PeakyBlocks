@@ -14,8 +14,6 @@ import static me.harpervenom.peakyBlocks.lastwars.Game.getGameByWorld;
 
 public class Spawner {
 
-//    private static List<Spawner> spawnerSamples = new ArrayList<>();
-
     public static Spawner getEntitySpawner(LivingEntity entity) {
         Game game = getGameByWorld(entity.getWorld());
         if (game == null) return null;
@@ -36,8 +34,6 @@ public class Spawner {
     public Spawner(Location location, EntityType type) {
         this.location = location.add(0.5, 1, 0.5);
         this.type = type;
-
-//        spawnerSamples.add(this);
     }
 
     public Spawner(Spawner sample) {
@@ -58,12 +54,13 @@ public class Spawner {
         int maxAmount = baseMaxAmount + Math.max((getGame().getPlayers().size() - 2 + 1) / 2, 0);
         if (entities.size() >= maxAmount) return;
 
-        int delay = type == EntityType.SLIME ? 45 : 120;
+        int delay = type == EntityType.SLIME ? 40 : 120;
 
         task = Bukkit.getScheduler().runTaskLater(getPlugin(), this::run, delay * 20);
     }
 
     public void run() {
+//        getGame().getPlayers();
         spawnMob(location, type);
         task = null;
         scheduleRun();

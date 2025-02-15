@@ -6,9 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 
-import java.util.List;
-import java.util.Set;
-
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class GameScoreboard {
@@ -21,24 +18,21 @@ public class GameScoreboard {
     private BukkitRunnable timer;
 
     private int totalSeconds;
-    private String lastTimeEntry; // Keep track of the last displayed time
+    private String lastTimeEntry;
 
     public GameScoreboard(Game game) {
         this.game = game;
 
-        // Initialize the scoreboard and objectives
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         scoreboard = manager.getNewScoreboard();
 
         gameInfoObjective = scoreboard.registerNewObjective("gameInfo", "dummy", ChatColor.GRAY + "Игра #" + game.getId());
         gameInfoObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        // Initialize last time entry
         lastTimeEntry = "";
     }
 
     public void startTimer() {
-        // Prevent creating a new timer if one is already running
         if (timer != null && !timer.isCancelled()) return;
 
         timer = new BukkitRunnable() {
@@ -51,7 +45,6 @@ public class GameScoreboard {
 
         timer.runTaskTimer(getPlugin(), 20, 20); // Run every 20 ticks (1 second)
 
-        // Assign the scoreboard to all players only once
         for (GamePlayer gp : game.getPlayers()) {
             Player p = gp.getPlayer();
             p.setScoreboard(scoreboard);
