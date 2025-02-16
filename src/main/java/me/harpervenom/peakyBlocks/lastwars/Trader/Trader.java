@@ -60,23 +60,28 @@ public class Trader{
         trades.add(createMerchantRecipe(new ItemStack(Material.COOKED_CHICKEN, 2), new ItemStack(Material.BRICK, 6)));
         trades.add(createMerchantRecipe(new ItemStack(Material.GOLDEN_APPLE, 1), new ItemStack(Material.RESIN_BRICK, 1)));
         trades.add(createMerchantRecipe(speed, new ItemStack(Material.BRICK, 32)));
+        trades.add(createMerchantRecipe(levitation, new ItemStack(Material.BRICK, 32)));
+        trades.add(createMerchantRecipe(slowFalling, new ItemStack(Material.BRICK, 32)));
+        trades.add(createMerchantRecipe(invisibility, new ItemStack(Material.BRICK, 32)));
         foodShop.setRecipes(trades);
         trades.clear();
 
         creaturesShop = Bukkit.createMerchant();
-        trades.add(createMerchantRecipe(new ItemStack(Material.SILVERFISH_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 1)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.ZOMBIE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 2)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.SILVERFISH_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 2)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.ZOMBIE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 3)));
         trades.add(createMerchantRecipe(new ItemStack(Material.GUARDIAN_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 3)));
         trades.add(createMerchantRecipe(new ItemStack(Material.SKELETON_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 4)));
         trades.add(createMerchantRecipe(new ItemStack(Material.BLAZE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 6)));
         trades.add(createMerchantRecipe(new ItemStack(Material.SHULKER_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 7)));
         trades.add(createMerchantRecipe(new ItemStack(Material.BREEZE_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 8)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.VEX_SPAWN_EGG, 1), new ItemStack(Material.NETHER_BRICK, 9)));
         creaturesShop.setRecipes(trades);
         trades.clear();
 
         equipmentShop = Bukkit.createMerchant();
-        trades.add(createMerchantRecipe(new ItemStack(Material.ARROW, 16), new ItemStack(Material.RESIN_BRICK, 1)));
-        trades.add(createMerchantRecipe(new ItemStack(Material.WIND_CHARGE, 8), new ItemStack(Material.RESIN_BRICK, 1)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.ARROW, 8), new ItemStack(Material.NETHER_BRICK, 1)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.WIND_CHARGE, 3), new ItemStack(Material.RESIN_BRICK, 1)));
+        trades.add(createMerchantRecipe(new ItemStack(Material.ENDER_PEARL, 1), new ItemStack(Material.NETHER_BRICK, 3)));
 
         trades.add(createMerchantRecipe(new ItemStack(Material.MACE, 1), new ItemStack(Material.RESIN_BRICK, 6)));
         trades.add(createMerchantRecipe(soulCrasher, new ItemStack[] {new ItemStack(Material.MACE), new ItemStack(Material.RESIN_BRICK, 8)}, 1));

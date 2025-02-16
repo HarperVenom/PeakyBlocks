@@ -12,7 +12,6 @@ import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -28,6 +27,9 @@ public class CustomItem implements Listener {
     public static final ItemStack hellShot;
 
     public static final ItemStack speed;
+    public static final ItemStack levitation;
+    public static final ItemStack invisibility;
+    public static final ItemStack slowFalling;
 
     static  {
         seaReaper = createItem(Material.TRIDENT, ChatColor.AQUA + "Морской Жнец", null);
@@ -43,7 +45,7 @@ public class CustomItem implements Listener {
         hellShot = createItem(Material.BOW, ChatColor.RED + "Адский Выстрел", null);
         hellShot.addUnsafeEnchantment(Enchantment.PUNCH, 2);
         hellShot.addUnsafeEnchantment(Enchantment.FLAME, 1);
-        hellShot.addEnchantment(Enchantment.POWER, 2);
+        hellShot.addEnchantment(Enchantment.POWER, 1);
 
         boltStorm = createItem(Material.CROSSBOW, ChatColor.RED + "Гроза Болтов", null);
         boltStorm.addUnsafeEnchantment(Enchantment.MULTISHOT, 1);
@@ -52,11 +54,34 @@ public class CustomItem implements Listener {
 
         speed = new ItemStack(Material.POTION, 1);
         PotionMeta meta = (PotionMeta) speed.getItemMeta();
-
         if (meta != null) {
             meta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 3 * 60 * 20, 0), true);
-            meta.setDisplayName("§bСкорость");
+            meta.setDisplayName(ChatColor.BLUE + "Скорость");
             speed.setItemMeta(meta);
+        }
+
+        levitation = new ItemStack(Material.POTION, 1);
+        meta = (PotionMeta) levitation.getItemMeta();
+        if (meta != null) {
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 23 * 20, 2), true);
+            meta.setDisplayName(ChatColor.YELLOW + "Левитация");
+            levitation.setItemMeta(meta);
+        }
+
+        invisibility = new ItemStack(Material.POTION, 1);
+        meta = (PotionMeta) invisibility.getItemMeta();
+        if (meta != null) {
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 7 * 15 * 20, 1), true);
+            meta.setDisplayName(ChatColor.WHITE + "Невидимость");
+            invisibility.setItemMeta(meta);
+        }
+
+        slowFalling = new ItemStack(Material.POTION, 1);
+        meta = (PotionMeta) slowFalling.getItemMeta();
+        if (meta != null) {
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 10 * 20, 0), true);
+            meta.setDisplayName(ChatColor.GRAY + "Парение");
+            slowFalling.setItemMeta(meta);
         }
     }
 

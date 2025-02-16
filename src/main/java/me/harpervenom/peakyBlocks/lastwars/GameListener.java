@@ -230,12 +230,24 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e) {
-        if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
+        if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.OCELOT_BABY) {
             e.setCancelled(true);
             return;
         }
+
+        LivingEntity entity = e.getEntity();
+
+        if (e.getEntity() instanceof Zombie zombie) {
+            if (!zombie.isAdult()) {
+                e.setCancelled(true);
+
+                Zombie adultZombie = zombie.getWorld().spawn(zombie.getLocation(), Zombie.class);
+                adultZombie.setAdult();
+                entity = zombie;
+            }
+        }
+
         if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
-            Entity entity = e.getEntity();
             EntityType entityType = entity.getType();
 
             for (HashMap.Entry<UUID, EntityType> entry : spawnEggUsers.entrySet()) {
@@ -246,6 +258,9 @@ public class GameListener implements Listener {
                     if (gp == null) return;
 
                     gp.getTeam().getTeam().addEntry(entity.getUniqueId().toString());
+                    entity.setRemoveWhenFarAway(false);
+                    entity.setPersistent(true);
+                    entity.setCustomName(gp.getTeam().getName());
 
                     spawnEggUsers.remove(p.getUniqueId());
                     break;

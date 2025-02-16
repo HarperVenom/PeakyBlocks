@@ -1,6 +1,5 @@
 package me.harpervenom.peakyBlocks.lastwars.Spawner;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -41,8 +40,8 @@ public class ItemSpawner {
         };
 
         int period = 3;
-        if (material == Material.NETHER_BRICK) period = 15;
-        if (material == Material.RESIN_BRICK) period = 90;
+        if (material == Material.NETHER_BRICK) period = 20;
+        if (material == Material.RESIN_BRICK) period = 80;
 
         timer.runTaskTimer(getPlugin(), period * 20, period * 20);
     }
