@@ -60,7 +60,7 @@ public class MenuListener implements Listener {
         navigator = createItem(Material.COMPASS, menuItemName, null);
         ItemStack gameButton = createItem(Material.NETHERITE_HELMET, gameButtonName, List.of(
                 ChatColor.WHITE + "Командное сражение.",
-                ChatColor.WHITE + "Разрушьте вражеское ядро, чтобы победить"));
+                ChatColor.WHITE + "Разрушьте вражеское ядро, чтобы победить"), true);
         createButton = createItem(Material.WRITABLE_BOOK, createButtonName, null);
 
 

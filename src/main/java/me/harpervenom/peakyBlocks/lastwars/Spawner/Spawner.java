@@ -79,7 +79,7 @@ public class Spawner {
 
         world.spawnParticle(Particle.FLAME, spawnLocation, 20, 0.2, 0.5, 0.2, 0.05);
 
-        entity.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(8);
+        entity.getAttribute(Attribute.FOLLOW_RANGE).setBaseValue(8);
         entity.setRemoveWhenFarAway(false);
         entity.setSilent(true);
 

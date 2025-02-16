@@ -40,7 +40,7 @@ public class Core {
     private void buildStructure() {
         Location location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
         blocks.add(location);
-        location.getBlock().setType(Material.SMOOTH_STONE);
+        location.getBlock().setType(Material.DIORITE_WALL);
 
         location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
         blocks.add(location);
@@ -49,7 +49,7 @@ public class Core {
 
         location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 3, loc.getZ());
         blocks.add(location);
-        location.getBlock().setType(Material.SMOOTH_STONE);
+        location.getBlock().setType(Material.DIORITE_WALL);
 
         location = new Location(loc.getWorld(), loc.getX(), loc.getY() + 4, loc.getZ());
         blocks.add(location);

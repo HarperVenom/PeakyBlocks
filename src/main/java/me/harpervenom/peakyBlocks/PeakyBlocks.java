@@ -3,6 +3,7 @@ package me.harpervenom.peakyBlocks;
 import me.harpervenom.peakyBlocks.lastwars.LuckyBook.LuckyBookListener;
 import me.harpervenom.peakyBlocks.lastwars.PlayerListener;
 import me.harpervenom.peakyBlocks.lastwars.Spawner.SpawnerListener;
+import me.harpervenom.peakyBlocks.lastwars.Trader.CustomItem;
 import me.harpervenom.peakyBlocks.lastwars.Trader.TraderListener;
 import me.harpervenom.peakyBlocks.lastwars.Core.CoreListener;
 import me.harpervenom.peakyBlocks.lastwars.GameListener;
@@ -41,6 +42,8 @@ public final class PeakyBlocks extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new TraderListener(), this);
         getServer().getPluginManager().registerEvents(new LuckyBookListener(), this);
+
+        getServer().getPluginManager().registerEvents(new CustomItem(), this);
 
         getCommand("lobby").setExecutor(new Lobby());
 

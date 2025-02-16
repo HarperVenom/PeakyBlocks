@@ -1,7 +1,7 @@
 name: PeakyBlocks
 version: '1.0'
 main: me.harpervenom.peakyBlocks.PeakyBlocks
-api-version: '1.21'
+api-version: '1.21.4'
 author: Venom_Harper
 commands:
   lobby:

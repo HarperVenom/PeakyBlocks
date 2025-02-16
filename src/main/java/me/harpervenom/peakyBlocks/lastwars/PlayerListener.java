@@ -66,7 +66,7 @@ public class PlayerListener implements Listener {
         if (gp == null) return;
         Game game = gp.getTeam().getGame();
 
-        int freezeSeconds = Math.min((int) (game.getTime() / 40), 10);
+        int freezeSeconds = Math.min((int) (game.getTime() / 40), 15);
 
         gp.freeze(freezeSeconds);
     }

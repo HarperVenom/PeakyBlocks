@@ -78,48 +78,44 @@ public class Map {
         ConfigurationSection teamsSection = config.getConfigurationSection("teams");
         if (teamsSection == null) {
             System.out.println("No teams section found in the config for map: " + name);
-            return;
-        }
+        } else {
+            for (String teamKey : teamsSection.getKeys(false)) {
+                ConfigurationSection teamSection = teamsSection.getConfigurationSection(teamKey);
+                if (teamSection != null) {
+                    // Extract each location for the team
+                    Location spawn = getLocationFromConfig(teamSection, "spawn");
+                    Location core = getLocationFromConfig(teamSection, "core");
 
-        for (String teamKey : teamsSection.getKeys(false)) {
-            ConfigurationSection teamSection = teamsSection.getConfigurationSection(teamKey);
-            if (teamSection != null) {
-                // Extract each location for the team
-                Location spawn = getLocationFromConfig(teamSection, "spawn");
-                Location core = getLocationFromConfig(teamSection, "core");
-
-                ConfigurationSection turretsSection = teamSection.getConfigurationSection("turrets");
-                List<Turret> turrets = new ArrayList<>();
-                if (turretsSection == null) {
-                    System.out.println("No turrets section found in the config for map: " + name);
-                } else {
-                    for (String turretKey : turretsSection.getKeys(false)) {
-                        ConfigurationSection turretSection = turretsSection.getConfigurationSection(turretKey);
-                        if (turretSection != null) {
-                            Turret turret = new Turret(getLocationFromConfig(turretsSection, turretKey), turretSection.getBoolean("breakable"));
-                            turrets.add(turret);
+                    ConfigurationSection turretsSection = teamSection.getConfigurationSection("turrets");
+                    List<Turret> turrets = new ArrayList<>();
+                    if (turretsSection == null) {
+                        System.out.println("No turrets section found in the config for map: " + name);
+                    } else {
+                        for (String turretKey : turretsSection.getKeys(false)) {
+                            ConfigurationSection turretSection = turretsSection.getConfigurationSection(turretKey);
+                            if (turretSection != null) {
+                                Turret turret = new Turret(getLocationFromConfig(turretsSection, turretKey), turretSection.getBoolean("breakable"));
+                                turrets.add(turret);
+                            }
                         }
                     }
-                }
 
-                ConfigurationSection tradersSection = teamSection.getConfigurationSection("traders");
-                List<Trader> traders = new ArrayList<>();
-                if (tradersSection == null) {
-                    System.out.println("No traders section found in the config for map: " + name);
-                } else {
-                    for (String traderKey : tradersSection.getKeys(false)) {
-                        ConfigurationSection traderSection = tradersSection.getConfigurationSection(traderKey);
-                        if (traderSection != null) {
-                            String type = tradersSection.getString(traderKey + ".type");
-                            Trader trader = new Trader(getLocationFromConfig(tradersSection, traderKey), type);
-                            traders.add(trader);
+                    ConfigurationSection tradersSection = teamSection.getConfigurationSection("traders");
+                    List<Trader> traders = new ArrayList<>();
+                    if (tradersSection == null) {
+                        System.out.println("No traders section found in the config for map: " + name);
+                    } else {
+                        for (String traderKey : tradersSection.getKeys(false)) {
+                            ConfigurationSection traderSection = tradersSection.getConfigurationSection(traderKey);
+                            if (traderSection != null) {
+                                String type = tradersSection.getString(traderKey + ".type");
+                                Trader trader = new Trader(getLocationFromConfig(tradersSection, traderKey), type);
+                                traders.add(trader);
+                            }
                         }
                     }
+                    locSets.add(new LocationSet(spawn, core, turrets, traders));
                 }
-
-//                System.out.println("Loaded locations for team: " + teamKey);
-
-                locSets.add(new LocationSet(spawn, core, turrets, traders));
             }
         }
 
@@ -149,46 +145,44 @@ public class Map {
         ConfigurationSection spawnersSection = config.getConfigurationSection("spawners");
         if (spawnersSection == null) {
             System.out.println("No spawners section found in the config for map: " + name);
-            return;
-        }
+        } else {
+            for (String spawnerKey : spawnersSection.getKeys(false)) {
+                ConfigurationSection spawnerSection = spawnersSection.getConfigurationSection(spawnerKey);
 
-        for (String spawnerKey : spawnersSection.getKeys(false)) {
-            ConfigurationSection spawnerSection = spawnersSection.getConfigurationSection(spawnerKey);
+                if (spawnerSection != null) {
+                    Location spawnerLoc = new Location(null,
+                            spawnerSection.getDouble("x"),
+                            spawnerSection.getDouble("y"),
+                            spawnerSection.getDouble("z"));
 
-            if (spawnerSection != null) {
-                Location spawnerLoc = new Location(null,
-                        spawnerSection.getDouble("x"),
-                        spawnerSection.getDouble("y"),
-                        spawnerSection.getDouble("z"));
+                    EntityType type = EntityType.valueOf(spawnerSection.getString("type").toUpperCase());
 
-                EntityType type = EntityType.valueOf(spawnerSection.getString("type").toUpperCase());
+                    Spawner spawner = new Spawner(spawnerLoc, type);
 
-                Spawner spawner = new Spawner(spawnerLoc, type);
-
-                spawners.add(spawner);
+                    spawners.add(spawner);
+                }
             }
         }
 
         ConfigurationSection itemSpawnersSection = config.getConfigurationSection("item_spawners");
         if (itemSpawnersSection == null) {
             System.out.println("No item_spawners section found in the config for map: " + name);
-            return;
-        }
+        } else {
+            for (String itemSpawnerKey : itemSpawnersSection.getKeys(false)) {
+                ConfigurationSection itemSpawnerSection = itemSpawnersSection.getConfigurationSection(itemSpawnerKey);
 
-        for (String itemSpawnerKey : itemSpawnersSection.getKeys(false)) {
-            ConfigurationSection itemSpawnerSection = itemSpawnersSection.getConfigurationSection(itemSpawnerKey);
+                if (itemSpawnerSection != null) {
+                    Location spawnerLoc = new Location(null,
+                            itemSpawnerSection.getDouble("x"),
+                            itemSpawnerSection.getDouble("y"),
+                            itemSpawnerSection.getDouble("z"));
 
-            if (itemSpawnerSection != null) {
-                Location spawnerLoc = new Location(null,
-                        itemSpawnerSection.getDouble("x"),
-                        itemSpawnerSection.getDouble("y"),
-                        itemSpawnerSection.getDouble("z"));
+                    Material type = Material.valueOf(itemSpawnerSection.getString("type").toUpperCase());
 
-                Material type = Material.valueOf(itemSpawnerSection.getString("type").toUpperCase());
+                    ItemSpawner spawner = new ItemSpawner(spawnerLoc, type);
 
-                ItemSpawner spawner = new ItemSpawner(spawnerLoc, type);
-
-                itemSpawners.add(spawner);
+                    itemSpawners.add(spawner);
+                }
             }
         }
     }

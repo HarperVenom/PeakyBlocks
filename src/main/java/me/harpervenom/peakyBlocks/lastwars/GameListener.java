@@ -8,6 +8,7 @@ import me.harpervenom.peakyBlocks.lastwars.Turret.TurretDestroyEvent;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -151,7 +152,7 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void Explode(BlockExplodeEvent e) {
-        Location loc = e.getBlock().getLocation().clone().add(0.5, 0, 0.5);
+        Location loc = e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5);
         List<Block> blocks = e.blockList();
 
         updateBlockList(loc, blocks);
@@ -280,7 +281,7 @@ public class GameListener implements Listener {
     public void scanAreaForTargets(Mob mob) {
         if (getEntityTeam(mob) == null) return;
 
-        double radius = 16;
+        double radius = mob.getAttribute(Attribute.FOLLOW_RANGE).getBaseValue();
         List<Entity> nearbyEntities = mob.getNearbyEntities(radius, radius, radius);
         LivingEntity closestTarget = null;
         double closestDistance = Double.MAX_VALUE;

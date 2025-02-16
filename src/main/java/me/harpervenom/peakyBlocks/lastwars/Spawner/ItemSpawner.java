@@ -4,8 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
@@ -38,12 +40,19 @@ public class ItemSpawner {
             }
         };
 
-        timer.runTaskTimer(getPlugin(),0, 4 * 20);
+        int period = 3;
+        if (material == Material.NETHER_BRICK) period = 15;
+        if (material == Material.RESIN_BRICK) period = 90;
+
+        timer.runTaskTimer(getPlugin(), period * 20, period * 20);
     }
 
     public void run() {
         if (location.getWorld() == null) return;
-        location.getWorld().dropItemNaturally(location.clone().add(0,1,0),item);
+
+        Item droppedItem = location.getWorld().dropItem(location.clone().add(0.5, 1.5, 0.5), item);
+        droppedItem.setVelocity(new Vector(0, 0, 0));
+        droppedItem.setPickupDelay(0);
     }
 
     public void setWorld(World world) {

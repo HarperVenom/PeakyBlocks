@@ -1,13 +1,21 @@
 package me.harpervenom.peakyBlocks.utils;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 import java.util.List;
 import java.util.UUID;
+
+import static me.harpervenom.peakyBlocks.PeakyBlocks.getPlugin;
 
 public class Utils {
 
@@ -18,6 +26,24 @@ public class Utils {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.setDisplayName(title);
+        if (lore != null) meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static ItemStack createItem(Material material, String title, List<String> lore, boolean hideAttributes) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
+
+        NamespacedKey key = new NamespacedKey(getPlugin(), "dummy_modifier");
+        AttributeModifier dummyModifier = new AttributeModifier(
+                key, 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND
+        );
+        meta.addAttributeModifier(Attribute.MAX_HEALTH, dummyModifier);
+
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.setDisplayName(title);
         if (lore != null) meta.setLore(lore);
         item.setItemMeta(meta);

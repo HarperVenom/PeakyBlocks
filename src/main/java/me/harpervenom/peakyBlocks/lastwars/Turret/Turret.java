@@ -111,16 +111,10 @@ public class Turret {
     public void buildStructure() {
         Location location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 1, baseLoc.getZ());
         blocks.add(location);
-        location.getBlock().setType(isBreakable ? Material.SMOOTH_STONE : Material.BEDROCK);
+        location.getBlock().setType(isBreakable ? Material.SMOOTH_STONE_SLAB : Material.POLISHED_BLACKSTONE);
 
-        location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 2, baseLoc.getZ());
+        location = location.clone().add(0, isBreakable ? 0.5 : 1, 0);
 
-        if (!isBreakable) {
-            location.getBlock().setType(Material.BEDROCK);
-            blocks.add(location);
-
-            location = new Location(baseLoc.getWorld(), baseLoc.getX(), baseLoc.getY() + 3, baseLoc.getZ());
-        }
         loc = location;
 
         Map map = team.getGame().getMap();
@@ -128,13 +122,13 @@ public class Turret {
 
         name = team.getColor() + "[Турель]";
 
-        shooter = (Mob) location.getWorld().spawnEntity(location.clone().add(0.5, -1, 0.5), isBreakable ? EntityType.SKELETON : EntityType.WITHER_SKELETON);
+        shooter = (Mob) location.getWorld().spawnEntity(location.clone().add(0.5, 0, 0.5), isBreakable ? EntityType.SKELETON : EntityType.WITHER_SKELETON);
 
         shooter.getEquipment().setItemInMainHand(null);
 
         shooter.setCustomName(name + (isBreakable ?  " " + maxHealth + "/" + maxHealth : ""));
         shooter.setAI(false);
-        shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        shooter.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
         shooter.setHealth(health);
         shooter.setSilent(true);
         shooter.setRotation(baseLoc.getYaw(), baseLoc.getPitch());
@@ -173,10 +167,10 @@ public class Turret {
 
         if (!isRunning) {
             if (attacker instanceof LivingEntity livingAttacker && targets.contains(livingAttacker)) {
-                Location loc = shooter.getLocation();
+                Location loc = shooter.getLocation().clone();
                 turretExplosions.get(loc.getWorld()).add(loc);
                 noDamageExplosions.get(loc.getWorld()).add(loc);
-                loc.getWorld().createExplosion(loc, 6);
+                loc.getWorld().createExplosion(loc, 8);
 
                 int backFireDamage = 7;
 
@@ -245,7 +239,7 @@ public class Turret {
                 isRunning = true;
                 scanArea();
 
-                Location spawnLocation = shooter.getLocation().clone().add(0, 0.5, 0);
+                Location spawnLocation = shooter.getLocation().clone().add(0, shooter.getHeight() * 0.8, 0);
                 for (LivingEntity target : targets) {
                     boolean attack = false;
                     if (target == null || target.isDead()) continue;
@@ -342,7 +336,8 @@ public class Turret {
         if (priorityTarget == null || !entitiesInRadius.contains(priorityTarget)
                 || !(priorityTarget instanceof Player)) {
 
-            if (priorityTarget instanceof Player) priorityTarget = null;
+//            if (priorityTarget instanceof Player)
+                priorityTarget = null;
 
             boolean selected = false;
 
@@ -385,7 +380,7 @@ public class Turret {
     }
 
     private void shootTarget(Vector direction) {
-        Location shooterLocation = shooter.getLocation().add(0, shooter.getHeight() * 0.5, 0);
+        Location shooterLocation = shooter.getLocation().clone().add(0, shooter.getHeight() * 0.8, 0);
 
         Arrow arrow = shooter.getWorld().spawnArrow(shooterLocation, direction, arrowSpeed, 0);
         arrow.setShooter(shooter);
